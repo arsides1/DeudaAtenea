@@ -1,0 +1,168 @@
+<div class="page-header">
+    <div class="page-leftheader">
+        <div style="display: flex; align-items: center;">
+            <h4 class="page-title" style="width:300px">Registro de </h4>
+            <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listTipoOC" bindLabel="t445_description" bindValue="t445_id" [(ngModel)]="idTipoOC" (change)="inicializarVariables()">
+            </ng-select>
+        </div>
+    </div>
+
+    <div class="page-rightheader ms-auto d-lg-flex d-none">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a class="d-flex"
+              ><svg
+                class="svg-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+              >
+                <path d="M0 0h24v24H0V0z" fill="none" />
+                <path
+                  d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z"
+                />
+                <path d="M7 10.19V18h2v-6h6v6h2v-7.81l-5-4.5z" opacity=".3" /></svg><span class="breadcrumb-icon"> Home</span></a
+            >
+          </li>
+          <li class="breadcrumb-item">VP Finanzas & Transformación</li>
+          <li class="breadcrumb-item">Tesorería</li>
+          <li class="breadcrumb-item">Resgistros</li>
+          <li class="breadcrumb-item active" aria-current="page">Carga Individual OC</li>
+        </ol>
+      </div>
+</div>
+
+<div class="row row-deck">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12">                
+                <div class="card">
+                    
+                    <div class="card-body">
+                        <div style="width:100%; height:130%">
+                            <div class="scroll-container" style="width:100%;">
+                                <table>
+                                    <tr>
+                                        <td class="nombreCampo">Deudor:</td>
+                                        <td class="valorCampo">
+                                            <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listDeudores" bindLabel="description" bindValue="id" [(ngModel)]="idDeudorSeleccionado" (change)="onSelectDeudor($event)"></ng-select>
+                                        </td>
+                                        <td class="nombreCampo">{{(idTipoOC == "BONO" ? "" : "Acreedor:")}}</td>
+                                        <td class="valorCampo">
+                                            <ng-select [clearable]="false" [hidden]="idTipoOC == 'BONO'" style="margin-top: 10px;" class="form-control" [items]="listAcreedores" bindLabel="description" bindValue="id"  [(ngModel)]="idAcreedorSeleccionado"></ng-select>
+                                        </td>
+                                        <td class="nombreCampo"></td>
+                                        <td class="valorCampo"></td>
+                                        <td class="nombreCampo">
+                                            <mat-checkbox name="flgDiasPlazo" [(ngModel)]="flgDiasPlazo">Dias Plazo</mat-checkbox>
+                                        </td>
+                                        <td class="valorCampo">
+                                            <!-- <input class="redondeado" type="number" [(ngModel)]="nDiasPlazo" [disabled]="!flgDiasPlazo" (ngModelChange)="establecerDiasPlazo($event)" autocomplete="off" min="0" step="1"/> -->
+                                            <input matInput class="redondeado" type="text" disabled="{{!flgDiasPlazo}}" name="element.saldoPagar" (input)="formatearValor($event)" style="text-align: center;" autocomplete="off" [ngModel]="nDiasPlazo">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nombreCampo">Tipo Tasa:</td>
+                                        <td class="valorCampo">
+                                            <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listInterestRateType" bindLabel="descripcion_combo" bindValue="id_combo"  [(ngModel)]="idInterestRateTypeSeleccionado"></ng-select>
+                                        </td>
+                                        <td class="nombreCampo">Tasa Anualizada (%):</td>
+                                        <td class="valorCampo">
+                                            <input class="redondeado" type="text" name="tasa" (input)="formatearValorTasa($event)" autocomplete="off" [ngModel]="formatNumber(tasa.toString())">
+                                        </td>
+                                        <td class="nombreCampo">Fecha Inicio:</td>
+                                        <td class="valorCampo">
+                                            <mat-form-field appearance="outline" (click)="pickerIni?.open()">
+                                                <input matInput [ngModel]="this.strFecIni | date: 'yyyy/MM/dd'" name="dateFieldIniView" style="cursor: pointer" (focus)="pickerIni?.open()" (dateChange)="setDateInicio(dateFieldIni.value)" readonly/>
+                                                <input matInput [matDatepicker]="pickerIni" name="dateFieldIni" #dateFieldIni required (dateChange)="setDateInicio(dateFieldIni.value)" [matDatepickerFilter]="fechasPermitidas" hidden/>
+                                                <mat-datepicker-toggle matSuffix [for]="pickerIni"></mat-datepicker-toggle>
+                                                <mat-datepicker #pickerIni></mat-datepicker>
+                                            </mat-form-field>
+                                        </td>
+                                        <td class="nombreCampo">Fecha Fin:</td>
+                                        <td class="valorCampo">
+                                            <mat-form-field appearance="outline" (click)="pickerFin?.open()">
+                                                <input matInput [ngModel]="this.strFecFin | date: 'yyyy/MM/dd'" name="dateFieldFinView" style="cursor: pointer" (focus)="pickerFin?.open()" (dateChange)="setDateFin(dateFieldFin.value)" readonly/>
+                                                <input matInput [matDatepicker]="pickerFin" name="dateFieldFin" #dateFieldFin required (dateChange)="setDateFin(dateFieldFin.value)" hidden/>
+                                                <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                                                <mat-datepicker #pickerFin></mat-datepicker>
+                                            </mat-form-field>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="nombreCampo">Moneda:</td>
+                                        <td class="valorCampo">
+                                            <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listMonedas" bindLabel="t064Id" bindValue="t064Id"  [(ngModel)]="idMonedaSeleccionada"></ng-select>
+                                        </td>
+                                        <td class="nombreCampo">Basis:</td>
+                                        <td class="valorCampo">
+                                            <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listBasis" bindLabel="descripcion_combo" bindValue="id_combo"  [(ngModel)]="idBasisSeleccionado"></ng-select>
+                                        </td>
+                                        <td class="nombreCampo">Monto:</td>
+                                        <td class="valorCampo">
+                                            <input class="redondeado" type="text" name="monto" (input)="formatearValorMonto($event)" autocomplete="off" [ngModel]="formatNumber(monto.toString())">
+                                        </td>
+                                        
+                                        <td *ngIf="idTipoOC == 'PREST'" class="nombreCampo">
+                                            <mat-checkbox name="flgFecColocacion" [(ngModel)]="flgFecColocacion">Fecha Colocación:</mat-checkbox>
+                                            <!-- <mat-checkbox [hidden]="idTipoOC == 'PREST'" name="flgDesembolso" [(ngModel)]="flgDesembolso">Implica desembolso de fondos</mat-checkbox> -->
+                                        </td>
+                                        <td *ngIf="idTipoOC == 'PREST'" class="valorCampo">
+                                            <mat-form-field [hidden]="!flgFecColocacion" appearance="outline" (click)="pickerColocacion?.open()">
+                                                <input matInput [ngModel]="this.strFecColocacion | date: 'yyyy/MM/dd'" name="dateFieldColocacionView" style="cursor: pointer" (focus)="pickerColocacion?.open()" (dateChange)="setDateColocacion(dateFieldColocacion.value)" readonly/>
+                                                <input matInput [matDatepicker]="pickerColocacion" name="dateFieldColocacion" #dateFieldColocacion required (dateChange)="setDateColocacion(dateFieldColocacion.value)" [matDatepickerFilter]="fechasPermitidas" hidden/>
+                                                <mat-datepicker-toggle matSuffix [for]="pickerColocacion"></mat-datepicker-toggle>
+                                                <mat-datepicker #pickerColocacion></mat-datepicker>
+                                            </mat-form-field>
+                                        </td>
+
+                                        <td *ngIf="idTipoOC == 'INTER'" class="valorCampo">
+                                            <mat-checkbox name="flgDesembolso" [(ngModel)]="flgDesembolso">Implica desembolso de fondos</mat-checkbox>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="card-footer">
+                                <!-- <div style="display: flex; justify-content: space-between;">
+                                    <div>
+                                        <mat-checkbox name="flgBullet" [(ngModel)]="flgBullet" matTooltip="Debe adjuntar el cronograma en Excel para los casos que no sean Bullet">Bullet</mat-checkbox>
+                                    </div>
+                                    <div [hidden]="flgBullet" class="fileContainer" appDnd (fileDropped)="onFileDropped($event)">
+                                        <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 63 64">
+                                            <g fill="#3B454F" fill-rule="nonzero">
+                                                <path
+                                                    d="M42.656 15.135a1.953 1.953 0 0 1-1.391-.578L31.5 4.795l-9.765 9.762a1.97 1.97 0 1 1-2.785-2.785L30.106.616a1.97 1.97 0 0 1 2.785 0l11.157 11.156a1.97 1.97 0 0 1-1.392 3.363z" />
+                                                <path
+                                                    d="M31.5 36.791a1.97 1.97 0 0 1-1.969-1.969V2.01a1.97 1.97 0 0 1 3.938 0v32.812a1.97 1.97 0 0 1-1.969 1.969z" />
+                                                <path
+                                                    d="M55.781 63.041H7.22A7.225 7.225 0 0 1 0 55.822V41.385a4.599 4.599 0 0 1 4.594-4.594h7.234a4.567 4.567 0 0 1 4.402 3.276l2.814 9.382a.658.658 0 0 0 .628.467h23.656a.658.658 0 0 0 .628-.467l2.814-9.385a4.572 4.572 0 0 1 4.402-3.273h7.234A4.599 4.599 0 0 1 63 41.385v14.437a7.225 7.225 0 0 1-7.219 7.219zM4.594 40.729a.656.656 0 0 0-.657.656v14.437a3.286 3.286 0 0 0 3.282 3.282H55.78a3.286 3.286 0 0 0 3.282-3.282V41.385a.656.656 0 0 0-.657-.656h-7.234a.65.65 0 0 0-.628.467L47.73 50.58a4.628 4.628 0 0 1-4.402 3.274H19.672a4.567 4.567 0 0 1-4.402-3.276l-2.814-9.382a.65.65 0 0 0-.628-.467H4.594z" />
+                                            </g>
+                                        </svg>
+                                    
+                                        <h3>Suelta los archivos aquí o</h3>
+                                        <label for="fileDropRef">Selecciona el archivo</label>
+                                    </div>
+
+                                    <button class="btn btn-green" style="height: 100%;" type="submit" (click)="registrar(RegistroIntercompaniesCuponeraForm)">
+                                        Registrar {{idTipoOC == 1 ? 'Intercompany' : idTipoOC == 2 ? 'Préstamo' : 'Bono'}}
+                                    </button>
+                                </div> -->
+                                <div style="text-align: right;">
+                                    <button class="btn btn-green" style="height: 100%;" type="submit" (click)="registrar(RegistroIntercompaniesCuponeraForm)">
+                                        Registrar {{idTipoOC == 'INTER' ? 'Intercompany' : idTipoOC == 'PREST' ? 'Préstamo' : 'Bono'}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #RegistroIntercompaniesCuponeraForm let-modal>
+    <app-registro-intercompanies-cuponera [visible]="myModal" (close)="cerrarModal($event)" [objForm] = "objetoInitPadre" [listOC]="listOC" [flg_desembolso]="flgDesembolso"></app-registro-intercompanies-cuponera>
+</ng-template>

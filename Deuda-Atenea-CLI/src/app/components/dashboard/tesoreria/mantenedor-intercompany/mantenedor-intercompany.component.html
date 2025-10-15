@@ -1,0 +1,152 @@
+<div class="page-header">
+    <div class="page-leftheader">
+            <h4 class="page-title">Mantenedor de Intercompanies</h4>
+    </div>
+
+    <div class="page-rightheader ms-auto d-lg-flex d-none">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a class="d-flex"
+              ><svg
+                class="svg-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+              >
+                <path d="M0 0h24v24H0V0z" fill="none" />
+                <path
+                  d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z"
+                />
+                <path d="M7 10.19V18h2v-6h6v6h2v-7.81l-5-4.5z" opacity=".3" /></svg><span class="breadcrumb-icon"> Home</span></a
+            >
+          </li>
+          <li class="breadcrumb-item">RDT</li>
+          <li class="breadcrumb-item">Mantenedor</li>
+          <li class="breadcrumb-item active" aria-current="page">Intercompany</li>
+        </ol>
+      </div>
+</div>
+
+<div class="row row-deck">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12">                
+                <div class="card">                        
+                    <div class="card-body">
+
+                        <div style="display: inline-flex; width: 100%;">
+                            <div div style="text-align:left; width: 49%;">
+                                <input style="width: 300px; padding: 6px 0; margin-right: 20px;" type="text" class="redondeado" size="100" (keyup)="applyFilter($event)" placeholder=" Buscar en Intercompanies" autocomplete="off">
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        
+                        <div style="width:100%; height:130%">
+                            <div class="scroll-container" style="width:100%;">
+                                <table mat-table #dsSort="matSort" matSort matSortActive="created" matSortDisableClear matSortDirection="desc" style="width:100%" [dataSource]="dsIntercompany">
+                    
+                                    <ng-container  matColumnDef="t454_id">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_id}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="subsidiaria_deudor">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Deudor </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.subsidiariaDeudor?.t453Description}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="subsidiaria_acreedor">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Acreedor </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.subsidiariaAcreedor?.t453Description}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_id_rate_type">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo Tasa </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_id_rate_type}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_rate">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa (%) </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_rate * 100 | number:'1.0-6'}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_id_currency">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Moneda </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_id_currency}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="basis">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Basis </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.basis?.t448_description}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_start_date">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Fec. Inicio </th>
+                                        <td mat-cell *matCellDef="let element"> {{formatearFecha(element.t454_start_date.toString()) | date: 'dd/MM/yyyy'}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_end_date">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Fec. Fin </th>
+                                        <td mat-cell *matCellDef="let element"> {{formatearFecha(element.t454_end_date.toString()) | date: 'dd/MM/yyyy'}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_term">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Plazo </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_term}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_nominal">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Nominal </th>
+                                        <td mat-cell *matCellDef="let element"> {{formatNumber(element.t454_nominal.toString())}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_registered_by">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Registrador Por </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_registered_by}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_registration_date">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Fec. Registro </th>
+                                        <td mat-cell *matCellDef="let element"> {{formatearFecha(element.t454_registration_date.toString()) | date: 'dd/MM/yyyy'}}</td>
+                                    </ng-container>
+
+                                    <ng-container  matColumnDef="t454_record_type">
+                                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Origen </th>
+                                        <td mat-cell *matCellDef="let element"> {{element.t454_record_type}}</td>
+                                    </ng-container>
+
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" style="text-align: center; vertical-align: middle;"></tr>
+                                    <tr class="tbody" style="text-align: center; vertical-align: middle;" mat-row *matRowDef="let element; columns: displayedColumns;" (contextmenu)="onContextMenu($event, element)"></tr>
+                                </table>
+                            </div>
+                        </div>
+                        <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
+</div>
+
+<mat-menu #contextMenu="matMenu" #contextMenu2="matMenu">
+    <ng-template  matMenuContent let-item="item">
+        <button mat-menu-item (click)="abrirModal(EditarIntercompanyForm)">Editar</button>
+    </ng-template>
+</mat-menu>
+
+<ng-template #EditarIntercompanyForm let-modal [style.width.px]="modalWidth">
+    <app-editar-intercompany [visible]="myModal" (close)="cerrarModal($event)" [objForm] = "objetoInitPadre" [objIntercompany]="objIntecompanyEditar"></app-editar-intercompany>
+</ng-template>
+
+<div *ngIf="flgCargando" class="overlay">
+    <mat-spinner  class="custom-spinner"
+        [mode]="'indeterminate'"
+        [value]=50
+        [diameter]="50">
+    </mat-spinner>
+</div>

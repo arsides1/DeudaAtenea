@@ -1,0 +1,118 @@
+<!--/Horizontal-main -->
+<div class="horizontal-main hor-menu clearfix">
+  <div class="horizontal-mainwrapper container clearfix p-0">
+    <!-- Navigation -->
+    <nav class="horizontalMenu clearfix">
+      <div class="horizontal-overlapbg"  (click)="removeMenu()"></div>
+      <!-- 1st level -->
+      <ul class="horizontalMenu-list">
+        <li class="" *ngFor="let menuItem of menuItems"
+          [ngClass]="{active: menuItem.active}">
+          <!-- Link -->
+          <a class="sub-icon"
+            [routerLink]="!menuItem.type ? null : [menuItem.path]"
+            routerLinkActive="active" [ngClass]="{active: menuItem.active}"
+            *ngIf="menuItem.type === 'link'">
+            <i class="hor-icon material-icons-outlined"></i>
+          </a>
+          
+          <!-- Sub -->
+          <a href="javascript:void(0)" class="sub-icon"
+            [ngClass]="{active: menuItem.active}"
+            *ngIf="menuItem.type === 'sub'"
+            (click)="toggleNavActive(menuItem)">
+                    <i-feather name="{{menuItem.icon}}" style="color: red; background-color: rgb(250,252,246);" class="side-menu__icon" ></i-feather>
+            {{menuItem.title}}
+            <span class="horizontalMenu-click "
+            
+            [ngClass]="{'ws-activearrow': menuItem.active}">
+                    <i class="horizontalMenu-arrow fa fa-angle-down"></i>
+            </span>
+          </a>
+         
+            
+         
+
+          <!-- 2nd level -->
+          <ul class="sub-menu" [ngClass]="{active: menuItem.active, isexpanded:menuItem.active}"
+            *ngIf="menuItem.children">
+            <li class="" *ngFor="let childrenItem of menuItem.children"
+              [ngClass]="{active: childrenItem.active}">
+
+              <!-- Link -->
+              
+              <a [routerLink]="!childrenItem.type ? null : [childrenItem.path]"
+                *ngIf="childrenItem.type === 'link'"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{exact: true}">
+                <img src="../../assets/images/pattern/hojaAlicorp.PNG"  alt="Hoja Alicorp"  style="width: 15%; height: 15%;">
+                {{childrenItem.title}}
+              </a>
+
+              <!-- Sub -->
+              <a class="sub-menu-sub" href="javascript:void(0)"
+                *ngIf="childrenItem.type === 'sub'"
+                (click)="toggleNavActive(childrenItem)">
+                <img src="../../assets/images/pattern/hojaAlicorp.PNG"  alt="Hoja Alicorp"  style="width: 15%; height: 15%;">
+                {{childrenItem.title}}
+                <span class="horizontalMenu-click "
+                [ngClass]="{'ws-activearrow': childrenItem.active}">
+                        <i class="horizontalMenu-arrow fa fa-angle-down"></i>
+                </span>
+              </a>
+
+              <!-- 3rd level -->
+              <ul class="sub-menu" *ngIf="childrenItem.children"
+                [ngClass]="{active: childrenItem.active, isexpanded:childrenItem.active}">
+                <li *ngFor="let childrenSubItem of childrenItem.children"
+                  [ngClass]="{active: childrenSubItem.active}">
+                  <!-- link -->
+                  <a [routerLink]="!childrenSubItem.type ? null : [childrenSubItem.path]"
+                          *ngIf="childrenSubItem.type === 'link'"
+                          routerLinkActive="active"
+                          [routerLinkActiveOptions]="{exact : true}">
+                          <img src="../../assets/images/pattern/hojaAlicorp.PNG"  alt="Hoja Alicorp"  style="width: 15%; height: 15%;">
+                          {{childrenSubItem.title}}
+                  </a>
+
+                   <!-- Sub -->
+              <a class="sub-menu-sub" href="javascript:void(0)"
+                *ngIf="childrenSubItem.type === 'sub'"
+                (click)="toggleNavActive(childrenSubItem)">
+                <img src="../../assets/images/pattern/hojaAlicorp.PNG"  alt="Hoja Alicorp"  style="width: 15%; height: 15%;">
+                {{childrenSubItem.title}}
+                <span class="horizontalMenu-click "
+                [ngClass]="{'ws-activearrow': childrenSubItem.active}">
+                        <i class="horizontalMenu-arrow fa fa-angle-down"></i>
+                </span>
+              </a>
+                  <!-- 4rd level -->
+              <ul class="sub-menu" *ngIf="childrenSubItem.children"
+              [ngClass]="{active: childrenSubItem.active, isexpanded:childrenSubItem.active}">
+              <li *ngFor="let childrenchildrenSubItem of childrenSubItem.children"
+                [ngClass]="{active: childrenchildrenSubItem.active}">
+                <!-- link -->
+                <a [routerLink]="!childrenchildrenSubItem.type ? null : [childrenchildrenSubItem.path]"
+                        *ngIf="childrenchildrenSubItem.type === 'link'"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{exact : true}">
+                        <img src="../../assets/images/pattern/hojaAlicorp.PNG"  alt="Hoja Alicorp"  style="width: 15%; height: 15%;">
+                        {{childrenchildrenSubItem.title}}
+                </a>
+
+               
+            
+              </li>
+            </ul>
+              
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        
+      </ul>
+    </nav>
+  </div>
+</div>
+    <!--/Horizontal-main -->

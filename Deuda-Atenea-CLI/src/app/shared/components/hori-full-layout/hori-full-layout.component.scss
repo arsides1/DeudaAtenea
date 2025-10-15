@@ -1,0 +1,74 @@
+.main-wrapper {
+  display: flex;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+  position: relative; // Añadido para mejorar la detección de clicks
+}
+
+.page {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.main-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+  margin-left: -181px; // Ancho del menú expandido
+  position: relative; // Mejor manejo de eventos
+  
+  // .menu-collapsed & {
+  //   margin-left: 70px; // Ancho del menú colapsado
+  // }
+}
+
+.app-content {
+  flex: 1;
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+  position: relative; // Mejorar la posición para clicks
+}
+
+// Estilos responsivos
+@media (max-width: 991px) {
+  .main-content-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .menu-collapsed .main-content-wrapper {
+    margin-left: 0;
+  }
+  
+  .app-content {
+    padding: 15px;
+  }
+}
+
+// Mejorar el scrolling en la página
+.container-fluid {
+  max-width: 100%;
+  padding: 0 15px;
+}
+
+// Overlay para dispositivos móviles cuando el menú está abierto
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+@media (max-width: 991px) {
+  .main-wrapper:not(.menu-collapsed) .menu-overlay {
+    display: block;
+  }
+}

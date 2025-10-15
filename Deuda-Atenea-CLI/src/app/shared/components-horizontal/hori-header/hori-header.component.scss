@@ -1,0 +1,194 @@
+// Variables
+$header-height: 60px;
+$header-bg: #ffffff;
+$header-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+$alicorp-red: #ff0000;
+$alicorp-red-light: rgba(255, 0, 0, 0.1);
+$text-color: #333333;
+$icon-size: 28px;
+$transition-speed: 0.3s;
+$menu-width: 260px;
+$menu-collapsed-width: 70px;
+
+// Header principal
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 52px;
+  right: a0;
+  height: 46px;
+  background-color: $header-bg;
+  box-shadow: $header-shadow;
+  z-index: 1040;
+  transition: all $transition-speed ease;
+  width: calc(100% - 29px);
+
+  @media (max-width: 991px) {
+    left: 0;
+    width: 100%;
+  }
+
+  // Cuando el menú está colapsado
+  :host-context(.menu-collapsed) & {
+    left: $menu-collapsed-width;
+    width: calc(100% - #{$menu-collapsed-width});
+
+    @media (max-width: 991px) {
+      left: 0;
+      width: 100%;
+    }
+  }
+}
+
+// Contenedor del header
+.container-fluid {
+  height: 100%;
+  padding: 0 20px;
+}
+
+// Contenido del header
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+// Área izquierda del header
+.header-left {
+  display: flex;
+  align-items: center;
+  
+  .page-title {
+    h1 {
+      font-size: 1.25rem;
+      margin: 0;
+      font-weight: 500;
+      color: $text-color;
+      
+      @media (max-width: 768px) {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+// Botón toggle para el menú (solo móvil)
+.menu-toggle-btn {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+
+  .toggle-btn {
+    background: transparent;
+    border: none;
+    color: $text-color;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    transition: all $transition-speed ease;
+
+    &:hover {
+      background-color: $alicorp-red-light;
+      color: $alicorp-red;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+// Herramientas del header
+.header-tools {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+// Acciones rápidas
+.quick-actions {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 16px;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: $alicorp-red-light;
+      color: $alicorp-red;
+    }
+  }
+}
+
+// Información del usuario
+.user-info {
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  .user-name {
+    margin-right: 12px;
+    font-weight: 500;
+    color: $text-color;
+    display: none;
+
+    @media (min-width: 768px) {
+      display: block;
+    }
+  }
+
+  .profile-icon {
+    font-size: $icon-size;
+    cursor: pointer;
+    color: $alicorp-red !important;
+    transition: transform 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Estilos para Mat-icon
+mat-icon {
+  color: $alicorp-red !important;
+}
+
+// Estilos para dispositivos móviles
+@media (max-width: 767px) {
+  .container-fluid {
+    padding: 0 15px;
+  }
+  
+  .header-left .page-title h1 {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Animaciones para menor movimiento (accesibilidad)
+@media (prefers-reduced-motion: reduce) {
+  .app-header,
+  .toggle-btn,
+  .profile-icon {
+    transition: none;
+  }
+}

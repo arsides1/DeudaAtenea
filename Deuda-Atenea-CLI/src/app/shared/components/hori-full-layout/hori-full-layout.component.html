@@ -1,0 +1,25 @@
+<div class="main-wrapper" [ngClass]="{'menu-collapsed': isMenuCollapsed}">
+    <div class="page">
+        <!-- Vertical menu - ahora está primero -->
+        <app-vert-menu [isCollapsed]="isMenuCollapsed" (collapsedChange)="isMenuCollapsed = $event"></app-vert-menu>
+        <!-- End Vertical menu -->
+        
+        <div class="main-content-wrapper">
+            <!-- Header -->
+            <app-hori-header (toggleSidebarEvent)="toggleSidebar()"></app-hori-header>
+            <!-- /Header -->
+            
+            <!-- Main Content -->
+            <div class="app-content page-body" [ngClass]="{'expanded': !isMenuCollapsed}">
+                <div class="container-fluid">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+            <!-- /Main Content -->
+            
+            <!-- Footer -->
+            <app-footer></app-footer>
+            <!-- /Footer -->
+        </div>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+<div id="myModal" tabindex="-1" data-keyboard="false" role="dialog">
+
+    <div role="document" class="msg_card_body" style=" width: 100%;">
+      <div class="modal-header">
+        <table style=" width: 100%;">
+          <tr style="width:100%">
+            <td style="text-align:left;  padding: 0% 0% 0.5% 1%">
+              <h3 class="modal-title">Editar Intercompany {{this.objIntercompanyEditar.t454_id}}</h3>
+            </td>
+            <td style="text-align:right;  padding-right:1.3% ">
+              <button type="button" class="close" aria-label="Close" (click)="cerrar()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row" style=" width: 100%;">
+        <div class="card-body" style="padding-bottom: 5px; padding-top: 12px;">
+            <div style="width:100%; height:130%">
+                <div class="scroll-container" style="width:100%;">
+                    <table>
+                        <tr>
+                            <td class="nombreCampo">Deudor:</td>
+                            <td class="valorCampo">
+                                <!-- {{this.objIntercompanyEditar.subsidiariaDeudor?.t453Description}} -->
+                                <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listDeudores" bindLabel="description" bindValue="id" [(ngModel)]="this.objIntercompanyEditar.t454_id_subsidiary_debtor" (change)="onSelectDeudor($event)"></ng-select>
+                            </td>
+                            <td class="nombreCampo">Acreedor:</td>
+                            <td class="valorCampo">
+                                <!-- {{this.objIntercompanyEditar.subsidiariaAcreedor?.t453Description}} -->
+                                <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listAcreedores" bindLabel="description" bindValue="id" [(ngModel)]="this.objIntercompanyEditar.t454_id_subsidiary_creditor"></ng-select>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="nombreCampo">Tipo Tasa:</td>
+                            <td class="valorCampo">
+                                <!-- {{this.objIntercompanyEditar.t454_id_rate_type}} -->
+                                <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listInterestRateType" bindLabel="descripcion_combo" bindValue="descripcion_combo"  [(ngModel)]="this.objIntercompanyEditar.t454_id_rate_type"></ng-select>
+                            </td>
+                            <td class="nombreCampo">Tasa Anualizada (%):</td>
+                            <td class="valorCampo">
+                                <input class="redondeado" type="text" name="tasa" (input)="formatearValorTasa($event)" autocomplete="off" [ngModel]="formatNumber((this.objIntercompanyEditar.t454_rate * 100).toString())">
+                            </td>
+                            <td class="nombreCampo">Basis:</td>
+                            <td class="valorCampo">
+                                <!-- {{this.objIntercompanyEditar.basis?.t448_description}} -->
+                                <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listBasis" bindLabel="descripcion_combo" bindValue="id_combo"  [(ngModel)]="this.objIntercompanyEditar.t454_id_basis"></ng-select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="nombreCampo">Fecha Inicio:</td>
+                            <td class="valorCampo">
+                                <!-- {{formatearFecha(this.objIntercompanyEditar.t454_start_date.toString()) | date: 'dd/MM/yyyy'}} -->
+                                <mat-form-field appearance="outline" (click)="pickerIni?.open()">
+                                    <input matInput [ngModel]="this.strFecIni | date: 'yyyy/MM/dd'" name="dateFieldIniView" style="cursor: pointer" (focus)="pickerIni?.open()" (dateChange)="setDateInicio(dateFieldIni.value)" readonly/>
+                                    <input matInput [matDatepicker]="pickerIni" name="dateFieldIni" #dateFieldIni required (dateChange)="setDateInicio(dateFieldIni.value)" [matDatepickerFilter]="fechasPermitidas" hidden/>
+                                    <mat-datepicker-toggle matSuffix [for]="pickerIni"></mat-datepicker-toggle>
+                                    <mat-datepicker #pickerIni></mat-datepicker>
+                                </mat-form-field>
+                            </td>
+                            <td class="nombreCampo">Fecha Fin:</td>
+                            <td class="valorCampo">
+                                <!-- {{formatearFecha(this.objIntercompanyEditar.t454_end_date.toString()) | date: 'dd/MM/yyyy'}} -->
+                                <mat-form-field appearance="outline" (click)="pickerFin?.open()">
+                                    <input matInput [ngModel]="this.strFecFin | date: 'yyyy/MM/dd'" name="dateFieldFinView" style="cursor: pointer" (focus)="pickerFin?.open()" (dateChange)="setDateFin(dateFieldFin.value)" readonly/>
+                                    <input matInput [matDatepicker]="pickerFin" name="dateFieldFin" #dateFieldFin required (dateChange)="setDateFin(dateFieldFin.value)" hidden/>
+                                    <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                                    <mat-datepicker #pickerFin></mat-datepicker>
+                                </mat-form-field>
+                            </td>
+                            <td class="nombreCampo">
+                                <mat-checkbox name="flgDiasPlazo" [(ngModel)]="flgDiasPlazo">Dias Plazo</mat-checkbox>
+                            </td>
+                            <td class="valorCampo">
+                                <!-- {{this.objIntercompanyEditar.t454_term}} -->
+                                <input matInput class="redondeado" type="text" disabled="{{!flgDiasPlazo}}" name="element.saldoPagar" (input)="formatearValor($event)" style="text-align: center;" autocomplete="off" [ngModel]="this.objIntercompanyEditar.t454_term">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="nombreCampo">Moneda:</td>
+                            <td class="valorCampo">
+                                <!-- {{this.objIntercompanyEditar.t454_id_currency}} -->
+                                <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listMonedas" bindLabel="t064Id" bindValue="t064Id"  [(ngModel)]="this.objIntercompanyEditar.t454_id_currency"></ng-select>
+                            </td>
+                            <td class="nombreCampo">Monto:</td>
+                            <td class="valorCampo">
+                                <!-- {{formatNumber(this.objIntercompanyEditar.t454_nominal.toString())}} -->
+                                <input class="redondeado" type="text" name="monto" (input)="formatearValorMonto($event)" autocomplete="off" [ngModel]="formatNumber(this.objIntercompanyEditar.t454_nominal.toString())">
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <div style="text-align: right;">
+                        <button class="btn btn-green" style="height: 100%;" type="submit" (click)="guardar()">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

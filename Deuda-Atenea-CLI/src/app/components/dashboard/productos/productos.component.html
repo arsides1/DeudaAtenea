@@ -1,0 +1,42 @@
+<div class="page-header">
+  <div class="page-leftheader">
+    <div style="display: flex; align-items: center;">
+      <h4 class="page-title" style="width:300px">Registro de </h4>
+      <ng-select [clearable]="false" style="margin-top: 10px;" class="form-control" [items]="listTipoOC"
+        bindLabel="t445_description" bindValue="t445_id" [(ngModel)]="idTipoOC" (change)="inicializarVariables()">
+      </ng-select>
+
+    </div>
+  </div>
+
+  <div class="page-rightheader ms-auto d-lg-flex d-none">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a class="d-flex"><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"
+            width="24">
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z" />
+            <path d="M7 10.19V18h2v-6h6v6h2v-7.81l-5-4.5z" opacity=".3" />
+          </svg><span class="breadcrumb-icon"> Home</span></a>
+      </li>
+      <li class="breadcrumb-item">VP Finanzas & Transformación</li>
+      <li class="breadcrumb-item">Productos Financieros</li>
+      <li class="breadcrumb-item">Registro</li>
+    </ol>
+  </div>
+</div>
+
+
+
+<div class="mt-3">
+  <app-bonos *ngIf="idTipoOC === 'BON'"></app-bonos>
+  <app-prestamos-corto *ngIf="idTipoOC === 'PBC'"></app-prestamos-corto>
+  <app-prestamos-largo *ngIf="idTipoOC === 'PBL'"></app-prestamos-largo>
+  <app-intercompany-corto *ngIf="idTipoOC === 'IPC'"></app-intercompany-corto>
+  <app-intercompany-largo *ngIf="idTipoOC === 'IPL'"></app-intercompany-largo>
+  <app-pagares-corto *ngIf="idTipoOC === 'PAC'"></app-pagares-corto>
+  <app-pagares-largo *ngIf="idTipoOC === 'PAL'"></app-pagares-largo>
+  <app-financiamiento *ngIf="idTipoOC === 'IMP'"></app-financiamiento>
+  <app-leasing *ngIf="idTipoOC === 'LEA'"></app-leasing>
+  <app-papeles *ngIf="idTipoOC === 'PAP'"></app-papeles>
+</div>

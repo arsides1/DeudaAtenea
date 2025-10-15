@@ -1,0 +1,159 @@
+::ng-deep{
+    @media only screen and (max-width: 991px){
+        .horizontalMenu {
+           width: 240px !important;
+           overflow-x: hidden;
+        }
+        .horizontalMenu > .horizontalMenu-list {
+            z-index: 999999;
+            position: absolute
+        }
+        .horizontal-overlapbg{
+            width: 100%;
+            background: #00000040;
+            position: fixed;
+            top: 0;
+            left: 240px;
+            right: 0;
+            bottom: 0;
+        }
+
+    }
+    .isexpanded{
+        display: block !important;
+    }
+
+    .side-menu__icon {
+        color: #fefeff;
+        fill: #ffffff !important;
+    }
+    .horizontalMenu>.horizontalMenu-list>li:hover a .side-menu__icon {
+        color: #ff0000;
+    }
+    .horizontalMenu>.horizontalMenu-list>li>a.active .side-menu__icon{
+        color: #ff0000;
+        fill: rgba(14, 17, 36, 0.3);
+    }
+
+    .color-horizontal .horizontal-main {
+        background: #ff0000 !important;
+    }
+    .default-horizontal .horizontal-main {
+        background: #fff !important;
+    }
+   
+    .color-horizontal .horizontalMenu>.horizontalMenu-list>li>a {
+        border-left: 1px solid #000000 !important;
+        border-right: 1px solid #000000 !important;
+        .side-menu__icon{
+            fill: none !important;
+        }
+    }
+    
+
+    .default-horizontal .horizontalMenu>.horizontalMenu-list>li>a {
+        border-right: 1px solid #eff0f6 !important;
+        border-left: 1px solid #eff0f6 !important;
+        .side-menu__icon{
+            fill: #d2d6f1 !important;
+        }
+    }
+    .color-horizontal .horizontalMenu > .horizontalMenu-list > li > a.active .side-menu__icon,
+    .dark-horizontal .horizontalMenu > .horizontalMenu-list > li > a.active .side-menu__icon,
+    .color-horizontal .horizontalMenu>.horizontalMenu-list>li>a:hover .side-menu__icon,
+    .dark-horizontal .horizontalMenu>.horizontalMenu-list>li>a:hover .side-menu__icon{
+        color: #fff !important;
+    }
+
+}
+@media (max-width:992px) {
+    .horizontalMenu-click,
+    .horizontalMenu-click02{
+        display: initial;
+        position: absolute;
+        right: 20px;
+    }
+}
+
+
+@media only screen and (min-width: 992px) and (max-width: 1162px){
+    .horizontal-main {
+        z-index: 955 !important;
+    }
+}
+@media (min-width:992px) {
+    .megaMenuCustom{
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media only screen and (max-width: 991px){
+    .horizontalMenu > .horizontalMenu-list > li.active > .horizontal-megamenu {
+        display: block;
+    }
+}
+
+.horizontalMenu .horizontalMenu-click, .horizontalMenu .horizontalMenu-click02{
+    display: initial !important;
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1162px){
+    .horizontal-main {
+        height: auto !important;
+    }
+}
+@media (min-width: 993px) and (max-width: 1024px){
+    .horizontalMenu > .horizontalMenu-list > li {
+        font-size: 14px;
+    }
+}
+@media (min-width:992px) {
+    .horizontalMenu > .horizontalMenu-list > li > a i{
+        margin-right: 2px !important;
+    }
+    .horizontalMenu-arrow{
+        display: none;
+    }
+}
+
+@media only screen and (max-width:1279px) and(min-width:1260px){
+    .horizontalMenu > .horizontalMenu-list > li > a {
+        padding: 1rem 0.8rem 1rem !important;
+    }
+}
+
+::ng-deep{
+    @media (max-width:991.6px) {
+        .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu > li:hover > a{
+            text-decoration: none;
+        }
+        .color-horizontal.light-mode .hor-menu .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > a.active,
+        .color-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu li:hover > a,
+        .dark-horizontal.light-mode .hor-menu .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > a.active,
+        .dark-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu li:hover > a{
+            color: rgb(255, 0, 0) !important;
+        }
+    
+        .color-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu{
+            background: #ff0000;
+        }
+        .color-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu > li > a{
+            color: rgba(255,255,255,.8) !important;
+            text-decoration: none;
+        }
+        .color-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu > li:hover > a{
+            color: #fff !important;
+        }
+        
+        .dark-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu{
+            background: rgba(120, 185, 40, 0.205);
+        }
+        .dark-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu > li > a{
+            color: rgba(255,255,255,.8) !important;
+            text-decoration: none;
+        }
+        .dark-horizontal.light-mode .horizontalMenu > .horizontalMenu-list > li > ul.sub-menu > li > ul.sub-menu > li:hover > a{
+            color: #fff !important;
+        }
+    }
+}

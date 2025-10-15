@@ -1,0 +1,727 @@
+// Variables existentes
+$menu-width: 280px;
+$menu-collapsed-width: 70px;
+$menu-bg-color: #ffffff;
+$menu-text-color: #333333;
+$menu-active-color: #ff0000;
+$menu-hover-bg: rgba(255, 0, 0, 0.05);
+$submenu-bg-color: #f8f9fa;
+$middle-section-bg: #fcfcfc;
+$admin-bg-color: #f5f5f5;
+$transition-speed: 0.3s;
+$shadow-color: rgba(0, 0, 0, 0.1);
+$header-height: 60px;
+
+// Variables para elementos deshabilitados
+$menu-disabled-color: #a0a0a0;
+$menu-disabled-bg: #f5f5f5;
+$menu-disabled-icon: #c0c0c0;
+
+// Menú vertical principal
+.vertical-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $menu-width;
+  height: 100vh;
+  background-color: $menu-bg-color;
+  box-shadow: 2px 0 8px $shadow-color;
+  transition: width $transition-speed ease;
+  z-index: 1050; // Mayor que el header
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  // Menú colapsado
+  &.menu-collapsed {
+    width: $menu-collapsed-width;
+
+    .menu-text, .submenu-arrow {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .menu-icon {
+      margin-right: 0;
+    }
+
+    .collapse-toggle {
+      right: 5px;
+    }
+
+    .divider span {
+      display: none;
+    }
+
+    .submenu {
+      position: absolute;
+      left: $menu-collapsed-width;
+      top: 0;
+      width: 230px;
+      background: $menu-bg-color;
+      box-shadow: 3px 3px 10px $shadow-color;
+      border-radius: 0 4px 4px 0;
+      opacity: 0;
+      visibility: hidden;
+      max-height: none;
+      z-index: 1051;
+    }
+
+    .menu-item:hover > .submenu,
+    .submenu-item:hover > .submenu {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .submenu-level-2, .submenu-level-3 {
+      position: relative;
+      left: 0;
+      box-shadow: none;
+      width: 100%;
+    }
+  }
+}
+
+// Contenedor del logo
+.logo-container {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #eaeaea;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  img {
+    max-height: 40px;
+    max-width: 100%;
+    transition: all $transition-speed ease;
+  }
+
+  .logo-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    img {
+      max-width: 30px;
+      max-height: 30px;
+    }
+  }
+  
+  .collapse-toggle {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    border: 1px solid #e5e5e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all $transition-speed ease;
+    
+    &:hover {
+      background-color: #e0e0e0;
+    }
+    
+    i {
+      font-size: 12px;
+      color: #666;
+      transition: transform $transition-speed ease;
+    }
+  }
+}
+
+// Contenedor principal del menú
+.menu-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Secciones del menú
+.menu-section {
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  // Scrollbar personalizado
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+// Sección superior
+.top-section {
+  background-color: $menu-bg-color;
+  padding: 12px 0 5px;
+}
+
+// Sección central
+.middle-section {
+  background-color: $middle-section-bg;
+  padding: 5px 0 10px;
+  flex: 1;
+}
+
+// Títulos de secciones
+.section-title {
+  padding: 0 15px 5px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #999;
+  letter-spacing: 0.5px;
+}
+
+// Lista de ítems del menú
+.menu-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+// Ítem individual del menú
+.menu-item {
+  position: relative;
+  margin: 2px 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all $transition-speed ease;
+
+  &:hover {
+    background-color: $menu-hover-bg;
+    
+    .menu-item-icon {
+      transform: translateY(-2px);
+    }
+  }
+
+  &.active {
+    background-color: rgba($menu-active-color, 0.1);
+    
+    > a {
+      color: $menu-active-color;
+      font-weight: 500;
+
+      .menu-item-icon {
+        color: $menu-active-color;
+        stroke: $menu-active-color;
+      }
+    }
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: $menu-text-color;
+    text-decoration: none;
+    transition: all $transition-speed ease;
+    white-space: nowrap;
+    position: relative;
+    border-radius: 6px;
+
+    &.active {
+      color: $menu-active-color;
+      font-weight: 500;
+    }
+  }
+}
+
+// Estilos para elementos deshabilitados
+.menu-item.disabled {
+  pointer-events: none; // Evita interacciones con el mouse
+  
+  > a {
+    cursor: not-allowed;
+    color: $menu-disabled-color !important;
+    background-color: $menu-disabled-bg;
+    opacity: 0.7;
+    
+    &:hover {
+      background-color: $menu-disabled-bg;
+    }
+    
+    .menu-item-icon {
+      color: $menu-disabled-icon !important;
+      stroke: $menu-disabled-icon !important;
+      opacity: 0.7;
+    }
+  }
+  
+  &:hover {
+    background-color: $menu-disabled-bg;
+    
+    .menu-item-icon {
+      transform: none;
+    }
+  }
+}
+
+// Sobreescribimos los estilos para permitir tooltips en elementos deshabilitados
+.menu-item.disabled, 
+.submenu-item.disabled {
+  pointer-events: auto; // Permitimos eventos para mostrar tooltips
+  
+  > a {
+    pointer-events: none; // Deshabilitamos el clic en el enlace
+    
+    &.disabled:hover {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Icono de elemento deshabilitado
+.disabled-icon {
+  margin-left: 5px;
+  font-size: 12px;
+  color: $menu-disabled-icon;
+  
+  .fa-lock {
+    opacity: 0.8;
+  }
+}
+
+// Estilo para los elementos de submenu deshabilitados
+.submenu-item.disabled {
+  opacity: 0.7;
+  background-color: rgba($menu-disabled-bg, 0.7);
+  
+  > a {
+    color: $menu-disabled-color !important;
+    
+    .submenu-dot {
+      background-color: $menu-disabled-icon;
+    }
+  }
+  
+  &:hover {
+    background-color: rgba($menu-disabled-bg, 0.7);
+    
+    .submenu-dot {
+      transform: none;
+      background-color: $menu-disabled-icon;
+    }
+  }
+}
+
+// Contenedor para texto y flecha
+.menu-text-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  transition: opacity $transition-speed ease, visibility $transition-speed ease;
+}
+
+// Iconos de los ítems del menú
+.menu-icon {
+  margin-right: 10px;
+  width: 22px;
+  height: 22px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-speed ease;
+
+  .menu-item-icon {
+    stroke-width: 1.5;
+    width: 20px;
+    height: 20px;
+    color: #666;
+    transition: all $transition-speed ease;
+  }
+}
+
+// Texto del menú
+.menu-text {
+  flex: 1;
+  transition: all $transition-speed ease;
+}
+
+// Flechas de los submenús
+.submenu-arrow {
+  margin-left: 5px;
+  transition: transform $transition-speed ease;
+
+  .fa-angle-down {
+    transition: transform $transition-speed ease;
+  }
+
+  .fa-angle-right {
+    transition: transform $transition-speed ease;
+  }
+}
+
+// Separadores
+.divider {
+  padding: 10px 15px 5px;
+  
+  span {
+    display: block;
+    font-size: 13px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    transition: all $transition-speed ease;
+  }
+  
+  hr {
+    margin: 0;
+    border-color: #e0e0e0;
+    opacity: 0.5;
+  }
+  
+  &.middle-divider {
+    background-color: $middle-section-bg;
+    margin-top: 5px;
+    padding-top: 12px;
+    
+    span {
+      color: #888;
+    }
+  }
+}
+
+// Submenús
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0 8px;
+  background-color: $submenu-bg-color;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height $transition-speed ease, opacity $transition-speed ease, visibility $transition-speed ease;
+  border-radius: 0 0 6px 6px;
+
+  &.show {
+    max-height: 1000px; // Valor alto para permitir animación
+    padding: 5px 0;
+  }
+
+  .submenu-item {
+    transition: all 0.2s ease;
+    margin: 2px 0;
+    border-radius: 4px;
+    
+    &:hover {
+      background-color: rgba($menu-active-color, 0.05);
+    }
+
+    a {
+      padding: 8px 12px 8px 35px;
+      font-size: 13.5px;
+      border-radius: 4px;
+    }
+
+    &.active {
+      background-color: rgba($menu-active-color, 0.1);
+      
+      > a {
+        color: $menu-active-color;
+      }
+    }
+  }
+}
+
+// Niveles adicionales de submenús
+.submenu-level-2 {
+  background-color: rgba($submenu-bg-color, 0.8);
+  
+  .submenu-item a {
+    padding-left: 50px;
+    font-size: 13px;
+  }
+}
+
+.submenu-level-3 {
+  background-color: rgba($submenu-bg-color, 0.6);
+  
+  .submenu-item a {
+    padding-left: 65px;
+    font-size: 12.5px;
+  }
+}
+
+// Iconos de los submenús
+.submenu-icon {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .submenu-leaf-icon {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s ease;
+  }
+
+  .submenu-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #b3b3b3;
+    border-radius: 50%;
+    display: inline-block;
+    transition: all 0.2s ease;
+  }
+
+  &.level-2 .submenu-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  &.level-3 .submenu-dot {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+// Mejorar las animaciones al pasar el mouse
+.submenu-item:hover {
+  .submenu-dot {
+    background-color: $menu-active-color;
+    transform: scale(1.2);
+  }
+  
+  .submenu-leaf-icon {
+    transform: scale(1.1);
+  }
+}
+
+// Sección inferior para Mantenedor y Administrador
+.menu-footer {
+  background-color: $admin-bg-color;
+  padding-bottom: 10px;
+  margin-top: auto; // Empuja esta sección al fondo
+}
+
+// Elementos de administración
+.admin-items {
+  .menu-item {
+    margin-top: 5px;
+    
+    &:hover {
+      background-color: rgba($menu-active-color, 0.05);
+    }
+    
+    &.active {
+      background-color: rgba($menu-active-color, 0.1);
+    }
+    
+    .menu-item-icon {
+      opacity: 0.8;
+    }
+  }
+  
+  .submenu {
+    background-color: darken($admin-bg-color, 2%);
+  }
+}
+
+// Animaciones para los submenús
+.menu-item.has-submenu.active > a .submenu-arrow .fa-angle-right {
+  transform: rotate(90deg);
+}
+
+// Animación para el botón de alternar colapso
+.menu-collapsed .collapse-toggle i {
+  transform: rotate(180deg);
+}
+
+// Estilos responsivos
+@media (max-width: 991px) {
+  .vertical-menu {
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 1100;
+
+    &.menu-collapsed {
+      transform: translateX(0);
+      width: $menu-width;
+
+      .menu-text, .submenu-arrow, .divider span {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .menu-text-container {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .submenu {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+        max-height: 0;
+        
+        &.show {
+          max-height: 1000px;
+        }
+      }
+    }
+  }
+  
+  .main-content-wrapper {
+    margin-left: 0 !important;
+  }
+}
+
+// Mejoras de accesibilidad
+@media (prefers-reduced-motion: reduce) {
+  .vertical-menu,
+  .submenu,
+  .menu-item a,
+  .submenu-arrow,
+  .menu-item-icon,
+  .submenu-dot {
+    transition: none;
+  }
+}
+
+
+
+
+
+
+
+.menu-text {
+  flex: 1;
+  transition: all $transition-speed ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; // Añade elipsis para textos que no caben
+  max-width: 200px; // Limitar el ancho máximo
+}
+
+// Para elementos con textos extremadamente largos
+.menu-item.long-text {
+  a {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  
+  .menu-text {
+    white-space: normal;
+    line-height: 1.2;
+    max-height: 2.4em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+// También aplicable a elementos de submenú
+.submenu-item.long-text {
+  a {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  
+  .menu-text {
+    white-space: normal;
+    line-height: 1.2;
+    max-height: 2.4em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+// Mejorar el estilo de los tooltips
+::ng-deep .menu-tooltip {
+  background-color: rgba(51, 51, 51, 0.95) !important;
+  color: white !important;
+  font-weight: normal !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+  max-width: 250px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  z-index: 1500 !important;
+}
+
+// Ajustar ancho del contenido principal cuando el menú está expandido
+.main-content-wrapper {
+  margin-left: $menu-width;
+  
+  .menu-collapsed & {
+    margin-left: $menu-collapsed-width;
+  }
+}
+
+// Mejorar la interactividad del menú cuando está colapsado
+.vertical-menu.menu-collapsed {
+  cursor: pointer; // Cambiar el cursor para indicar que es clicable
+  
+  // Hacer que los iconos sean más visibles
+  .menu-icon {
+    cursor: pointer;
+    padding: 5px 0;
+    
+    // Hacer que los iconos tengan un efecto al hacer hover
+    &:hover {
+      .menu-item-icon {
+        transform: scale(1.2);
+        color: $menu-active-color;
+        stroke: $menu-active-color;
+        opacity: 0.8;
+      }
+    }
+  }
+  
+  // Efecto de hover para mejorar la experiencia de usuario
+  .menu-item:hover {
+    background-color: rgba($menu-active-color, 0.05);
+  }
+  
+  // Permitir que el menú se expanda con un clic en el área vacía
+  &:hover {
+    background-color: lighten($menu-bg-color, 2%);
+  }
+}
+
+// Estilos adicionales para mejorar la interactividad
+.menu-item {
+  transition: all 0.3s ease;
+  
+  .menu-icon {
+    transition: all 0.3s ease;
+  }
+}
+
+// Hacer que el botón de colapso sea más obvio
+.collapse-toggle {
+  &:hover {
+    transform: translateY(-50%) scale(1.1);
+    background-color: #e0e0e0;
+  }
+}

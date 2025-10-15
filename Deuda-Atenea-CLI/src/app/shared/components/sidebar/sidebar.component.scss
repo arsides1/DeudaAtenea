@@ -1,0 +1,12 @@
+.side-menu .side-menu__icon{
+    vertical-align: inherit;
+    margin-left : 0 ;
+}
+::ng-deep{
+    .default-sidebar.sidenav-toggled.sidenav-toggled1 .app-sidebar2 .mobile-logo{
+        display: none !important;
+    }
+}
+.dropup .dropdown-toggle::after{
+    display: none;
+}

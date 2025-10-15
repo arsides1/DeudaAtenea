@@ -1,0 +1,338 @@
+<div class="vertical-menu" [ngClass]="{'menu-collapsed': isCollapsed}" (click)="expandMenu($event)">
+  <div class="logo-container">
+    <div *ngIf="!isCollapsed" class="logo-full">
+      <img src="../../assets/images/brand/Alicorp.png" routerLink="/paginaInicio" alt="Alicorp logo">
+    </div>
+    <div *ngIf="isCollapsed" class="logo-mini">
+      <img src="../../assets/images/pattern/favicon.png" alt="Alicorp mini logo">
+    </div>
+    <button class="collapse-toggle" (click)="toggleCollapse(); $event.stopPropagation()">
+      <i class="fa" [ngClass]="isCollapsed ? 'fa-angle-left' : 'fa-angle-left'"></i>
+    </button>
+  </div>
+
+  <div class="menu-container">
+    <!-- Sección superior: Fisicos e IFD -->
+    <div class="menu-section top-section">
+      <div class="section-title" *ngIf="!isCollapsed">
+        <span>Reportes</span>
+      </div>
+      <ul class="menu-items">
+        <li *ngFor="let menuItem of topMenuItems" class="menu-item" 
+            [ngClass]="{
+              'active': menuItem.active, 
+              'has-submenu': menuItem.children,
+              'disabled': menuItem.disabled,
+              'long-text': isLongText(menuItem.title)
+            }">
+          <!-- Menu item principal -->
+          <a [routerLink]="menuItem.type === 'link' && !menuItem.disabled ? [menuItem.path] : null" 
+             (click)="menuItem.type === 'sub' && !menuItem.disabled ? toggleSubMenu(menuItem) : menuItem.type === 'link' && !menuItem.disabled ? handleLinkClick(menuItem) : null; $event.stopPropagation()" 
+             [ngClass]="{'active': menuItem.active, 'disabled': menuItem.disabled}"
+             [matTooltip]="menuItem.disabled ? (menuItem.disabledMessage || 'Opción deshabilitada') : menuItem.title"
+             matTooltipPosition="right"
+             matTooltipClass="menu-tooltip">
+            <div class="menu-icon">
+              <i-feather [name]="menuItem.icon" class="menu-item-icon"></i-feather>
+            </div>
+            <div class="menu-text-container">
+              <span class="menu-text" *ngIf="!isCollapsed">{{menuItem.title}}</span>
+              <span *ngIf="!isCollapsed && menuItem.type === 'sub' && !menuItem.disabled" class="submenu-arrow">
+                <i class="fa" [ngClass]="menuItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+              </span>
+              <span *ngIf="!isCollapsed && menuItem.disabled" class="disabled-icon" title="{{menuItem.disabledMessage || 'Opción deshabilitada'}}">
+                <i class="fa fa-lock"></i>
+              </span>
+            </div>
+          </a>
+
+          <!-- Submenú -->
+          <ul class="submenu" *ngIf="menuItem.children && menuItem.active && !menuItem.disabled" 
+              [ngClass]="{'show': menuItem.active, 'collapsed-submenu': isCollapsed}"
+              (click)="$event.stopPropagation()">
+            <li *ngFor="let childItem of menuItem.children" class="submenu-item" 
+                [ngClass]="{
+                  'active': childItem.active, 
+                  'has-submenu': childItem.children,
+                  'disabled': childItem.disabled,
+                  'long-text': isLongText(childItem.title)
+                }">
+              <a [routerLink]="childItem.type === 'link' && !childItem.disabled ? [childItem.path] : null" 
+              (click)="childItem.type === 'sub' && !childItem.disabled ? toggleSubMenu(childItem) : childItem.type === 'link' && !childItem.disabled ? handleLinkClick(childItem) : null; $event.stopPropagation()" 
+              [ngClass]="{'active': childItem.active, 'disabled': childItem.disabled}"
+                 [matTooltip]="childItem.disabled ? (childItem.disabledMessage || 'Opción deshabilitada') : childItem.title"
+                 matTooltipPosition="right"
+                 matTooltipClass="menu-tooltip">
+                <div class="submenu-icon">
+                  <img *ngIf="isCollapsed" src="../../assets/images/pattern/hojaAlicorp.PNG" alt="Hoja Alicorp" class="submenu-leaf-icon">
+                  <span *ngIf="!isCollapsed" class="submenu-dot"></span>
+                </div>
+                <span class="menu-text">{{childItem.title}}</span>
+                <span *ngIf="childItem.type === 'sub' && !isCollapsed && !childItem.disabled" class="submenu-arrow">
+                  <i class="fa" [ngClass]="childItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+                </span>
+                <span *ngIf="!isCollapsed && childItem.disabled" class="disabled-icon" title="{{childItem.disabledMessage || 'Opción deshabilitada'}}">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </a>
+
+              <!-- Submenú de nivel 2 -->
+              <ul class="submenu submenu-level-2" *ngIf="childItem.children && childItem.active && !childItem.disabled" 
+                  [ngClass]="{'show': childItem.active, 'collapsed-submenu': isCollapsed}"
+                  (click)="$event.stopPropagation()">
+                <li *ngFor="let subChildItem of childItem.children" class="submenu-item" 
+                    [ngClass]="{
+                      'active': subChildItem.active, 
+                      'has-submenu': subChildItem.children,
+                      'disabled': subChildItem.disabled,
+                      'long-text': isLongText(subChildItem.title)
+                    }">
+                  <a [routerLink]="subChildItem.type === 'link' && !subChildItem.disabled ? [subChildItem.path] : null" 
+                  (click)="subChildItem.type === 'sub' && !subChildItem.disabled ? toggleSubMenu(subChildItem) : subChildItem.type === 'link' && !subChildItem.disabled ? handleLinkClick(subChildItem) : null; $event.stopPropagation()" 
+                  [ngClass]="{'active': subChildItem.active, 'disabled': subChildItem.disabled}"
+                     [matTooltip]="subChildItem.disabled ? (subChildItem.disabledMessage || 'Opción deshabilitada') : subChildItem.title"
+                     matTooltipPosition="right"
+                     matTooltipClass="menu-tooltip">
+                    <div class="submenu-icon level-2">
+                      <span class="submenu-dot"></span>
+                    </div>
+                    <span class="menu-text">{{subChildItem.title}}</span>
+                    <span *ngIf="subChildItem.type === 'sub' && !isCollapsed && !subChildItem.disabled" class="submenu-arrow">
+                      <i class="fa" [ngClass]="subChildItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+                    </span>
+                    <span *ngIf="!isCollapsed && subChildItem.disabled" class="disabled-icon" title="{{subChildItem.disabledMessage || 'Opción deshabilitada'}}">
+                      <i class="fa fa-lock"></i>
+                    </span>
+                  </a>
+
+                  <!-- Submenú de nivel 3 -->
+                  <ul class="submenu submenu-level-3" *ngIf="subChildItem.children && subChildItem.active && !subChildItem.disabled" 
+                      [ngClass]="{'show': subChildItem.active, 'collapsed-submenu': isCollapsed}"
+                      (click)="$event.stopPropagation()">
+                    <li *ngFor="let grandChildItem of subChildItem.children" class="submenu-item" 
+                        [ngClass]="{
+                          'active': grandChildItem.active,
+                          'disabled': grandChildItem.disabled,
+                          'long-text': isLongText(grandChildItem.title)
+                        }">
+                      <a [routerLink]="grandChildItem.type === 'link' && !grandChildItem.disabled ? [grandChildItem.path] : null" 
+                      (click)="grandChildItem.type === 'link' && !grandChildItem.disabled ? handleLinkClick(grandChildItem) : null; $event.stopPropagation()"
+                      [ngClass]="{'active': grandChildItem.active, 'disabled': grandChildItem.disabled}"
+                         [matTooltip]="grandChildItem.disabled ? (grandChildItem.disabledMessage || 'Opción deshabilitada') : grandChildItem.title"
+                         matTooltipPosition="right"
+                         matTooltipClass="menu-tooltip">
+                        <div class="submenu-icon level-3">
+                          <span class="submenu-dot"></span>
+                        </div>
+                        <span class="menu-text">{{grandChildItem.title}}</span>
+                        <span *ngIf="!isCollapsed && grandChildItem.disabled" class="disabled-icon" title="{{grandChildItem.disabledMessage || 'Opción deshabilitada'}}">
+                          <i class="fa fa-lock"></i>
+                        </span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Separador visual -->
+    <div class="divider middle-divider" *ngIf="middleMenuItems.length > 0">
+      <span *ngIf="!isCollapsed">Operaciones</span>
+      <hr>
+    </div>
+
+    <!-- Sección central: demás elementos -->
+    <div class="menu-section middle-section">
+      <ul class="menu-items">
+        <li *ngFor="let menuItem of middleMenuItems" class="menu-item" 
+            [ngClass]="{
+              'active': menuItem.active, 
+              'has-submenu': menuItem.children,
+              'disabled': menuItem.disabled,
+              'long-text': isLongText(menuItem.title)
+            }">
+          <!-- Menu item principal -->
+          <a [routerLink]="menuItem.type === 'link' && !menuItem.disabled ? [menuItem.path] : null" 
+          (click)="menuItem.type === 'sub' && !menuItem.disabled ? toggleSubMenu(menuItem) : menuItem.type === 'link' && !menuItem.disabled ? handleLinkClick(menuItem) : null; $event.stopPropagation()" 
+          [ngClass]="{'active': menuItem.active, 'disabled': menuItem.disabled}"
+             [matTooltip]="menuItem.disabled ? (menuItem.disabledMessage || 'Opción deshabilitada') : menuItem.title"
+             matTooltipPosition="right"
+             matTooltipClass="menu-tooltip">
+            <div class="menu-icon">
+              <i-feather [name]="menuItem.icon" class="menu-item-icon"></i-feather>
+            </div>
+            <div class="menu-text-container">
+              <span class="menu-text" *ngIf="!isCollapsed">{{menuItem.title}}</span>
+              <span *ngIf="!isCollapsed && menuItem.type === 'sub' && !menuItem.disabled" class="submenu-arrow">
+                <i class="fa" [ngClass]="menuItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+              </span>
+              <span *ngIf="!isCollapsed && menuItem.disabled" class="disabled-icon" title="{{menuItem.disabledMessage || 'Opción deshabilitada'}}">
+                <i class="fa fa-lock"></i>
+              </span>
+            </div>
+          </a>
+
+          <!-- Submenú -->
+          <ul class="submenu" *ngIf="menuItem.children && menuItem.active && !menuItem.disabled" 
+              [ngClass]="{'show': menuItem.active, 'collapsed-submenu': isCollapsed}"
+              (click)="$event.stopPropagation()">
+            <li *ngFor="let childItem of menuItem.children" class="submenu-item" 
+                [ngClass]="{
+                  'active': childItem.active, 
+                  'has-submenu': childItem.children,
+                  'disabled': childItem.disabled,
+                  'long-text': isLongText(childItem.title)
+                }">
+              <a [routerLink]="childItem.type === 'link' && !childItem.disabled ? [childItem.path] : null" 
+              (click)="childItem.type === 'sub' && !childItem.disabled ? toggleSubMenu(childItem) : childItem.type === 'link' && !childItem.disabled ? handleLinkClick(childItem) : null; $event.stopPropagation()" 
+              [ngClass]="{'active': childItem.active, 'disabled': childItem.disabled}"
+                 [matTooltip]="childItem.disabled ? (childItem.disabledMessage || 'Opción deshabilitada') : childItem.title"
+                 matTooltipPosition="right"
+                 matTooltipClass="menu-tooltip">
+                <div class="submenu-icon">
+                  <img *ngIf="isCollapsed" src="../../assets/images/pattern/hojaAlicorp.PNG" alt="Hoja Alicorp" class="submenu-leaf-icon">
+                  <span *ngIf="!isCollapsed" class="submenu-dot"></span>
+                </div>
+                <span class="menu-text">{{childItem.title}}</span>
+                <span *ngIf="childItem.type === 'sub' && !isCollapsed && !childItem.disabled" class="submenu-arrow">
+                  <i class="fa" [ngClass]="childItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+                </span>
+                <span *ngIf="!isCollapsed && childItem.disabled" class="disabled-icon" title="{{childItem.disabledMessage || 'Opción deshabilitada'}}">
+                  <i class="fa fa-lock"></i>
+                </span>
+              </a>
+
+              <!-- Submenú de nivel 2 (idéntico al de la sección superior) -->
+              <ul class="submenu submenu-level-2" *ngIf="childItem.children && childItem.active && !childItem.disabled" 
+                  [ngClass]="{'show': childItem.active, 'collapsed-submenu': isCollapsed}"
+                  (click)="$event.stopPropagation()">
+                <li *ngFor="let subChildItem of childItem.children" class="submenu-item" 
+                    [ngClass]="{
+                      'active': subChildItem.active, 
+                      'has-submenu': subChildItem.children,
+                      'disabled': subChildItem.disabled,
+                      'long-text': isLongText(subChildItem.title)
+                    }">
+                  <a [routerLink]="subChildItem.type === 'link' && !subChildItem.disabled ? [subChildItem.path] : null" 
+                  (click)="subChildItem.type === 'sub' && !subChildItem.disabled ? toggleSubMenu(subChildItem) : subChildItem.type === 'link' && !subChildItem.disabled ? handleLinkClick(subChildItem) : null; $event.stopPropagation()" 
+                  [ngClass]="{'active': subChildItem.active, 'disabled': subChildItem.disabled}"
+                     [matTooltip]="subChildItem.disabled ? (subChildItem.disabledMessage || 'Opción deshabilitada') : subChildItem.title"
+                     matTooltipPosition="right"
+                     matTooltipClass="menu-tooltip">
+                    <div class="submenu-icon level-2">
+                      <span class="submenu-dot"></span>
+                    </div>
+                    <span class="menu-text">{{subChildItem.title}}</span>
+                    <span *ngIf="subChildItem.type === 'sub' && !isCollapsed && !subChildItem.disabled" class="submenu-arrow">
+                      <i class="fa" [ngClass]="subChildItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+                    </span>
+                    <span *ngIf="!isCollapsed && subChildItem.disabled" class="disabled-icon" title="{{subChildItem.disabledMessage || 'Opción deshabilitada'}}">
+                      <i class="fa fa-lock"></i>
+                    </span>
+                  </a>
+
+                  <!-- Submenú de nivel 3 -->
+                  <ul class="submenu submenu-level-3" *ngIf="subChildItem.children && subChildItem.active && !subChildItem.disabled" 
+                      [ngClass]="{'show': subChildItem.active, 'collapsed-submenu': isCollapsed}"
+                      (click)="$event.stopPropagation()">
+                    <li *ngFor="let grandChildItem of subChildItem.children" class="submenu-item" 
+                        [ngClass]="{
+                          'active': grandChildItem.active,
+                          'disabled': grandChildItem.disabled,
+                          'long-text': isLongText(grandChildItem.title)
+                        }">
+                      <a [routerLink]="grandChildItem.type === 'link' && !grandChildItem.disabled ? [grandChildItem.path] : null" 
+                      (click)="grandChildItem.type === 'link' && !grandChildItem.disabled ? handleLinkClick(grandChildItem) : null; $event.stopPropagation()"
+                      [ngClass]="{'active': grandChildItem.active, 'disabled': grandChildItem.disabled}"
+                         [matTooltip]="grandChildItem.disabled ? (grandChildItem.disabledMessage || 'Opción deshabilitada') : grandChildItem.title"
+                         matTooltipPosition="right"
+                         matTooltipClass="menu-tooltip">
+                        <div class="submenu-icon level-3">
+                          <span class="submenu-dot"></span>
+                        </div>
+                        <span class="menu-text">{{grandChildItem.title}}</span>
+                        <span *ngIf="!isCollapsed && grandChildItem.disabled" class="disabled-icon" title="{{grandChildItem.disabledMessage || 'Opción deshabilitada'}}">
+                          <i class="fa fa-lock"></i>
+                        </span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Sección inferior para Mantenedor y Administrador -->
+  <div class="menu-footer">
+    <div class="divider">
+      <span *ngIf="!isCollapsed">Configuraciones</span>
+      <hr>
+    </div>
+    
+    <ul class="menu-items admin-items">
+      <li *ngFor="let menuItem of adminMenuItems" class="menu-item" 
+          [ngClass]="{
+            'active': menuItem.active, 
+            'has-submenu': menuItem.children,
+            'disabled': menuItem.disabled,
+            'long-text': isLongText(menuItem.title)
+          }">
+        <!-- Menu item principal -->
+        <a [routerLink]="menuItem.type === 'link' && !menuItem.disabled ? [menuItem.path] : null" 
+        (click)="menuItem.type === 'sub' && !menuItem.disabled ? toggleSubMenu(menuItem) : menuItem.type === 'link' && !menuItem.disabled ? handleLinkClick(menuItem) : null; $event.stopPropagation()" 
+        [ngClass]="{'active': menuItem.active, 'disabled': menuItem.disabled}"
+           [matTooltip]="menuItem.disabled ? (menuItem.disabledMessage || 'Opción deshabilitada') : menuItem.title"
+           matTooltipPosition="right"
+           matTooltipClass="menu-tooltip">
+          <div class="menu-icon">
+            <i-feather [name]="menuItem.icon" class="menu-item-icon"></i-feather>
+          </div>
+          <div class="menu-text-container">
+            <span class="menu-text" *ngIf="!isCollapsed">{{menuItem.title}}</span>
+            <span *ngIf="!isCollapsed && menuItem.type === 'sub' && !menuItem.disabled" class="submenu-arrow">
+              <i class="fa" [ngClass]="menuItem.active ? 'fa-angle-down' : 'fa-angle-right'"></i>
+            </span>
+            <span *ngIf="!isCollapsed && menuItem.disabled" class="disabled-icon" title="{{menuItem.disabledMessage || 'Opción deshabilitada'}}">
+              <i class="fa fa-lock"></i>
+            </span>
+          </div>
+        </a>
+
+        <!-- Submenú -->
+        <ul class="submenu" *ngIf="menuItem.children && menuItem.active && !menuItem.disabled" 
+            [ngClass]="{'show': menuItem.active, 'collapsed-submenu': isCollapsed}"
+            (click)="$event.stopPropagation()">
+          <li *ngFor="let childItem of menuItem.children" class="submenu-item" 
+              [ngClass]="{
+                'active': childItem.active,
+                'disabled': childItem.disabled,
+                'long-text': isLongText(childItem.title)
+              }">
+            <a [routerLink]="childItem.type === 'link' && !childItem.disabled ? [childItem.path] : null" 
+            (click)="childItem.type === 'link' && !childItem.disabled ? handleLinkClick(childItem) : null; $event.stopPropagation()"
+            [ngClass]="{'active': childItem.active, 'disabled': childItem.disabled}"
+               [matTooltip]="childItem.disabled ? (childItem.disabledMessage || 'Opción deshabilitada') : childItem.title"
+               matTooltipPosition="right"
+               matTooltipClass="menu-tooltip">
+              <div class="submenu-icon">
+                <span class="submenu-dot"></span>
+              </div>
+              <span class="menu-text">{{childItem.title}}</span>
+              <span *ngIf="!isCollapsed && childItem.disabled" class="disabled-icon" title="{{childItem.disabledMessage || 'Opción deshabilitada'}}">
+                <i class="fa fa-lock"></i>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>

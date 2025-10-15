@@ -1,0 +1,70 @@
+<div class="atenea-container">
+  <!-- Hero Section con imagen de fondo -->
+  <div class="hero-background">
+    <!-- Overlay con gradiente -->
+    <div class="hero-overlay"></div>
+  </div>
+    
+  <!-- Contenido principal -->
+  <div class="main-content">
+    <!-- Logo ATENEA -->
+    <div class="atenea-logo">
+      <h1 class="logo-text"><span class="red-letter">a</span>tenea</h1>
+      <div class="logo-underline"></div>
+    </div>
+
+    <!-- Título principal -->
+    <div class="hero-title-container">
+      <h2 class="hero-title">Gestionamos los riesgos para alimentar un mañana mejor</h2>
+    </div>
+
+    <!-- Área para el contenido animado -->
+    <div class="animated-content-area" [class.visible]="showContent">
+      <div class="content-panel">
+        <div class="panel-text">
+          <p>
+            <span class="atenea-word"><span class="red-letter">a</span>tenea</span> es una herramienta que busca hacer más eficiente y colaborativo nuestro trabajo. Asimismo, en este esfuerzo conseguimos reducir los riesgos operativos, los riesgos del negocio y los riesgos financieros.
+          </p>
+          <p>
+            <span class="atenea-word"><span class="red-letter">a</span>tenea</span> nace en el 2022, pero la idea y los esfuerzos para construir esta plataforma tienen su origen años antes, es el resultado del trabajo en equipo y creemos que puede seguir mejorando.
+          </p>
+          <p>
+            <span class="atenea-word"><span class="red-letter">a</span>tenea</span> ya es parte del día-día de varios procesos de la gestión de riesgos de compras de materias primas y de la gestión de la tesorería corporativa.
+          </p>
+          <p>
+            Deseamos que más equipos puedan usar <span class="atenea-word"><span class="red-letter">a</span>tenea</span> y recibir sugerencias para seguir mejorando.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón para mostrar/ocultar contenido -->
+    <button 
+      (click)="toggleContent()"
+      class="discover-button"
+      [class.active]="showContent"
+    >
+      <span class="discover-text">{{ showContent ? 'Ocultar' : 'Descubre más' }}</span>
+      <div class="discover-icon" [class.rotate]="showContent"></div>
+    </button>
+
+    <!-- Footer minimalista -->
+    <!-- <div class="footer-info" [class.visible]="showContent">
+      <div class="footer-content">
+        <p>© {{currentYear}} Alicorp. Todos los derechos reservados. | ATENEA v2.0</p>
+      </div>
+    </div> -->
+  </div>
+
+  <!-- Botón flotante para contacto que abre Outlook con tooltip -->
+  <div class="tooltip-container">
+    <a 
+      [href]="mailtoLink"
+      class="contact-button"
+      aria-label="Contactar"
+    >
+      <i class="icon-mail"></i>
+      <span class="tooltip-text">Enviar sugerencias para mejorar <span class="atenea-word"><span class="red-letter">a</span>tenea</span></span>
+    </a>
+  </div>
+</div>

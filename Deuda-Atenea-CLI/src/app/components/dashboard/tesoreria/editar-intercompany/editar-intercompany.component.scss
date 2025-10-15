@@ -1,0 +1,80 @@
+.btn-green {
+    color: #fff !important;
+    background-color: rgb(75, 130, 45);
+    border-color: rgb(75, 130, 45);
+    -webkit-box-shadow: 0 0px 10px -5px rgba(120, 185, 40, 0.39);
+    box-shadow: 0 0px 10px -5px rgba(120, 185, 40, 0.5);
+}
+
+.btn-green:hover {
+    color: #fff !important;
+    background-color: rgba(120, 185, 40, 0.397);;
+    border-color: rgb(120, 185, 40);
+}
+
+.mat-form-field {
+    height: 35px !important;
+    align-content: center;
+    text-align: center;
+    border: 0px;
+  }
+
+  ::ng-deep .mat-form-field-flex > .mat-form-field-infix {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    height: 35px !important;
+  }
+
+  ::ng-deep .mat-form-field-outline{
+    height: 35px !important;
+  }
+
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  td{
+    padding: 10px !important;
+  }
+
+  .nombreCampo{
+    // width: 100px !important;
+    // max-width: 100%;
+    // overflow: hidden;
+    font-weight: bold;
+  }
+
+  .valorCampo{
+    width: 250px !important;
+    // max-width: 100%;
+    overflow: visible;
+  }
+
+.redondeado {
+    border-radius: 5px;
+    width: 100%;
+    border: 1px solid #ccc !important;
+    height: 35px !important;
+}
+
+.mat-form-field {
+  width: 100%;
+}
+
+.modal-header {
+    background-color: rgb(200, 15, 30);
+    color: white;
+}
+
+.close {
+    color: #111111; 
+    opacity: 1;
+    font-size: 20px;
+}
+
+:host ::ng-deep  .mat-checkbox-checked .mat-checkbox-background {
+  background-color: rgb(200, 15, 30);
+  border-color: black;
+}

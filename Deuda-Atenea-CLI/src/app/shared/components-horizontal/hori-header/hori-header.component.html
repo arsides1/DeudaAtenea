@@ -1,0 +1,56 @@
+<!-- App Header -->
+<div class="app-header">
+    <div class="container-fluid">
+        <div class="header-content">
+            <!-- Área de navegación izquierda -->
+            <div class="header-left">
+                <!-- Toggle Sidebar Button (solo para móviles) -->
+                <div class="menu-toggle-btn d-lg-none">
+                    <button type="button" class="btn toggle-btn" (click)="toggleSidebar()">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+
+                
+            </div>
+
+            <!-- Herramientas del header a la derecha -->
+            <div class="header-tools">
+                <!-- Posibles acciones rápidas -->
+                <!-- <div class="quick-actions d-none d-md-flex">
+                    <button class="btn action-btn" title="Actualizar datos">
+                        <i class="fa fa-sync-alt"></i>
+                    </button>
+                    <button class="btn action-btn" title="Exportar reporte">
+                        <i class="fa fa-file-export"></i>
+                    </button>
+                </div> -->
+
+                <!-- Información de usuario -->
+                <div class="user-info">
+                    <span class="user-name">Bienvenido(a) {{nombre}}</span>
+                    <mat-icon mat-icon-button [matMenuTriggerFor]="menu" class="profile-icon">
+                        account_circle
+                    </mat-icon>
+                    
+                    <!-- Menú de opciones de usuario -->
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item *ngIf="isLogged && isGestorUsuarios" (click)="registrarUsuario()">
+                            <mat-icon>person_add</mat-icon>
+                            <span>Registrar nuevo usuario</span>
+                        </button>
+                        <button mat-menu-item *ngIf="isLogged" (click)="cerrarSesion()">
+                            <mat-icon>logout</mat-icon>
+                            <span>Cerrar sesión</span>
+                        </button>
+                        <button mat-menu-item *ngIf="!isLogged" (click)="iniciarSesion()">
+                            <mat-icon>login</mat-icon>
+                            <span>Iniciar sesión</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /App Header -->
