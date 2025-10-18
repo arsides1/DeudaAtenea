@@ -290,3 +290,19 @@ td {
   background-color: rgb(200, 15, 30);
   border-color: black;
 }
+
+///////
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.form-item {
+  display: flex;
+  flex-direction: column;
+}
+.form-actions {
+  text-align: right;
+  margin-top: 16px;
+}

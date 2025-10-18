@@ -1,0 +1,57 @@
+- Generating browser application bundles (phase: setup)...
+✔ Browser application bundle generation complete.
+
+Initial Chunk Files                                                        | Names                                 |  Raw Size
+vendor.js                                                                  | vendor                                |   5.49 MB |
+styles.css, styles.js                                                      | styles                                |   1.79 MB |
+main.js                                                                    | main                                  | 397.65 kB |
+polyfills.js                                                               | polyfills                             | 259.78 kB |
+runtime.js                                                                 | runtime                               |  14.47 kB |
+
+| Initial Total                         |   7.93 MB
+
+Lazy Chunk Files                                                           | Names                                 |  Raw Size
+src_app_components_dashboard_dashboard_module_ts.js                        | components-dashboard-dashboard-module |   9.61 MB |
+node_modules_echarts_index_js.js                                           | echarts                               |   4.58 MB |
+node_modules_cdk-table-exporter_node_modules_xlsx_xlsx_js.js               | xlsx                                  |   1.46 MB |
+node_modules_cdk-table-exporter_node_modules_xlsx_dist_xlsx_mini_min_js.js | xlsx-dist-xlsx-mini-min               | 224.03 kB |
+src_app_pages_error-pages_error-pages_module_ts.js                         | pages-error-pages-error-pages-module  |  25.75 kB |
+
+Build at: 2025-10-16T23:42:36.102Z - Hash: 8bbf2bc92b1429fc - Time: 10007ms
+
+Warning: D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\cdk-table-exporter\__ivy_ngcc__\fesm2015\cdk-table-exporter.js depends on 'xlsx'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\cdk-table-exporter\__ivy_ngcc__\fesm2015\cdk-table-exporter.js depends on 'xlsx/dist/xlsx.mini.min'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+Warning: D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\src\app\components\dashboard\dashboard.module.ts depends on 'fusioncharts'. CommonJS or AMD dependencies can cause optimization bailouts.
+For more info see: https://angular.io/guide/build#configuring-commonjs-dependencies
+
+
+
+./node_modules/ng-circle-progress/fesm2015/ng-circle-progress.mjs - Error: Module build failed (from ./node_modules/@angular-devkit/build-angular/src/babel/webpack-loader.js):
+TypeError: Cannot create property 'message' on string 'D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\ng-circle-progress\fesm2015\ng-circle-progress.mjs: This application depends upon a library published using Angular version 14.2.12, which requires Angular version 14.0.0 or newer to work correctly.
+Consider upgrading your application to use a more recent version of Angular.
+  527 | }
+  528 | CircleProgressComponent.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "14.2.12", ngImport: i0, type: CircleProgressComponent, deps: [{ token: CircleProgressOptions }, { token: i0.NgZone }, { token: i0.ElementRef }, { token: i0.Injector }], target: i0.ɵɵFactoryTarget.Component });
+> 529 | CircleProgressComponent.ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "14.2.12", type: CircleProgressComponent, selector: "circle-progress", inputs: { name: "name", class: "class", backgroundGradient: "backgroundGradient", backgroundColor: "backgroundColor", backgroundGradientStopColor: "backgroundGradientStopColor", backgroundOpacity: "backgroundOpacity", backgroundStroke: "backgroundStroke", backgroundStrokeWidth: "backgroundStrokeWidth", backgroundPadding: "backgroundPadding", radius: "radius", space: "space", percent: "percent", toFixed: "toFixed", maxPercent: "maxPercent", renderOnClick: "renderOnClick", units: "units", unitsFontSize: "unitsFontSize", unitsFontWeight: "unitsFontWeight", unitsColor: "unitsColor", outerStrokeGradient: "outerStrokeGradient", outerStrokeWidth: "outerStrokeWidth", outerStrokeColor: "outerStrokeColor", outerStrokeGradientStopColor: "outerStrokeGradientStopColor", outerStrokeLinecap: "outerStrokeLinecap", innerStrokeColor: "innerStrokeColor", innerStrokeWidth: "innerStrokeWidth", titleFormat: "titleFormat", title: "title", titleColor: "titleColor", titleFontSize: "titleFontSize", titleFontWeight: "titleFontWeight", subtitleFormat: "subtitleFormat", subtitle: "subtitle", subtitleColor: "subtitleColor", subtitleFontSize: "subtitleFontSize", subtitleFontWeight: "subtitleFontWeight", imageSrc: "imageSrc", imageHeight: "imageHeight", imageWidth: "imageWidth", animation: "animation", animateTitle: "animateTitle", animateSubtitle: "animateSubtitle", animationDuration: "animationDuration", showTitle: "showTitle", showSubtitle: "showSubtitle", showUnits: "showUnits", showImage: "showImage", showBackground: "showBackground", showInnerStroke: "showInnerStroke", clockwise: "clockwise", responsive: "responsive", startFromZero: "startFromZero", showZeroOuterStroke: "showZeroOuterStroke", lazy: "lazy", templateOptions: ["options", "templateOptions"] }, outputs: { onClick: "onClick" }, usesOnChanges: true, ngImport: i0, template: `
+      |                                ^
+  530 |         <svg xmlns="http://www.w3.org/2000/svg" *ngIf="svg"
+  531 |              [attr.viewBox]="svg.viewBox" preserveAspectRatio="xMidYMid meet"
+  532 |              [attr.height]="svg.height" [attr.width]="svg.width" (click)="emitClickEvent($event)" [attr.class]="options.class">'
+    at run (D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\@babel\core\lib\transformation\index.js:37:15)
+    at run.next (<anonymous>)
+    at Function.transform (D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\@babel\core\lib\transform.js:25:41)
+    at transform.next (<anonymous>)
+    at step (D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\gensync\index.js:261:32)
+    at D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\gensync\index.js:273:13
+    at async.call.result.err.err (D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\gensync\index.js:223:11)
+    at D:\Arsides\alicorp\DeudaAtenea\Deuda-Atenea-CLI\node_modules\gensync\index.js:37:40
+
+
+
+** Angular Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/ **
+
+
+× Failed to compile.

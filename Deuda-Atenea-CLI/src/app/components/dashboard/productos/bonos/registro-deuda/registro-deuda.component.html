@@ -26,394 +26,313 @@
               <div class="scroll-container" style="width:100%;">
 
                 <form [formGroup]="debtForm">
-                  <table>
-                    <!-- Clase y Tipo de Producto -->
-                    <tr>
-                      <td class="nombreCampo">Clase de Producto:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="listClaseProducto"
-                          bindLabel="descripcion" bindValue="id" formControlName="idClaseProducto"
-                          (change)="onTipoOCChange($event)">
+                    <!-- Cabecera -->
+                    <div class="form-grid">
+                      <div class="form-item">
+                        <label>Clase de Producto*</label>
+                        <ng-select [items]="listClaseProducto" bindLabel="descripcion" bindValue="id"
+                            formControlName="idClaseProducto" (change)="onTipoOCChange($event)">
                         </ng-select>
-                      </td>
+                      </div>
 
-                      <td class="nombreCampo">Tipo de Productos:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="tiposFiltrados"
-                          bindLabel="descripcion" bindValue="descripcion" formControlName="idTipoProducto">
+                      <div class="form-item">
+                        <label>Tipo de Préstamo*</label>
+                        <ng-select [items]="loanTypes" bindLabel="name" bindValue="id"
+                            formControlName="loanTypeId" (change)="onSelectLoanType($event)">
                         </ng-select>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
 
-                    <tr style="border-top: 1px solid #eff0f6;"></tr>
+                    <hr class="section-divider">
 
-                    <!-- Primera fila -->
-                    <tr>
-                      <td class="nombreCampo">
-                        {{ ['IPC','IPL'].includes(debtForm.get('idClaseProducto')?.value) ? 'Deudor:*' : 'Sociedad:*' }}
-                      </td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="subsidiaries" bindLabel="name"
-                          bindValue="id" formControlName="subsidiaryDebtorId" (change)="onSelectDeudor($event)">
+                    <div class="form-grid">
+                      
+                      <div class="form-item">
+                        <label>{{ ['IPC','IPL'].includes(debtForm.get('idClaseProducto')?.value) ? 'Deudor*' : 'Sociedad*' }}</label>
+                        <ng-select [items]="subsidiaries" bindLabel="name" bindValue="id"
+                                  formControlName="subsidiaryDebtorId" (change)="onSelectDeudor($event)">
                         </ng-select>
-                      </td>
+                      </div>
 
-                      <ng-container *ngIf="!['PCM'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Nombre de acreedor:*</td>
-                        <td class="valorCampo">
-                          <ng-select [clearable]="false" class="form-control" [items]="subsidiaries" bindLabel="name"
-                            bindValue="id" formControlName="subsidiaryCreditorId" (change)="onSelectAcreedor($event)">
-                          </ng-select>
-                        </td>
-                      </ng-container>
-
-                      <td class="nombreCampo">Tipo de Préstamo:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="loanTypes" bindLabel="name"
-                          bindValue="id" formControlName="loanTypeId" (change)="onSelectLoanType($event)">
+                      <div class="form-item" *ngIf="mostrarCampo('subsidiaryCreditorId')">
+                        <label>Nombre de acreedor*</label>
+                        <ng-select [items]="subsidiaries" bindLabel="name" bindValue="id"
+                                  formControlName="subsidiaryCreditorId" (change)="onSelectAcreedor($event)">
                         </ng-select>
-                      </td>
-                    </tr>
+                      </div>
 
-                    <!-- Segunda fila -->
-                    <tr>
-                      <td class="nombreCampo">Fecha de inicio validez:*</td>
-                      <td class="valorCampo">
+                      <div class="form-item">
+                        <label>Fecha de inicio validez*</label>
                         <mat-form-field appearance="outline">
-                          <input matInput [value]="debtForm.get('validityStartDate')?.value | date: 'yyyy/MM/dd'"
-                            readonly (click)="pickerInicioValidez.open()">
-                          <input matInput [matDatepicker]="pickerInicioValidez" formControlName="validityStartDate"
-                            [min]="today" hidden>
+                          <input matInput [matDatepicker]="pickerInicioValidez" formControlName="validityStartDate">
                           <mat-datepicker-toggle matSuffix [for]="pickerInicioValidez"></mat-datepicker-toggle>
                           <mat-datepicker #pickerInicioValidez></mat-datepicker>
                         </mat-form-field>
-                      </td>
+                      </div>
 
-                      <ng-container *ngIf="!['IPC','IPL','FIC','FIL'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Fecha de desembolso:*</td>
-                        <td class="valorCampo">
-                          <mat-form-field appearance="outline">
-                            <input matInput [value]="debtForm.get('disbursementDate')?.value | date: 'yyyy/MM/dd'"
-                              readonly (click)="pickerDesembolso.open()">
-                            <input matInput [matDatepicker]="pickerDesembolso" formControlName="disbursementDate"
-                              [min]="today" hidden>
-                            <mat-datepicker-toggle matSuffix [for]="pickerDesembolso"></mat-datepicker-toggle>
-                            <mat-datepicker #pickerDesembolso></mat-datepicker>
-                          </mat-form-field>
-                        </td>
-                      </ng-container>
-
-                      <ng-container *ngIf="!['IPL','IPC'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Fecha inicio pago intereses:*</td>
-                        <td class="valorCampo">
-                          <mat-form-field appearance="outline">
-                            <input matInput [value]="debtForm.get('interestStartDate')?.value | date: 'yyyy/MM/dd'"
-                              readonly (click)="pickerInicioIntereses.open()">
-                            <input matInput [matDatepicker]="pickerInicioIntereses" formControlName="interestStartDate"
-                              [min]="today" hidden>
-                            <mat-datepicker-toggle matSuffix [for]="pickerInicioIntereses"></mat-datepicker-toggle>
-                            <mat-datepicker #pickerInicioIntereses></mat-datepicker>
-                          </mat-form-field>
-                        </td>
-                      </ng-container>
-                    </tr>
-
-                    <!-- Tercera fila -->
-                    <tr>
-                      <ng-container
-                        *ngIf="!['PCM','IPL','IPC','FIL','FIC'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Fecha de inicio amortización:*</td>
-                        <td class="valorCampo">
-                          <mat-form-field appearance="outline">
-                            <input matInput [value]="debtForm.get('fechai')?.value | date: 'yyyy/MM/dd'" readonly
-                              (click)="pickerInicioAmortizacion.open()">
-                            <input matInput [matDatepicker]="pickerInicioAmortizacion" formControlName="fechai"
-                              [min]="today" hidden>
-                            <mat-datepicker-toggle matSuffix [for]="pickerInicioAmortizacion"></mat-datepicker-toggle>
-                            <mat-datepicker #pickerInicioAmortizacion></mat-datepicker>
-                          </mat-form-field>
-                        </td>
-                      </ng-container>
-
-                      <ng-container *ngIf="['FIL','FIC'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Fecha de Aceptacion:*</td>
-                        <td class="valorCampo">
-                          <mat-form-field appearance="outline">
-                            <input matInput [value]="debtForm.get('fechaaceptacion')?.value | date: 'yyyy/MM/dd'"
-                              readonly (click)="pickerInicioAmortizacion.open()">
-                            <input matInput [matDatepicker]="pickerInicioAmortizacion" formControlName="fechaaceptacion"
-                              hidden>
-                            <mat-datepicker-toggle matSuffix [for]="pickerInicioAmortizacion"></mat-datepicker-toggle>
-                            <mat-datepicker #pickerInicioAmortizacion></mat-datepicker>
-                          </mat-form-field>
-                        </td>
-                      </ng-container>
-
-                      <td class="nombreCampo">Fecha de vencimiento:*</td>
-                      <td class="valorCampo">
+                      <div class="form-item" *ngIf="mostrarCampo('disbursementDate')">
+                        <label>Fecha de desembolso*</label>
                         <mat-form-field appearance="outline">
-                          <input matInput [value]="debtForm.get('maturityDate')?.value | date: 'yyyy/MM/dd'" readonly
-                            (click)="pickerVencimiento.open()">
-                          <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate"
-                            [min]="today" hidden>
+                          <input matInput [matDatepicker]="pickerDesembolso" formControlName="disbursementDate">
+                          <mat-datepicker-toggle matSuffix [for]="pickerDesembolso"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerDesembolso></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('interestStartDate')">
+                        <label>Fecha inicio pago intereses*</label>
+                        <mat-form-field appearance="outline">
+                          <input matInput [matDatepicker]="pickerInicioIntereses" formControlName="interestStartDate">
+                          <mat-datepicker-toggle matSuffix [for]="pickerInicioIntereses"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerInicioIntereses></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('fechai')">
+                        <label>Fecha de inicio amortización*</label>
+                        <mat-form-field appearance="outline">
+                          <input matInput [matDatepicker]="pickerInicioAmortizacion" formControlName="fechai">
+                          <mat-datepicker-toggle matSuffix [for]="pickerInicioAmortizacion"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerInicioAmortizacion></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('fechaaceptacion')">
+                        <label>Fecha de Aceptación*</label>
+                        <mat-form-field appearance="outline">
+                          <input matInput [matDatepicker]="pickerAceptacion" formControlName="fechaaceptacion">
+                          <mat-datepicker-toggle matSuffix [for]="pickerAceptacion"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerAceptacion></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="form-item">
+                        <label>Fecha de vencimiento*</label>
+                        <mat-form-field appearance="outline">
+                          <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate">
                           <mat-datepicker-toggle matSuffix [for]="pickerVencimiento"></mat-datepicker-toggle>
                           <mat-datepicker #pickerVencimiento></mat-datepicker>
                         </mat-form-field>
-                      </td>
-                      <td class="nombreCampo">Moneda:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="currencies" bindLabel="name"
-                          formControlName="currencyId" bindValue="id" (change)="onSelectCurrency($event)">
+                      </div>
+
+
+                      <div class="form-item">
+                        <label>Moneda*</label>
+                        <ng-select [items]="currencies" bindLabel="name" bindValue="id"
+                                  formControlName="currencyId" (change)="onSelectCurrency($event)">
                         </ng-select>
-                      </td>
-                    </tr>
+                      </div>
 
-                    <!-- Cuarta fila -->
-                    <tr>
-                      <td class="nombreCampo">Nominal:*</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" (input)="formatearValorNumeric($event, true)"
-                          formControlName="nominal">
-                      </td>
+                      <div class="form-item">
+                        <label>Nominal*</label>
+                        <input class="redondeado" type="text" formControlName="nominal" (input)="formatearValorNumeric($event, true)">
+                      </div>
 
-                      <td class="nombreCampo">Tipo de amortización:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="loanAmortizationTypes"
-                          bindLabel="name" bindValue="id" formControlName="tipoa"
-                          (change)="onAmortizationTypeChange($event)">
+                      <div class="form-item">
+                        <label>Tipo de amortización*</label>
+                        <ng-select [items]="loanAmortizationTypes" bindLabel="name" bindValue="id"
+                                  formControlName="tipoa" (change)="onAmortizationTypeChange($event)">
                         </ng-select>
-                      </td>
+                      </div>
 
-                      <td class="nombreCampo">Tipo de Expresión de Tasa:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="loanRateExpressionTypes"
-                          bindLabel="name" bindValue="id" formControlName="tipoe">
+                      <div class="form-item">
+                        <label>Tipo de Expresión de Tasa*</label>
+                        <ng-select [items]="loanRateExpressionTypes" bindLabel="name" bindValue="id"
+                                  formControlName="tipoe">
                         </ng-select>
-                      </td>
-                    </tr>
+                      </div>
 
-                    <!-- Quinta fila -->
-                    <tr>
-                      <ng-container *ngIf="['LEA'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Portes:</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                            formControlName="amortizationRate">
-                        </td>
-                      </ng-container>
+                      <div class="form-item" *ngIf="mostrarCampo('portes')">
+                        <label>Portes</label>
+                        <input class="redondeado" type="text" formControlName="amortizationRate" (input)="formatearValor($event, false)">
+                      </div>
 
-                      <ng-container *ngIf="['PCM'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Precio:</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                            formControlName="precio">
-                        </td>
-                      </ng-container>
+                      <div class="form-item" *ngIf="mostrarCampo('precio')">
+                        <label>Precio</label>
+                        <input class="redondeado" type="text" formControlName="precio" (input)="formatearValor($event, false)">
+                      </div>
 
-                      <ng-container
-                        *ngIf="['PBC','PBL','PAC','PAL','EMI','LEA'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td *ngIf="mostrarExcepcion == true" class="nombreCampo">Tasa de amortización (%):</td>
-                        <td *ngIf="mostrarExcepcion == true" class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false,'porcentaje')"
-                            formControlName="amortizationRate">
-                        </td>
-                      </ng-container>
-                    </tr>
+                      <div class="form-item" *ngIf="mostrarCampo('amortizationRate')">
+                        <label>Tasa de amortización (%)</label>
+                        <input class="redondeado" type="text" formControlName="amortizationRate" (input)="formatearValor($event, false, 'porcentaje')">
+                      </div>
 
-                    <!-- Sexta fila -->
-                    <tr *ngIf="mostrarExcepcion == true">
-                      <ng-container
-                        *ngIf="['PBC','PBL','PAC','PAL','EMI','LEA'].includes(debtForm.get('idClaseProducto')?.value) || mostrarExcepcion == true">
-                        <td class="nombreCampo"># Cuota inicio amortización:</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                            formControlName="amortizationStartPayment">
-                        </td>
+                      <div class="form-item" *ngIf="mostrarCampo('amortizationStartPayment')">
+                        <label># Cuota inicio amortización</label>
+                        <input class="redondeado" type="text" formControlName="amortizationStartPayment" (input)="formatearValor($event, false)">
+                      </div>
 
-                        <td class="nombreCampo">Excepción tasa amortización:</td>
-                        <td class="valorCampo">
+                      <!-- Checkbox: Aplicar excepción -->
+                      <div class="form-item" *ngIf="mostrarCampo('applyAmortizationException')">
+                        <label>Excepción tasa amortización</label>
+                       
                           <mat-checkbox formControlName="applyAmortizationException">
                             Aplicar excepción
                           </mat-checkbox>
-                        </td>
+                       
+                      </div>
 
-                        <td class="nombreCampo">Periodicidad de pagos:*</td>
-                        <td class="valorCampo">
-                          <ng-select [clearable]="false" class="form-control" [items]="periods" bindLabel="name"
-                            bindValue="id" formControlName="periodsId">
-                          </ng-select>
-                        </td>
-                      </ng-container>
-                    </tr>
+                      <!-- Botón: Generar excepción -->
+                      <div class="form-item" *ngIf="debtForm.get('applyAmortizationException')?.value">
+                        <label style="color: white;"> . </label>
+                          <button mat-raised-button class="btn btn-secondary btn-rojo"
+                                  (click)="generarExcepcion()">
+                            Generar Excepción
+                          </button>
+                        
+                      </div>
 
-                    <!-- Septima fila -->
-                    <tr *ngIf="mostrarExcepcion == true">
-                      <td class="nombreCampo">Tipo de Tasa:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="rateClassifications"
-                          bindLabel="name" bindValue="id" formControlName="rateClassificationId"
-                          (change)="onRateClassificationChange($event)">
+
+                      <!--div class="form-item" *ngIf="mostrarCampo('applyAmortizationException')">
+                        <label>Excepción tasa amortización</label>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                          <mat-checkbox formControlName="applyAmortizationException">
+                            Aplicar excepción
+                          </mat-checkbox>
+
+                          <button mat-raised-button class="btn btn-secondary btn-rojo"
+                                  *ngIf="debtForm.get('applyAmortizationException')?.value"
+                                  (click)="generarExcepcion()">
+                            Generar Excepción
+                          </button>
+                        </div>
+                      </div-->
+                      
+                      <div class="form-item" *ngIf="mostrarCampo('periodsId')">
+                        <label>Periodicidad de pagos*</label>
+                        <ng-select [items]="periods" bindLabel="name" bindValue="id" formControlName="periodsId">
                         </ng-select>
-                      </td>
-                    </tr>
+                      </div>
 
-                    <!-- Octava fila -->
-                    <tr>
-                      <ng-container *ngIf="debtForm.get('rateClassificationId')?.value === 1">
-                        <td class="nombreCampo">Porcentaje:*</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false,'porcentaje')"
-                            formControlName="fixedRatePercentage">
-                        </td>
-                        <td></td>
-                        <td></td>
-                      </ng-container>
-
-                      <ng-container *ngIf="debtForm.get('rateClassificationId')?.value === 2">
-                        <td class="nombreCampo">Tasa de Referencia:*</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" formControlName="referenceRate">
-                        </td>
-                        <td class="nombreCampo">Term SOFR Adj:*</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false,'porcentaje')"
-                            formControlName="termSofrAdj">
-                        </td>
-                      </ng-container>
-                    </tr>
-
-                    <!-- Septima fila - Campos adicionales para tasa variable -->
-                    <tr *ngIf="debtForm.get('rateClassificationId')?.value === 2">
-                      <td></td>
-                      <td></td>
-                      <td class="nombreCampo">Applicable Margin:*</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                          formControlName="applicableMargin">
-                      </td>
-                      <td class="nombreCampo">Otros:</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                          formControlName="otherRateParams">
-                      </td>
-                    </tr>
-
-                    <!-- Novena fila - Excepción tasa amortización -->
-                    <tr *ngIf="debtForm.get('tipoa')?.value !== 'BULLET'">
-
-                      <td colspan="4">
-                        <!-- Botón solo visible si está marcado -->
-                        <button *ngIf="debtForm.get('applyAmortizationException')?.value" mat-raised-button
-                          class="btn btn-secondary btn-rojo" (click)="generarExcepcion()">
-                          Generar Excepción
-                        </button>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <ng-container
-                        *ngIf="['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(debtForm.get('idClaseProducto')?.value)">
-                        <td class="nombreCampo">Fecha de Prepago:*</td>
-                        <td class="valorCampo">
-                          <mat-form-field appearance="outline">
-                            <input matInput [value]="debtForm.get('maturityDate')?.value | date: 'yyyy/MM/dd'" readonly
-                              (click)="pickerVencimiento.open()">
-                            <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate" hidden>
-                            <mat-datepicker-toggle matSuffix [for]="pickerVencimiento"></mat-datepicker-toggle>
-                            <mat-datepicker #pickerVencimiento></mat-datepicker>
-                          </mat-form-field>
-                        </td>
-
-                        <td class="nombreCampo">Monto de prepago:</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                            formControlName="amortizationStartPayment">
-                        </td>
-
-                        <td class="nombreCampo">Nro. Pago:</td>
-                        <td class="valorCampo">
-                          <input class="redondeado" type="text" formControlName="amortizationStartPayment">
-                        </td>
-                      </ng-container>
-                    </tr>
-
-                    <!-- Campos adicionales -->
-                    <tr style="border-top: 1px solid #eff0f6;">
-                      <td colspan="6" style="font-weight: bold; padding: 8px 0;">
-                        Campos Adicionales
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td class="nombreCampo">Operación (TRM):*</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" (input)="formatearValor($event, false)"
-                          formControlName="operationTrm">
-                      </td>
-                      <td class="nombreCampo">Basis:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="basisOptions" bindLabel="name"
-                          bindValue="id" formControlName="basisId">
+                      <div class="form-item" *ngIf="mostrarCampo('rateClassificationId')">
+                        <label>Tipo de Tasa*</label>
+                        <ng-select [items]="rateClassifications" bindLabel="name" bindValue="id"
+                                  formControlName="rateClassificationId" (change)="onRateClassificationChange($event)">
                         </ng-select>
-                      </td>
-                      <td class="nombreCampo">Tasa nominal/efectiva:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="listTasaNominal" bindLabel="nombre"
-                          bindValue="codigo" formControlName="rateTypeId">
-                        </ng-select>
-                      </td>
-                    </tr>
+                      </div>
 
-                    <tr>
-                      <td class="nombreCampo">Forma de amortización:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="amortizationMethods"
-                          bindLabel="name" bindValue="id" formControlName="amortizationMethodId">
-                        </ng-select>
-                      </td>
-                      <td class="nombreCampo">Tipo de redondeo:*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="roundingTypes" bindLabel="name"
-                          bindValue="id" formControlName="roundingTypeId">
-                        </ng-select>
-                      </td>
-                      <td class="nombreCampo">Periodicidad (estructura de intereses):*</td>
-                      <td class="valorCampo">
-                        <ng-select [clearable]="false" class="form-control" [items]="rateTypeOptions" bindLabel="nombre"
-                          bindValue="codigo" formControlName="periodicidadIntereses">
-                        </ng-select>
-                      </td>
-                    </tr>
 
-                    <tr>
-                      <td class="nombreCampo">Portafolio:</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" formControlName="portfolio">
-                      </td>
-                      <td class="nombreCampo">Proyecto:</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" formControlName="project">
-                      </td>
-                      <td class="nombreCampo">Asignación:</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" formControlName="assignment">
-                      </td>
-                    </tr>
 
-                    <tr>
-                      <td class="nombreCampo">Referencia interna:</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" formControlName="internalReference">
-                      </td>
-                      <td class="nombreCampo">Características:</td>
-                      <td class="valorCampo">
-                        <input class="redondeado" type="text" formControlName="features">
-                      </td>
-                    </tr>
+                      <!-- Porcentaje fijo -->
+                      <div class="form-item" *ngIf="mostrarCampo('fixedRatePercentage')">
+                        <label>Porcentaje*</label>
+                        <input class="redondeado" type="text" formControlName="fixedRatePercentage" (input)="formatearValor($event, false, 'porcentaje')">
+                      </div>
 
-                  </table>
+                      <!-- Tasa variable -->
+                      <div class="form-item" *ngIf="mostrarCampo('referenceRate')">
+                        <label>Tasa de Referencia*</label>
+                        <input class="redondeado" type="text" formControlName="referenceRate">
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('termSofrAdj')">
+                        <label>Term SOFR Adj*</label>
+                        <input class="redondeado" type="text" formControlName="termSofrAdj" (input)="formatearValor($event, false, 'porcentaje')">
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('applicableMargin')">
+                        <label>Applicable Margin*</label>
+                        <input class="redondeado" type="text" formControlName="applicableMargin" (input)="formatearValor($event, false)">
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('otherRateParams')">
+                        <label>Otros</label>
+                        <input class="redondeado" type="text" formControlName="otherRateParams" (input)="formatearValor($event, false)">
+                      </div>
+
+                      <!-- Prepago -->
+                      <div class="form-item" *ngIf="mostrarCampo('prepaymentDate')">
+                        <label>Fecha de Prepago*</label>
+                        <mat-form-field appearance="outline">
+                          <input matInput [matDatepicker]="pickerPrepago" formControlName="prepaymentDate">
+                          <mat-datepicker-toggle matSuffix [for]="pickerPrepago"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerPrepago></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('prepaymentAmount')">
+                        <label>Monto de prepago</label>
+                        <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValor($event, false)">
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('prepaymentInstallmentNumber')">
+                        <label>Nro. Pago</label>
+                        <input class="redondeado" type="text" formControlName="prepaymentInstallmentNumber">
+                      </div>
+
+                    </div>
+
+                    <hr class="section-divider">
+                    <div style="font-weight: bold; padding: 8px 0;">
+                    Campos Adicionales
+                    </div>
+
+
+                    <!-- Seccion 3 -->
+                    <div class="form-grid">
+                    <div class="form-item">
+                      <label>Operación (TRM)*</label>
+                      <input class="redondeado" type="text" formControlName="operationTrm" (input)="formatearValor($event, false)">
+                    </div>
+
+                    <div class="form-item">
+                      <label>Basis*</label>
+                      <ng-select [items]="basisOptions" bindLabel="name" bindValue="id" formControlName="basisId">
+                      </ng-select>
+                    </div>
+
+                    <div class="form-item">
+                      <label>Tasa nominal/efectiva*</label>
+                      <ng-select [items]="listTasaNominal" bindLabel="nombre" bindValue="codigo" formControlName="rateTypeId">
+                      </ng-select>
+                    </div>
+
+                    <div class="form-item">
+                      <label>Forma de amortización*</label>
+                      <ng-select [items]="amortizationMethods" bindLabel="name" bindValue="id" formControlName="amortizationMethodId">
+                      </ng-select>
+                    </div>
+
+                    <div class="form-item">
+                      <label>Tipo de redondeo*</label>
+                      <ng-select [items]="roundingTypes" bindLabel="name" bindValue="id" formControlName="roundingTypeId">
+                      </ng-select>
+                    </div>
+
+                    <div class="form-item">
+                      <label>Periodicidad (estructura de intereses)*</label>
+                      <ng-select [items]="rateTypeOptions" bindLabel="nombre" bindValue="codigo" formControlName="periodicidadIntereses">
+                      </ng-select>
+                    </div>
+
+                    <div class="form-item">
+                      <label>Portafolio</label>
+                      <input class="redondeado" type="text" formControlName="portfolio">
+                    </div>
+
+                    <div class="form-item">
+                      <label>Proyecto</label>
+                      <input class="redondeado" type="text" formControlName="project">
+                    </div>
+
+                    <div class="form-item">
+                      <label>Asignación</label>
+                      <input class="redondeado" type="text" formControlName="assignment">
+                    </div>
+
+                    <div class="form-item">
+                      <label>Referencia interna</label>
+                      <input class="redondeado" type="text" formControlName="internalReference">
+                    </div>
+
+                    <div class="form-item">
+                      <label>Características</label>
+                      <input class="redondeado" type="text" formControlName="features">
+                    </div>
+
+                    </div>
                 </form>
-              </div>
+              </div> 
 
               <div class="card-footer">
                 <div style="text-align: right;">

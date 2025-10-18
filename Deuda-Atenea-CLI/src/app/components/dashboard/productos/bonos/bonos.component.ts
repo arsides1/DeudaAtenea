@@ -50,8 +50,8 @@ export class BonosComponent implements OnInit {
   portafolioOpenDS: MatTableDataSource<any> = new MatTableDataSource();
 
   // LISTAS Y CATÁLOGOS ESTÁTICOS
-  public listTipoOC: TipoOC[] = [
-    { t445_id: "PBC", t445_description: "Préstamos bancarios corto plazo", t445_status: true },
+  /*public listTipoOC: TipoOC[] = [
+    { t445_id: "1", t445_description: "Préstamos bancarios corto plazo", t445_status: true } ,
     { t445_id: "PBL", t445_description: "Préstamos bancarios largo plazo", t445_status: true },
     { t445_id: "IPC", t445_description: "Préstamos intercompany corto plazo", t445_status: true },
     { t445_id: "IPL", t445_description: "Préstamos intercompany largo plazo", t445_status: true },
@@ -62,7 +62,7 @@ export class BonosComponent implements OnInit {
     { t445_id: "PCM", t445_description: "Papeles Comerciales", t445_status: true },
     { t445_id: "LEA", t445_description: "Leasing", t445_status: true },
     { t445_id: "EMI", t445_description: "Emisiones de Bonos", t445_status: true }
-  ];
+  ];*/
 
 
   // COLUMNAS DE LA TABLA
@@ -123,6 +123,7 @@ export class BonosComponent implements OnInit {
   // DATOS DE ENTIDADES
   subsidiaries: any[] = [];
   loanTypes: any[] = [];
+  listTypeProducts: any[] = [];
 
   // VARIABLES AUXILIARES Y CONTROL
   private destroy$ = new Subject<void>();
@@ -161,11 +162,13 @@ export class BonosComponent implements OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  getProductClassDescription(productClassId: string): string {
+  getProductClassDescription(productClassId: number): string {
     if (!productClassId) return '-';
-    const tipo = this.listTipoOC.find(t => t.t445_id === productClassId);
-    return tipo ? tipo.t445_description : productClassId;
+    const tipo = this.listTypeProducts.find(t => Number(t.id) === productClassId);
+    return tipo ? tipo.name : String(productClassId);
   }
+
+  
 
   loadDebts(): void {
     this.loading = true;
@@ -277,6 +280,7 @@ export class BonosComponent implements OnInit {
 
       acreedores: this.tesoreriaService.getListaAcreedor(),
       loanType: this.tesoreriaService.getListaCombo(10),
+      typeProducts: this.tesoreriaService.getListaCombo(14)
 
     }).pipe(
       takeUntil(this.destroy$)
@@ -295,6 +299,10 @@ export class BonosComponent implements OnInit {
           name: l.descripcion_combo
         }));
 
+        this.listTypeProducts = result.typeProducts.map((classProduct: OpcionesCombo) => ({
+          id: classProduct.id_combo,
+          name: classProduct.descripcion_combo
+        }));
 
 
         this.loading = false;
@@ -318,7 +326,7 @@ export class BonosComponent implements OnInit {
   abrirModal(modal: any, element: any, tipo?: any) {
     this.objetoInitPadre = element;
     this.myModal = true;
-
+    console.log("tipo recibido: ",tipo)
     if (tipo === 'cronograma') {
       this.loading = true;
 
@@ -349,12 +357,15 @@ export class BonosComponent implements OnInit {
           });
         }
       });
+    } if (tipo === 'nuevo') {
+      this.objetoInitPadre = undefined;
     } else {
       const modalRef = this.modalService.open(modal, {
         windowClass: "my-classModal",
         backdrop: 'static',
         keyboard: false
       });
+      console.log(this.objetoInitPadre)
       modalRef.result.then(
         (result) => {
           if (result && result.action === 'saved') {

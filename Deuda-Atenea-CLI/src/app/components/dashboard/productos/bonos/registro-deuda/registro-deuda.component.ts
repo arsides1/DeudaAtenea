@@ -422,7 +422,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   onAmortizationTypeChange(value: any): void {
-
+    console.log("Valor de Tipo AMortizacion: ",value)
     if (value.id == '01') {
       this.mostrarExcepcion = false;
     } else {
@@ -1771,4 +1771,59 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     this.close.emit(true);
     this.modalService.dismissAll();
   }
+
+  mostrarCampo(campo: string): boolean {
+    const clase = this.debtForm.get('idClaseProducto')?.value;
+    const tipoa = this.debtForm.get('tipoa')?.value;
+    const clasificacionTasa = this.debtForm.get('rateClassificationId')?.value;
+
+    const mapa: Record<string, boolean> = {
+      // Sección 1: Acreedor
+      subsidiaryCreditorId: clase !== 'PCM',
+
+      // Sección 2: Fechas
+      disbursementDate: !['IPC', 'IPL', 'FIC', 'FIL'].includes(clase),
+      interestStartDate: !['IPC', 'IPL'].includes(clase),
+      fechai: !['PCM', 'IPC', 'IPL', 'FIL', 'FIC'].includes(clase),
+      fechaaceptacion: ['FIL', 'FIC'].includes(clase),
+
+      // Sección 2: Excepciones y tasas
+      amortizationRate: ['PBC', 'PBL', 'PAC', 'PAL', 'EMI', 'LEA'].includes(clase),
+      amortizationStartPayment: tipoa !== '01',
+      applyAmortizationException: tipoa !== '01',
+      periodsId: true,
+      rateClassificationId: true,
+      fixedRatePercentage: clasificacionTasa === 1,
+      referenceRate: clasificacionTasa === 2,
+      termSofrAdj: clasificacionTasa === 2,
+      applicableMargin: clasificacionTasa === 2,
+      otherRateParams: clasificacionTasa === 2,
+
+      // Sección 2: Precio y portes
+      precio: clase === 'PCM',
+      portes: clase === 'LEA',
+
+      // Sección 2: Prepago
+      prepaymentDate: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
+      prepaymentAmount: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
+      prepaymentInstallmentNumber: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
+
+      // Sección 3: Campos adicionales (todos visibles)
+      operationTrm: true,
+      basisId: true,
+      rateTypeId: true,
+      amortizationMethodId: true,
+      roundingTypeId: true,
+      periodicidadIntereses: true,
+      portfolio: true,
+      project: true,
+      assignment: true,
+      internalReference: true,
+      features: true,
+    };
+
+    return mapa[campo] ?? true;
+  }
+
+
 }
