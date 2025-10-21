@@ -357,3 +357,47 @@ mat-spinner {
     height: 18px !important;
   }
 }
+
+////////
+.filtros-fecha-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.filtros-fecha-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.bloque-fecha {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 280px;
+}
+
+.bloque-titulo {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.bloque-campos {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.separador {
+  font-weight: bold;
+  color: #666;
+}
+
+.filtros-fecha-boton {
+  display: flex;
+  justify-content: flex-end;
+}

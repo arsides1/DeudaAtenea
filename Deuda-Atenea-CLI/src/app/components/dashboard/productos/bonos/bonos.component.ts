@@ -67,7 +67,7 @@ export class BonosComponent implements OnInit {
 
   // COLUMNAS DE LA TABLA
   displayedColumns: string[] = [
-    'tipoProducto',
+    'claseProducto',
     'subsidiaryDebtorName',
     'subsidiaryCreditorName',
     'loanTypeName',
@@ -99,7 +99,19 @@ export class BonosComponent implements OnInit {
     currencyId: [],
     rateClassificationName: [],
     periodsName: [],
-    rateTypeId: []
+    rateTypeId: [],
+
+  validityStartDateDesde: null,
+  validityStartDateHasta: null,
+  disbursementDateDesde: null,
+  disbursementDateHasta: null,
+  interestStartDateDesde: null,
+  interestStartDateHasta: null,
+  maturityDateDesde: null,
+  maturityDateHasta: null
+
+
+
   };
 
   filtrosSeleccionados: any = {
@@ -124,6 +136,7 @@ export class BonosComponent implements OnInit {
   subsidiaries: any[] = [];
   loanTypes: any[] = [];
   listTypeProducts: any[] = [];
+  listProductClasses: any[]=[];
 
   // VARIABLES AUXILIARES Y CONTROL
   private destroy$ = new Subject<void>();
@@ -164,7 +177,7 @@ export class BonosComponent implements OnInit {
 
   getProductClassDescription(productClassId: number): string {
     if (!productClassId) return '-';
-    const tipo = this.listTypeProducts.find(t => Number(t.id) === productClassId);
+    const tipo = this.listProductClasses.find(t => Number(t.id) === productClassId);
     return tipo ? tipo.name : String(productClassId);
   }
 
@@ -280,7 +293,8 @@ export class BonosComponent implements OnInit {
 
       acreedores: this.tesoreriaService.getListaAcreedor(),
       loanType: this.tesoreriaService.getListaCombo(10),
-      typeProducts: this.tesoreriaService.getListaCombo(14)
+      typeProducts: this.tesoreriaService.getListaCombo(14),
+      productClasses: this.tesoreriaService.getListaCombo(15)
 
     }).pipe(
       takeUntil(this.destroy$)
@@ -299,11 +313,15 @@ export class BonosComponent implements OnInit {
           name: l.descripcion_combo
         }));
 
-        this.listTypeProducts = result.typeProducts.map((classProduct: OpcionesCombo) => ({
-          id: classProduct.id_combo,
-          name: classProduct.descripcion_combo
+        this.listTypeProducts = result.typeProducts.map((typeProduct: OpcionesCombo) => ({
+          id: typeProduct.id_combo,
+          name: typeProduct.descripcion_combo
         }));
 
+        this.listProductClasses = result.productClasses.map((productClass: OpcionesCombo) =>({
+          id: productClass.id_combo,
+          name: productClass.descripcion_combo
+        }));
 
         this.loading = false;
       },
@@ -405,5 +423,74 @@ export class BonosComponent implements OnInit {
       this.loadDebts();
     }
   }
+
+  filtrarTabla(): void {
+    if (!this.validarFechas()) return;
+
+     console.log('🕒 Rangos seleccionados:');
+  console.log('Inicio Vigencia:', this.filtros.validityStartDateDesde, '→', this.filtros.validityStartDateHasta);
+  console.log('Desembolso:', this.filtros.disbursementDateDesde, '→', this.filtros.disbursementDateHasta);
+  console.log('Inicio Interés:', this.filtros.interestStartDateDesde, '→', this.filtros.interestStartDateHasta);
+  console.log('Vencimiento:', this.filtros.maturityDateDesde, '→', this.filtros.maturityDateHasta);
+
+
+
+
+    this.dataSource.data = this.debts.filter(deuda => {
+      return this.filtraPorRango(deuda.validityStartDate, this.filtros.validityStartDateDesde, this.filtros.validityStartDateHasta)
+        && this.filtraPorRango(deuda.disbursementDate, this.filtros.disbursementDateDesde, this.filtros.disbursementDateHasta)
+        && this.filtraPorRango(deuda.interestStartDate, this.filtros.interestStartDateDesde, this.filtros.interestStartDateHasta)
+        && this.filtraPorRango(deuda.maturityDate, this.filtros.maturityDateDesde, this.filtros.maturityDateHasta);
+    });
+  }
+
+  filtraPorRango(valor: number | string | Date | null | undefined, desde: Date | null, hasta: Date | null): boolean {
+
+    if (!desde && !hasta) return true;
+    if ((desde && !hasta) || (!desde && hasta)) return false;
+    if (!valor) return false;
+
+    const fechaValor = this.formatearFecha(valor);
+    const fechaDesde = this.formatearFecha(desde!);
+    const fechaHasta = this.formatearFecha(hasta!);
+
+    return fechaValor >= fechaDesde && fechaValor <= fechaHasta;
+
+
+  }
+
+  validarFechas(): boolean {
+    const grupos = [
+      { desde: this.filtros.validityStartDateDesde, hasta: this.filtros.validityStartDateHasta, nombre: 'Inicio Vigencia' },
+      { desde: this.filtros.disbursementDateDesde, hasta: this.filtros.disbursementDateHasta, nombre: 'Desembolso' },
+      { desde: this.filtros.interestStartDateDesde, hasta: this.filtros.interestStartDateHasta, nombre: 'Inicio Interés' },
+      { desde: this.filtros.maturityDateDesde, hasta: this.filtros.maturityDateHasta, nombre: 'Vencimiento' }
+    ];
+
+    for (const grupo of grupos) {
+      const soloDesde = grupo.desde && !grupo.hasta;
+      const soloHasta = !grupo.desde && grupo.hasta;
+      if (soloDesde || soloHasta) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Rango incompleto',
+          text: `Por favor completa el rango de fechas para "${grupo.nombre}".`
+        });
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  formatearFecha(fecha: Date | string | number): string {
+    const d = new Date(fecha);
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const año = d.getFullYear();
+    return `${dia}/${mes}/${año}`;
+  }
+
+
 
 }

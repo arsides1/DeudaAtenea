@@ -61,10 +61,13 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   rateClassifications: any[] = [];
   roundingTypes: any[] = [];
   rateTypeOptions: any[] = [];
+  listProductClasses: any[] = [];
 
   listTasaNominal: any[] = [
-    { codigo: 'TNA', nombre: 'Tasa Nominal Anual', status: true },
-    { codigo: 'TEA', nombre: 'Tasa Efectiva Anual', status: true }
+    { codigo: 1, nombre: 'Tasa Nominal Anual', status: true },
+    { codigo: 2, nombre: 'Tasa Efectiva Anual', status: true }
+    /*{ codigo: 'TNA', nombre: 'Tasa Nominal Anual', status: true },
+    { codigo: 'TEA', nombre: 'Tasa Efectiva Anual', status: true }*/
   ];
 
   excepcionesGuardadas: any[] = [];
@@ -80,7 +83,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     tasaDespuesCobertura: 0
   };
 
-  public listClaseProducto: any[] = [
+  /*public listClaseProducto: any[] = [
     { id: "PBC", descripcion: "Préstamos bancarios corto plazo" },
     { id: "PBL", descripcion: "Préstamos bancarios largo plazo" },
     { id: "IPC", descripcion: "Préstamos intercompany corto plazo" },
@@ -92,9 +95,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     { id: "PCM", descripcion: "Papeles Comerciales" },
     { id: "LEA", descripcion: "Leasing" },
     { id: "EMI", descripcion: "Emisiones de Bonos" }
-  ];
+  ];*/
 
-  public listTipoProducto: any[] = [
+  /*public listTipoProducto: any[] = [
     { claseId: "PBC", descripcion: "Préstamo bancario corto plazo" },
     { claseId: "PBL", descripcion: "Sindicado" },
     { claseId: "PBL", descripcion: "Otro préstamo bancario a largo plazo" },
@@ -109,7 +112,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     { claseId: "EMI", descripcion: "Senior notes" },
     { claseId: "EMI", descripcion: "Emisión 2" },
     { claseId: "EMI", descripcion: "Prog I - Emisión 3" }
-  ];
+  ];*/
 
   loanAmortizationTypes = [
     { id: '01', name: 'Bullet' },
@@ -131,6 +134,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   public idTipoOC: string = "BON";
   public nombreTipoSeleccionado: string = "";
 
+  initialProductClassId: number = 11;
+  initialProductClassMapper: string = "EMI";
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -146,14 +152,16 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.onClaseTipoChange('EMI');
+    //this.initialProductClassMapper = this.claseProductoMapper[this.initialProductClassId];
+    this.initialProductClassMapper= this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value] || 'EMI';
+    this.onClaseTipoChange(this.initialProductClassMapper); //('EMI');
     this.loadCatalogs();
     this.checkEditMode();
     this.checkEditModes();
     this.setupFormListeners();
     this.showVariableRateFields = false;
-    const claseInicial = this.debtForm.get('idClaseProducto')?.value || 'EMI';
-    this.updateValidatorsByProductClass(claseInicial);
+    //const claseInicial = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value] || 'EMI';
+    this.updateValidatorsByProductClass(this.initialProductClassMapper); //(claseInicial);
   }
 
   ngOnDestroy(): void {
@@ -162,10 +170,10 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   onTipoOCChange(tipoId: any) {
-    const tipo = this.listTipoProducto.find(x => x.t445_id === tipoId);
-    this.nombreTipoSeleccionado = tipo ? tipo.t445_description : "";
+    /*const tipo = this.listTipoProducto.find(x => x.t445_id === tipoId);
+    this.nombreTipoSeleccionado = tipo ? tipo.t445_description : "";*/
 
-    const claseProducto = this.debtForm.get('idClaseProducto')?.value;
+    const claseProducto = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
 
     if (!this.rateClassificationsOriginal) {
       this.rateClassificationsOriginal = [...this.rateClassifications];
@@ -195,12 +203,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   onClaseTipoChange(tipoId: any) {
-    this.tiposFiltrados = this.listTipoProducto.filter(x => x.claseId === tipoId);
-    if (this.tiposFiltrados.length > 0) {
+    //this.tiposFiltrados = this.listTipoProducto.filter(x => x.claseId === tipoId);
+    /*if (this.tiposFiltrados.length > 0) {
       this.debtForm.get("idTipoProducto")?.setValue(this.tiposFiltrados[0].descripcion);
     } else {
       this.debtForm.get("idTipoProducto")?.reset();
-    }
+    }*/
   }
 
   private createForm(): FormGroup {
@@ -212,7 +220,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       counterpartCreditorId: [null],
       acreedorDescripcion: [''],
 
-      idClaseProducto: ["EMI"],
+      idClaseProducto: [this.initialProductClassId], // ["EMI"],
       idTipoProducto: [""],
       fechaaceptacion: [''],
 
@@ -268,7 +276,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     // Validadores base que siempre aplican (solo campos antes de "Campos Adicionales")
     this.debtForm.get('idClaseProducto')?.setValidators([Validators.required]);
-    this.debtForm.get('idTipoProducto')?.setValidators([Validators.required]);
+    //this.debtForm.get('idTipoProducto')?.setValidators([Validators.required]);
     this.debtForm.get('subsidiaryDebtorId')?.setValidators([Validators.required]);
     this.debtForm.get('loanTypeId')?.setValidators([Validators.required]);
     this.debtForm.get('validityStartDate')?.setValidators([Validators.required]);
@@ -356,7 +364,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(value => {
         if (value) {
-          this.updateValidatorsByProductClass(value);
+          console.log("setupFormListeners", this.claseProductoMapper[value])
+          this.updateValidatorsByProductClass(this.claseProductoMapper[value]);
         }
       });
 
@@ -368,7 +377,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           this.debtForm.get('subsidiaryCreditorId')?.clearValidators();
           this.debtForm.get('subsidiaryCreditorId')?.setValue(null);
         } else {
-          const claseProducto = this.debtForm.get('idClaseProducto')?.value;
+          const claseProducto = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
           if (claseProducto !== 'PCM') {
             this.debtForm.get('subsidiaryCreditorId')?.setValidators(Validators.required);
           }
@@ -429,7 +438,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       this.mostrarExcepcion = true;
     }
 
-    const claseProducto = this.debtForm.get('idClaseProducto')?.value;
+    const claseProducto = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
 
     if (value.id === '01') {
       this.debtForm.get('amortizationRate')?.clearValidators();
@@ -486,7 +495,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       loanType: this.tesoreriaService.getListaCombo(10),
       amortizationMethod: this.tesoreriaService.getListaCombo(11),
       roundingType: this.tesoreriaService.getListaCombo(12),
-      interestStructure: this.tesoreriaService.getListaCombo(13)
+      interestStructure: this.tesoreriaService.getListaCombo(13),
+      classesProduct: this.tesoreriaService.getListaCombo(15)
     }).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -547,6 +557,11 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         this.rateTypeOptions = result.interestStructure.map((is: OpcionesCombo) => ({
           codigo: is.id_combo,
           nombre: is.descripcion_combo
+        }));
+
+        this.listProductClasses = result.classesProduct.map((classProduct: OpcionesCombo) => ({
+          codigo: classProduct.id_combo,
+          name: classProduct.descripcion_combo
         }));
 
         this.loading = false;
@@ -1207,12 +1222,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   private validateFormBeforeGenerate(): boolean {
-    const claseProducto = this.debtForm.get('idClaseProducto')?.value;
+    const claseProducto = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
     const tipoa = this.debtForm.get('tipoa')?.value;
 
     let requiredFields = [
       'idClaseProducto',
-      'idTipoProducto',
+     // 'idTipoProducto',
       'subsidiaryDebtorId',
       'loanTypeId',
       'validityStartDate',
@@ -1317,7 +1332,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   private validateFormBeforeGenerateSho(): boolean {
-    const claseProducto = this.debtForm.get('idClaseProducto')?.value;
+    const claseProducto = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
     const tipoa = this.debtForm.get('tipoa')?.value;
 
     let requiredFields = [
@@ -1613,13 +1628,13 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           applyAmortizationException: false,
           creditorType: 'SUBSIDIARY',
           registeredBy: this.tokenService.getUserName() || '',
-          idClaseProducto: 'EMI'
+          idClaseProducto: this.initialProductClassId //'EMI'
         });
 
         this.schedules = [];
         this.excepcionesGuardadas = [];
 
-        this.updateValidatorsByProductClass('EMI');
+        this.updateValidatorsByProductClass(this.claseProductoMapper[this.initialProductClassId]); //('EMI');
 
         Swal.fire({
           icon: 'success',
@@ -1772,8 +1787,24 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     this.modalService.dismissAll();
   }
 
+   private claseProductoMapper: Record<number, string> = {
+    1: 'PBC',
+    2: 'PBL',
+    3: 'IPC',
+    4: 'IPL',
+    5: 'PAC',
+    6: 'PAL',
+    7: 'FIC',
+    8: 'FIL',
+    9: 'PCM',
+    10: 'LEA',
+    11: 'EMI'
+};
+
+
   mostrarCampo(campo: string): boolean {
-    const clase = this.debtForm.get('idClaseProducto')?.value;
+    const clase = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
+    console.log("mostrarCampo", clase)
     const tipoa = this.debtForm.get('tipoa')?.value;
     const clasificacionTasa = this.debtForm.get('rateClassificationId')?.value;
 
@@ -1804,9 +1835,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       portes: clase === 'LEA',
 
       // Sección 2: Prepago
-      prepaymentDate: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
+      /*prepaymentDate: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
       prepaymentAmount: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
-      prepaymentInstallmentNumber: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),
+      prepaymentInstallmentNumber: ['FIC','FIL','IPC','IPL','PCM','PBC','PBL','PAC','PAL','EMI'].includes(clase),*/
 
       // Sección 3: Campos adicionales (todos visibles)
       operationTrm: true,

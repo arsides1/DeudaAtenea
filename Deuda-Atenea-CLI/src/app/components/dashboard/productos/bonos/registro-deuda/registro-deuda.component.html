@@ -30,7 +30,7 @@
                     <div class="form-grid">
                       <div class="form-item">
                         <label>Clase de Producto*</label>
-                        <ng-select [items]="listClaseProducto" bindLabel="descripcion" bindValue="id"
+                        <ng-select [items]="listProductClasses" bindLabel="name" bindValue="codigo"
                             formControlName="idClaseProducto" (change)="onTipoOCChange($event)">
                         </ng-select>
                       </div>
@@ -241,7 +241,7 @@
                       </div>
 
                       <!-- Prepago -->
-                      <div class="form-item" *ngIf="mostrarCampo('prepaymentDate')">
+                      <!--div class="form-item" *ngIf="mostrarCampo('prepaymentDate')">
                         <label>Fecha de Prepago*</label>
                         <mat-form-field appearance="outline">
                           <input matInput [matDatepicker]="pickerPrepago" formControlName="prepaymentDate">
@@ -258,7 +258,7 @@
                       <div class="form-item" *ngIf="mostrarCampo('prepaymentInstallmentNumber')">
                         <label>Nro. Pago</label>
                         <input class="redondeado" type="text" formControlName="prepaymentInstallmentNumber">
-                      </div>
+                      </div-->
 
                     </div>
 
