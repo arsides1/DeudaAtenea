@@ -359,45 +359,83 @@ mat-spinner {
 }
 
 ////////
-.filtros-fecha-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  padding: 16px 0;
+
+.contenedor-barra-filtros {
+  padding: 16px 24px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 20px;
 }
 
-.filtros-fecha-row {
+.barra-filtros-alineada {
   display: flex;
   flex-wrap: wrap;
-  gap: 32px;
+  align-items: flex-end;
+  gap: 24px;
+  width: 100%;
 }
 
-.bloque-fecha {
+.bloque-control {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-width: 280px;
+  justify-content: flex-end;
+  gap: 4px;
 }
 
-.bloque-titulo {
+.bloque-label {
+  font-size: 13px;
   font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 6px;
   color: #444;
+  margin-bottom: 2px;
 }
 
 .bloque-campos {
   display: flex;
   gap: 8px;
+}
+
+.campo-fecha {
+  width: 140px;
+}
+
+.campo-busqueda {
+  display: flex;
+  align-items: flex-end;
+}
+
+.form-busqueda {
+  width: 220px;
+}
+
+/* Segunda fila: botones en extremos */
+.fila-botones {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.separador {
-  font-weight: bold;
-  color: #666;
+.botones-izquierda {
+  display: flex;
+  gap: 12px;
 }
 
-.filtros-fecha-boton {
+.boton-derecha {
   display: flex;
   justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fila-botones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .boton-derecha {
+    justify-content: flex-start;
+  }
 }

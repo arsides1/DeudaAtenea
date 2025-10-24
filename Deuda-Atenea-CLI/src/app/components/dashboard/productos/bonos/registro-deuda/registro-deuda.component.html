@@ -37,9 +37,14 @@
 
                       <div class="form-item">
                         <label>Tipo de Préstamo*</label>
-                        <ng-select [items]="loanTypes" bindLabel="name" bindValue="id"
+                        <ng-select [items]="listLoanTypes" bindLabel="name" bindValue="id"
                             formControlName="loanTypeId" (change)="onSelectLoanType($event)">
                         </ng-select>
+                      </div>
+
+                      <div class="form-item">
+                        <label>Nombre de Préstamo*</label>
+                        <input class="redondeado" type="text" formControlName="productType" >
                       </div>
                     </div>
 
@@ -118,7 +123,7 @@
 
                       <div class="form-item">
                         <label>Moneda*</label>
-                        <ng-select [items]="currencies" bindLabel="name" bindValue="id"
+                        <ng-select [items]="listCurrencies" bindLabel="name" bindValue="id"
                                   formControlName="currencyId" (change)="onSelectCurrency($event)">
                         </ng-select>
                       </div>
@@ -165,11 +170,9 @@
                       <!-- Checkbox: Aplicar excepción -->
                       <div class="form-item" *ngIf="mostrarCampo('applyAmortizationException')">
                         <label>Excepción tasa amortización</label>
-                       
                           <mat-checkbox formControlName="applyAmortizationException">
                             Aplicar excepción
                           </mat-checkbox>
-                       
                       </div>
 
                       <!-- Botón: Generar excepción -->
@@ -226,12 +229,12 @@
                       </div>
 
                       <div class="form-item" *ngIf="mostrarCampo('termSofrAdj')">
-                        <label>Term SOFR Adj*</label>
+                        <label>Ajuste de Tasa*</label>
                         <input class="redondeado" type="text" formControlName="termSofrAdj" (input)="formatearValor($event, false, 'porcentaje')">
                       </div>
 
                       <div class="form-item" *ngIf="mostrarCampo('applicableMargin')">
-                        <label>Applicable Margin*</label>
+                        <label>Margen Aplicable*</label>
                         <input class="redondeado" type="text" formControlName="applicableMargin" (input)="formatearValor($event, false)">
                       </div>
 
@@ -282,7 +285,7 @@
                     </div>
 
                     <div class="form-item">
-                      <label>Tasa nominal/efectiva*</label>
+                      <label>Tasa1nominal/efectiva*</label>
                       <ng-select [items]="listTasaNominal" bindLabel="nombre" bindValue="codigo" formControlName="rateTypeId">
                       </ng-select>
                     </div>

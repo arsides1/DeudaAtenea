@@ -68,24 +68,36 @@ export class BonosComponent implements OnInit {
   // COLUMNAS DE LA TABLA
   displayedColumns: string[] = [
     'claseProducto',
+    'productType',
+    'productName',
     'subsidiaryDebtorName',
     'subsidiaryCreditorName',
-    'loanTypeName',
     'validityStartDate',
     'disbursementDate',
     'interestStartDate',
     'maturityDate',
     'currencyId',
     'nominal',
-    'amortizationRate',
-    'amortizationStartPayment',
-    'periodsName',
-    'rateClassificationName',
+    'loanRateExpressionTypes',
+    'rateClassificationId',
     'referenceRate',
-    'termSofrAdj',
-    'applicableMargin',
-    'rateTypeId',
-    'operationTrm'
+    'termSofrAdj', //---> Ajuste de Tasa
+    'applicableMargin', //--> Margen Aplicable
+    'otherRateParams', //--> Otros Ajustes
+    'fixedRatePercentage', //--> Tasa (porcentaje)
+    'loanAmortizationTypes', //--> Tipo de Amortizacion
+    //'amortizationRate', //--> tasa de amortizacion
+    'periodsName', //--> Periodicidad de Pago
+    'installmentPayable', //--> Cuota por Pagar
+    'installmentPaymentDate', //--> Fecha de Pago de Cuota 
+    'interestAmount', //--> Monto de Interes 
+    'amortizationAmount', //--> Monto de Amortizacion 
+    'installmentAmount', //-> Monto de Cuota
+    // 'loanTypeName',
+    //'amortizationStartPayment',
+    //'rateClassificationName',
+    //'rateTypeId',
+    'operationTrm' //--> TRM Operacion
   ];
 
   // VARIABLES DE FILTRADO
@@ -100,18 +112,6 @@ export class BonosComponent implements OnInit {
     rateClassificationName: [],
     periodsName: [],
     rateTypeId: [],
-
-  validityStartDateDesde: null,
-  validityStartDateHasta: null,
-  disbursementDateDesde: null,
-  disbursementDateHasta: null,
-  interestStartDateDesde: null,
-  interestStartDateHasta: null,
-  maturityDateDesde: null,
-  maturityDateHasta: null
-
-
-
   };
 
   filtrosSeleccionados: any = {
@@ -127,6 +127,18 @@ export class BonosComponent implements OnInit {
   filterValue: any = {};
   textFilter: string = '';
 
+  filtrosFecha: any={
+    
+    validityStartDateDesde: null,
+    validityStartDateHasta: null,
+    disbursementDateDesde: null,
+    disbursementDateHasta: null,
+    interestStartDateDesde: null,
+    interestStartDateHasta: null,
+    maturityDateDesde: null,
+    maturityDateHasta: null
+  }
+
   // VARIABLES DE SELECCIÓN
   selectedDebtor: number | null = null;
   selectedCreditor: number | null = null;
@@ -134,8 +146,8 @@ export class BonosComponent implements OnInit {
 
   // DATOS DE ENTIDADES
   subsidiaries: any[] = [];
-  loanTypes: any[] = [];
-  listTypeProducts: any[] = [];
+  listLoanTypes: any[] = [];
+  listProducTypes: any[] = [];
   listProductClasses: any[]=[];
 
   // VARIABLES AUXILIARES Y CONTROL
@@ -308,12 +320,12 @@ export class BonosComponent implements OnInit {
         }));
 
 
-        this.loanTypes = result.loanType.map((l: OpcionesCombo) => ({
+        this.listLoanTypes = result.loanType.map((l: OpcionesCombo) => ({
           id: l.id_combo,
           name: l.descripcion_combo
         }));
 
-        this.listTypeProducts = result.typeProducts.map((typeProduct: OpcionesCombo) => ({
+        this.listProducTypes = result.typeProducts.map((typeProduct: OpcionesCombo) => ({
           id: typeProduct.id_combo,
           name: typeProduct.descripcion_combo
         }));
@@ -425,46 +437,46 @@ export class BonosComponent implements OnInit {
   }
 
   filtrarTabla(): void {
-    if (!this.validarFechas()) return;
 
-     console.log('🕒 Rangos seleccionados:');
-  console.log('Inicio Vigencia:', this.filtros.validityStartDateDesde, '→', this.filtros.validityStartDateHasta);
-  console.log('Desembolso:', this.filtros.disbursementDateDesde, '→', this.filtros.disbursementDateHasta);
-  console.log('Inicio Interés:', this.filtros.interestStartDateDesde, '→', this.filtros.interestStartDateHasta);
-  console.log('Vencimiento:', this.filtros.maturityDateDesde, '→', this.filtros.maturityDateHasta);
+    if (!this.validarFechas()) {
+      console.warn('❌ Rango incompleto detectado. Filtrado cancelado.');
+      return;
+    }
 
 
 
+      console.log('🕒 Rangos seleccionados:');
+      console.log('Inicio Vigencia:', this.filtrosFecha.validityStartDateDesde, '→', this.filtrosFecha.validityStartDateHasta);
+      console.log('Desembolso:', this.filtrosFecha.disbursementDateDesde, '→', this.filtrosFecha.disbursementDateHasta);
+      console.log('Inicio Interés:', this.filtrosFecha.interestStartDateDesde, '→', this.filtrosFecha.interestStartDateHasta);
+      console.log('Vencimiento:', this.filtrosFecha.maturityDateDesde, '→', this.filtrosFecha.maturityDateHasta);
 
     this.dataSource.data = this.debts.filter(deuda => {
-      return this.filtraPorRango(deuda.validityStartDate, this.filtros.validityStartDateDesde, this.filtros.validityStartDateHasta)
-        && this.filtraPorRango(deuda.disbursementDate, this.filtros.disbursementDateDesde, this.filtros.disbursementDateHasta)
-        && this.filtraPorRango(deuda.interestStartDate, this.filtros.interestStartDateDesde, this.filtros.interestStartDateHasta)
-        && this.filtraPorRango(deuda.maturityDate, this.filtros.maturityDateDesde, this.filtros.maturityDateHasta);
+      return this.filtraPorRango(deuda.validityStartDate, this.filtrosFecha.validityStartDateDesde, this.filtrosFecha.validityStartDateHasta)
+        && this.filtraPorRango(deuda.disbursementDate, this.filtrosFecha.disbursementDateDesde, this.filtrosFecha.disbursementDateHasta)
+        && this.filtraPorRango(deuda.interestStartDate, this.filtrosFecha.interestStartDateDesde, this.filtrosFecha.interestStartDateHasta)
+        && this.filtraPorRango(deuda.maturityDate, this.filtrosFecha.maturityDateDesde, this.filtrosFecha.maturityDateHasta);
     });
   }
 
   filtraPorRango(valor: number | string | Date | null | undefined, desde: Date | null, hasta: Date | null): boolean {
-
     if (!desde && !hasta) return true;
     if ((desde && !hasta) || (!desde && hasta)) return false;
     if (!valor) return false;
 
-    const fechaValor = this.formatearFecha(valor);
-    const fechaDesde = this.formatearFecha(desde!);
-    const fechaHasta = this.formatearFecha(hasta!);
+    const fechaValor = this.parsearFecha(valor).getTime();
+    const fechaDesde = this.parsearFecha(desde!).getTime();
+    const fechaHasta = this.parsearFecha(hasta!).getTime();
 
     return fechaValor >= fechaDesde && fechaValor <= fechaHasta;
-
-
   }
 
   validarFechas(): boolean {
     const grupos = [
-      { desde: this.filtros.validityStartDateDesde, hasta: this.filtros.validityStartDateHasta, nombre: 'Inicio Vigencia' },
-      { desde: this.filtros.disbursementDateDesde, hasta: this.filtros.disbursementDateHasta, nombre: 'Desembolso' },
-      { desde: this.filtros.interestStartDateDesde, hasta: this.filtros.interestStartDateHasta, nombre: 'Inicio Interés' },
-      { desde: this.filtros.maturityDateDesde, hasta: this.filtros.maturityDateHasta, nombre: 'Vencimiento' }
+      { desde: this.filtrosFecha.validityStartDateDesde, hasta: this.filtrosFecha.validityStartDateHasta, nombre: 'Inicio Vigencia' },
+      { desde: this.filtrosFecha.disbursementDateDesde, hasta: this.filtrosFecha.disbursementDateHasta, nombre: 'Desembolso' },
+      { desde: this.filtrosFecha.interestStartDateDesde, hasta: this.filtrosFecha.interestStartDateHasta, nombre: 'Inicio Interés' },
+      { desde: this.filtrosFecha.maturityDateDesde, hasta: this.filtrosFecha.maturityDateHasta, nombre: 'Vencimiento' }
     ];
 
     for (const grupo of grupos) {
@@ -483,14 +495,69 @@ export class BonosComponent implements OnInit {
     return true;
   }
 
-  formatearFecha(fecha: Date | string | number): string {
+  /*formatearFecha(fecha: Date | string | number): string {
     const d = new Date(fecha);
     const dia = String(d.getDate()).padStart(2, '0');
     const mes = String(d.getMonth() + 1).padStart(2, '0');
     const año = d.getFullYear();
     return `${dia}/${mes}/${año}`;
+  }*/
+
+  parsearFecha(fecha: Date | string | number): Date {
+    return new Date(fecha);
   }
 
+  limpiarFiltrosFecha(): void {
+    this.filtrosFecha = {
+      validityStartDateDesde: null, //--> fecha validez
+      validityStartDateHasta: null,
+      disbursementDateDesde: null, //--> fecha desembolso
+      disbursementDateHasta: null,
+      maturityDateDesde: null, //--> fecha vencimiento
+      maturityDateHasta: null,
+      // otros filtros si los hay
+    };
+
+    //this.applyFilter({ target: { value: '' } }); // limpia el buscador si aplica
+    this.filtrarTabla(); // recarga la lista sin filtros
+  }
+
+  hayFiltrosDeFecha(): boolean {
+    const f = this.filtrosFecha;
+    return !!(f.validityStartDateDesde || f.validityStartDateHasta ||
+              f.disbursementDateDesde || f.disbursementDateHasta ||
+              f.maturityDateDesde || f.maturityDateHasta);
+  }
+
+  getFechaMin(campo: string): Date | null {
+    const f = this.filtrosFecha;
+
+    switch (campo) {
+      case 'validity':
+        return f.disbursementDateDesde || null;
+      case 'disbursement':
+        return f.validityStartDateDesde || f.maturityDateDesde || null;
+      case 'maturity':
+        return f.disbursementDateDesde || null;
+      default:
+        return null;
+    }
+  }
+
+  getFechaMax(campo: string): Date | null {
+    const f = this.filtrosFecha;
+
+    switch (campo) {
+      case 'validity':
+        return f.disbursementDateHasta || null;
+      case 'disbursement':
+        return f.validityStartDateHasta || f.maturityDateHasta || null;
+      case 'maturity':
+        return f.disbursementDateHasta || null;
+      default:
+        return null;
+    }
+  }
 
 
 }

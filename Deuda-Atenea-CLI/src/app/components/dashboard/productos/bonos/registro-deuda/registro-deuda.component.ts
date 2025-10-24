@@ -52,16 +52,17 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   subsidiaries: any[] = [];
   creditors: any[] = [];
   counterparts: any[] = [];
-  loanTypes: any[] = [];
   amortizationMethods: any[] = [];
   periods: any[] = [];
-  currencies: any[] = [];
   basisOptions: any[] = [];
   rateTypes: any[] = [];
   rateClassifications: any[] = [];
   roundingTypes: any[] = [];
   rateTypeOptions: any[] = [];
+  listCurrencies: any[] = [];
   listProductClasses: any[] = [];
+  listLoanTypes: any[] = [];
+  //listRateExpressionTypes: any[]= [];
 
   listTasaNominal: any[] = [
     { codigo: 1, nombre: 'Tasa Nominal Anual', status: true },
@@ -222,6 +223,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
       idClaseProducto: [this.initialProductClassId], // ["EMI"],
       idTipoProducto: [""],
+      productType:[""],
       fechaaceptacion: [''],
 
       fechai: [''],
@@ -501,7 +503,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (result) => {
-        this.currencies = result.monedas
+
+        this.listCurrencies = result.monedas
           .filter((m: Moneda) => m.t064Status === true)
           .map((m: Moneda) => ({
             id: m.t064Id,
@@ -539,7 +542,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           name: r.descripcion_combo
         }));
 
-        this.loanTypes = result.loanType.map((l: OpcionesCombo) => ({
+        this.listLoanTypes = result.loanType.map((l: OpcionesCombo) => ({
           id: l.id_combo,
           name: l.descripcion_combo
         }));
@@ -1425,7 +1428,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const acreedorDescripcion = formValue.creditorType === 'SUBSIDIARY'
       ? this.creditors.find(c => c.id === formValue.subsidiaryCreditorId)?.name || ''
       : this.counterparts.find(c => c.id === formValue.counterpartCreditorId)?.name || '';
-    const loanTypeDescripcion = this.loanTypes.find(l => l.id === formValue.loanTypeId)?.name || '';
+    const loanTypeDescripcion = this.listLoanTypes.find(l => l.id === formValue.loanTypeId)?.name || '';
     const rateClassificationDescripcion = this.rateClassifications.find(r => r.id === formValue.rateClassificationId)?.name || '';
 
     const dialogRef = this.dialog.open(CronogramaComponent, {
@@ -1553,7 +1556,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const nominal = this.extractNumericValue(formValue.nominal) || 0;
     const loanTypeId = formValue.loanTypeId;
 
-    const loanType = this.loanTypes.find(lt => lt.id === loanTypeId);
+    const loanType = this.listLoanTypes.find(lt => lt.id === loanTypeId);
     const instrumentoNombre = loanType ? loanType.name : 'Otro';
 
     return {
@@ -1769,14 +1772,14 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   onSelectLoanType(event: any): void {
-    const selected = this.loanTypes.find(l => l.id === event);
+    const selected = this.listLoanTypes.find(l => l.id === event);
     if (selected) {
       this.debtForm.patchValue({ loanTypeDescripcion: selected.name });
     }
   }
 
   onSelectCurrency(event: any): void {
-    const selected = this.currencies.find(c => c.id === event);
+    const selected = this.listCurrencies.find(c => c.id === event);
     if (selected) {
       this.debtForm.patchValue({ currencyDescripcion: selected.name });
     }
@@ -1855,6 +1858,5 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     return mapa[campo] ?? true;
   }
-
 
 }

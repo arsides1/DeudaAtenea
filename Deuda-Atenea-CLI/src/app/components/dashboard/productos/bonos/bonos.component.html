@@ -31,118 +31,124 @@
         <div class="card">
           <div class="card-body">
 
-            <div class="actions-bar"
-              style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div class="contenedor-barra-filtros">
+              <div class="barra-filtros-alineada">
+                <!-- 🔍 Buscador -->
+                <div class="bloque-control campo-busqueda">
+                  <mat-form-field appearance="outline" class="form-busqueda">
+                    <mat-label>Buscar en Deuda</mat-label>
+                    <input matInput autocomplete="off" (keyup)="applyFilter($event)" />
+                  </mat-form-field>
+                </div>
 
-              <div style="display: flex; align-items: center; gap: 15px; flex-wrap: nowrap;">
-                <input type="text" class="redondeado" style="width: 220px; padding: 6px;" placeholder="Buscar en Deuda"
-                  autocomplete="off" (keyup)="applyFilter($event)" />
-              </div>
+                <!-- 📅 Inicio Vigencia -->
+                <div class="bloque-control">
+                  <label class="bloque-label">F. Inicio Vigencia</label>
+                  <div class="bloque-campos">
+                    <mat-form-field appearance="outline" class="campo-fecha">
+                      <mat-label>Desde</mat-label>
+                      <input matInput [matDatepicker]="pickerVigenciaDesde" 
+                        [(ngModel)]="filtrosFecha.validityStartDateDesde"
+                        [min]="getFechaMin('validity')"
+                        [max]="getFechaMax('validity')" >
+                      <mat-datepicker-toggle matSuffix [for]="pickerVigenciaDesde"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerVigenciaDesde></mat-datepicker>
+                    </mat-form-field>
 
-              <div class="action-buttons">
-                <button mat-raised-button class="btn btn-green" type="button"
-                  (click)="abrirModal(RegistrarIntercompanyForm, objetoInitPadre, 'nuevo')"
-                  style="display: flex; align-items: center; gap: 5px; height: 36px;">
-                  <mat-icon>add</mat-icon> Nuevo
-                </button>
-        
-                <button mat-raised-button class="btn btn-green" type="button"
-                  (click)="filtrarTabla()"
-                  style="display: flex; align-items: center; gap: 5px; height: 36px;">
-                  <mat-icon>search</mat-icon> Buscar
-                </button>
-              </div>
-            </div>
-
-            <!-- Inicio Filtro de Fechas -->
-            <div class="actions-bar"
-              style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-              <div class="filtros-fecha-container">
-                <div class="filtros-fecha-row">
-                  <div class="bloque-fecha">
-                    <div class="bloque-titulo">Fecha Inicio Vigencia</div>
-                    <div class="bloque-campos">
-                      <!--mat-label>Desde</mat-label-->
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerVigenciaDesde" [(ngModel)]="filtros.validityStartDateDesde">
-                        <mat-datepicker-toggle matSuffix [for]="pickerVigenciaDesde"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerVigenciaDesde></mat-datepicker>
-                      </mat-form-field>
-
-                      <!-- mat-label>Hasta</mat-label -->
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerVigenciaHasta" [(ngModel)]="filtros.validityStartDateHasta">
-                        <mat-datepicker-toggle matSuffix [for]="pickerVigenciaHasta"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerVigenciaHasta></mat-datepicker>
-                      </mat-form-field>
-                    </div>
-                  </div>
-
-                  <div class="bloque-fecha">
-                    <div class="bloque-titulo">Fecha Desembolso</div>
-                    <div class="bloque-campos">
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerDesembolsoDesde" [(ngModel)]="filtros.disbursementDateDesde">
-                        <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoDesde"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerDesembolsoDesde></mat-datepicker>
-                      </mat-form-field>
-
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerDesembolsoHasta" [(ngModel)]="filtros.disbursementDateHasta">
-                        <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoHasta"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerDesembolsoHasta></mat-datepicker>
-                      </mat-form-field>
-                    </div>
+                    <mat-form-field appearance="outline" class="campo-fecha">
+                      <mat-label>Hasta</mat-label>
+                      <input matInput [matDatepicker]="pickerVigenciaHasta" 
+                        [(ngModel)]="filtrosFecha.validityStartDateHasta"
+                        [min]="getFechaMin('validity')"
+                        [max]="getFechaMax('validity')">
+                      <mat-datepicker-toggle matSuffix [for]="pickerVigenciaHasta"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerVigenciaHasta></mat-datepicker>
+                    </mat-form-field>
                   </div>
                 </div>
 
-                <div class="filtros-fecha-row">
-                  <div class="bloque-fecha">
-                    <div class="bloque-titulo">Fecha Inicio Interés</div>
-                    <div class="bloque-campos">
-                      <mat-form-field appearance="outline">
-                      
-                        <input matInput [matDatepicker]="pickerInteresDesde" [(ngModel)]="filtros.interestStartDateDesde">
-                        <mat-datepicker-toggle matSuffix [for]="pickerInteresDesde"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerInteresDesde></mat-datepicker>
-                      </mat-form-field>
+                <!-- 📅 Desembolso -->
+                <div class="bloque-control">
+                  <label class="bloque-label">F. Desembolso</label>
+                  <div class="bloque-campos">
+                    <mat-form-field appearance="outline" class="campo-fecha">
+                      <mat-label>Desde</mat-label>
+                      <input matInput [matDatepicker]="pickerDesembolsoDesde" 
+                        [(ngModel)]="filtrosFecha.disbursementDateDesde"
+                        [min]="getFechaMin('disbursement')"
+                        [max]="getFechaMax('disbursement')">
+                      <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoDesde"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerDesembolsoDesde></mat-datepicker>
+                    </mat-form-field>
 
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerInteresHasta" [(ngModel)]="filtros.interestStartDateHasta">
-                        <mat-datepicker-toggle matSuffix [for]="pickerInteresHasta"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerInteresHasta></mat-datepicker>
-                      </mat-form-field>
-                    </div>
+                    <mat-form-field appearance="outline" class="campo-fecha">
+                      <mat-label>Hasta</mat-label>
+                      <input matInput [matDatepicker]="pickerDesembolsoHasta" 
+                        [(ngModel)]="filtrosFecha.disbursementDateHasta"
+                        [min]="getFechaMin('disbursement')"
+                        [max]="getFechaMax('disbursement')" >
+                      <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoHasta"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerDesembolsoHasta></mat-datepicker>
+                    </mat-form-field>
                   </div>
+                </div>
 
-                  <div class="bloque-fecha">
-                    <div class="bloque-titulo">Fecha Vencimiento</div>
-                    <div class="bloque-campos">
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerVencimientoDesde" [(ngModel)]="filtros.maturityDateDesde">
-                        <mat-datepicker-toggle matSuffix [for]="pickerVencimientoDesde"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerVencimientoDesde></mat-datepicker>
-                      </mat-form-field>
+                <!-- 📅 Vencimiento -->
+                <div class="bloque-control">
+                  <label class="bloque-label">F. Vencimiento</label>
+                  <div class="bloque-campos">
+                    <mat-form-field appearance="outline" class="campo-fecha">
+                      <mat-label>Desde</mat-label>
+                      <input matInput [matDatepicker]="pickerVencimientoDesde" 
+                        [(ngModel)]="filtrosFecha.maturityDateDesde"
+                        [min]="getFechaMin('maturity')"
+                        [max]="getFechaMax('maturity')">
+                      <mat-datepicker-toggle matSuffix [for]="pickerVencimientoDesde"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerVencimientoDesde></mat-datepicker>
+                    </mat-form-field>
 
-                      <mat-form-field appearance="outline">
-                        
-                        <input matInput [matDatepicker]="pickerVencimientoHasta" [(ngModel)]="filtros.maturityDateHasta">
-                        <mat-datepicker-toggle matSuffix [for]="pickerVencimientoHasta"></mat-datepicker-toggle>
-                        <mat-datepicker #pickerVencimientoHasta></mat-datepicker>
-                      </mat-form-field>
-                    </div>
+                    <mat-form-field appearance="outline" class="campo-fecha">
+                      <mat-label>Hasta</mat-label>
+                      <input matInput [matDatepicker]="pickerVencimientoHasta" 
+                        [(ngModel)]="filtrosFecha.maturityDateHasta"
+                        [min]="getFechaMin('maturity')"
+                        [max]="getFechaMax('maturity')">
+                      <mat-datepicker-toggle matSuffix [for]="pickerVencimientoHasta"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerVencimientoHasta></mat-datepicker>
+                    </mat-form-field>
                   </div>
                 </div>
 
               </div>
+
+              <!-- ➕ Botón Nuevo en segunda fila -->
+              <div class="fila-botones">
+                <!-- 🔎 Buscar + 🧹 Limpiar filtros -->
+                <div class="botones-izquierda">
+                  <button mat-raised-button class="btn btn-green" type="button"
+                    (click)="filtrarTabla()"
+                    style="display: flex; align-items: center; gap: 5px; height: 36px;">
+                    <mat-icon>search</mat-icon> Buscar
+                  </button>
+
+                  <button mat-raised-button class="btn btn-green" type="button" (click)="limpiarFiltrosFecha()"
+                    [disabled]="!hayFiltrosDeFecha()">
+                    <mat-icon>clear</mat-icon> Limpiar filtros
+                  </button>
+                </div>
+
+                <!-- ➕ Nuevo -->
+                <div class="boton-derecha">
+                  <button mat-raised-button class="btn btn-green" type="button"
+                    (click)="abrirModal(RegistrarIntercompanyForm, objetoInitPadre, 'nuevo')"
+                    style="display: flex; align-items: center; gap: 5px; height: 36px;">
+                    <mat-icon>add</mat-icon> Nuevo
+                  </button>
+                </div>
+              </div>
+
             </div>
-            <!-- FIN Filtro de Fechas -->
+            
 
             <div style="width:100%; height:130%">
               <div class="scroll-container" style="width:100%;">
@@ -152,6 +158,16 @@
                   <ng-container matColumnDef="claseProducto">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Clase de Producto </th>
                     <td mat-cell *matCellDef="let element"> {{getProductClassDescription(element.productClassId)}} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="productType">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Préstamo </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="productName">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre de <br> Préstamo </th>
+                    <td mat-cell *matCellDef="let element">  </td>
                   </ng-container>
 
                   <ng-container class="border-bottom-0" matColumnDef="subsidiaryDebtorName">
@@ -171,7 +187,7 @@
                   <ng-container matColumnDef="subsidiaryCreditorName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
                       <mat-form-field>
-                        <mat-label style="color:white">Acreedor</mat-label>
+                        <mat-label style="color:white">Nombre de Acreedor</mat-label>
                         <mat-select multiple [(ngModel)]="filtrosSeleccionados.subsidiaryCreditorName"
                           (selectionChange)="seleccionarFiltro('subsidiaryCreditorName')">
                           <mat-option *ngFor="let item of filtros.subsidiaryCreditorName"
@@ -182,36 +198,23 @@
                     <td mat-cell *matCellDef="let e">{{ e.subsidiaryCreditorName }}</td>
                   </ng-container>
 
-                  <ng-container matColumnDef="loanTypeName">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                      <mat-form-field>
-                        <mat-label style="color:white">Tipo de Préstamo</mat-label>
-                        <mat-select multiple [(ngModel)]="filtrosSeleccionados.loanTypeName"
-                          (selectionChange)="seleccionarFiltro('loanTypeName')">
-                          <mat-option *ngFor="let item of filtros.loanTypeName" [value]="item">{{item}}</mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                    </th>
-                    <td mat-cell *matCellDef="let e">{{ e.loanTypeName }}</td>
-                  </ng-container>
-
                   <ng-container matColumnDef="validityStartDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Inicio Vigencia </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha <br> Inicio Vigencia </th>
                     <td mat-cell *matCellDef="let element"> {{formatDate(element.validityStartDate)}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="disbursementDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> F. Desembolso </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha <br> Desembolso </th>
                     <td mat-cell *matCellDef="let element"> {{formatDate(element.disbursementDate)}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="interestStartDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Inicio Intereses </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha <br> Inicio Intereses </th>
                     <td mat-cell *matCellDef="let element"> {{formatDate(element.interestStartDate)}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="maturityDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Vencimiento </th>
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha <br> Vencimiento </th>
                     <td mat-cell *matCellDef="let element"> {{formatDate(element.maturityDate)}} </td>
                   </ng-container>
 
@@ -233,15 +236,77 @@
                     <td mat-cell *matCellDef="let element"> {{element.nominal | number:'1.2-2'}} </td>
                   </ng-container>
 
-                  <ng-container matColumnDef="amortizationRate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa Amortización </th>
-                    <td mat-cell *matCellDef="let element"> {{element.amortizationRate}}% </td>
+                  <ng-container matColumnDef="loanRateExpressionTypes">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Expresion de Tasa </th>
+                    <td mat-cell *matCellDef="let element">  </td>
                   </ng-container>
 
-                  <ng-container matColumnDef="amortizationStartPayment">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Cuota Amortización </th>
-                    <td mat-cell *matCellDef="let element"> {{element.amortizationStartPayment}} </td>
+                  <ng-container matColumnDef="rateClassificationId">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Tasa </th>
+                    <td mat-cell *matCellDef="let element">  </td>
                   </ng-container>
+
+                  <ng-container matColumnDef="referenceRate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa Referencia </th>
+                    <td mat-cell *matCellDef="let element"> {{element.referenceRate || '-' }} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="termSofrAdj">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Ajuste de Tasa </th>
+                    <td mat-cell *matCellDef="let element"> {{element.termSofrAdj || '-' }} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="applicableMargin">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Margen Aplicable </th>
+                    <td mat-cell *matCellDef="let element"> {{element.applicableMargin || '-' }} </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="otherRateParams">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Otros Ajustes </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="fixedRatePercentage">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa (%) </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="loanAmortizationTypes" > 
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de <br> Amortizacion </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="installmentPayable">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Cuota por Pagar </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="installmentPaymentDate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha de <br> Pago de Cuota </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="interestAmount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Interés </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="amortizationAmount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Amortizacion </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="installmentAmount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Cuota </th>
+                    <td mat-cell *matCellDef="let element">  </td>
+                  </ng-container>
+
+                  
+
+                  <!--ng-container matColumnDef="amortizationRate"> 
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa Amortización </th>
+                    <td mat-cell *matCellDef="let element"> {{element.amortizationRate}}% </td>
+                  </ng-container-->
 
                   <ng-container matColumnDef="periodsName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -256,7 +321,30 @@
                     <td mat-cell *matCellDef="let e">{{ e.periodsName }}</td>
                   </ng-container>
 
-                  <ng-container matColumnDef="rateClassificationName">
+                  
+                  <!--ng-container matColumnDef="loanTypeName">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                      <mat-form-field>
+                        <mat-label style="color:white">Tipo de Préstamo</mat-label>
+                        <mat-select multiple [(ngModel)]="filtrosSeleccionados.loanTypeName"
+                          (selectionChange)="seleccionarFiltro('loanTypeName')">
+                          <mat-option *ngFor="let item of filtros.loanTypeName" [value]="item">{{item}}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </th>
+                    <td mat-cell *matCellDef="let e">{{ e.loanTypeName }}</td>
+                  </ng-container-->
+
+                  
+
+                  <!--ng-container matColumnDef="amortizationStartPayment">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Cuota Amortización </th>
+                    <td mat-cell *matCellDef="let element"> {{element.amortizationStartPayment}} </td>
+                  </ng-container-->
+
+                  
+
+                  <!--ng-container matColumnDef="rateClassificationName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
                       <mat-form-field>
                         <mat-label style="color:white">Clasificación Tasa</mat-label>
@@ -268,24 +356,15 @@
                       </mat-form-field>
                     </th>
                     <td mat-cell *matCellDef="let e">{{ e.rateClassificationName }}</td>
-                  </ng-container>
+                  </ng-container-->
 
-                  <ng-container matColumnDef="referenceRate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa Referencia </th>
-                    <td mat-cell *matCellDef="let element"> {{element.referenceRate || '-' }} </td>
-                  </ng-container>
+                  
 
-                  <ng-container matColumnDef="termSofrAdj">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Term SOFR Adj </th>
-                    <td mat-cell *matCellDef="let element"> {{element.termSofrAdj || '-' }} </td>
-                  </ng-container>
+                  
 
-                  <ng-container matColumnDef="applicableMargin">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Applicable Margin </th>
-                    <td mat-cell *matCellDef="let element"> {{element.applicableMargin || '-' }} </td>
-                  </ng-container>
+                  
 
-                  <ng-container matColumnDef="rateTypeId">
+                  <!--ng-container matColumnDef="rateTypeId">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
                       <mat-form-field>
                         <mat-label style="color:white">Tipo Plazo</mat-label>
@@ -296,7 +375,7 @@
                       </mat-form-field>
                     </th>
                     <td mat-cell *matCellDef="let e">{{ e.rateTypeId }}</td>
-                  </ng-container>
+                  </ng-container-->
 
                   <ng-container matColumnDef="operationTrm">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> TRM Operación </th>
