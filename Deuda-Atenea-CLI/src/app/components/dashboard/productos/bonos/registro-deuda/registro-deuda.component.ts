@@ -62,7 +62,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   listCurrencies: any[] = [];
   listProductClasses: any[] = [];
   listLoanTypes: any[] = [];
-  //listRateExpressionTypes: any[]= [];
+  listLoanAmortizationTypes: any[]= [];
 
   listTasaNominal: any[] = [
     { codigo: 1, nombre: 'Tasa Nominal Anual', status: true },
@@ -494,11 +494,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       acreedores: this.tesoreriaService.getListaAcreedor(),
       contrapartes: this.tesoreriaService.getListaCombo(7),
       rateClassification: this.tesoreriaService.getListaCombo(9),
-      loanType: this.tesoreriaService.getListaCombo(10),
+      loanType: this.tesoreriaService.getListaCombo(18), //(10),
       amortizationMethod: this.tesoreriaService.getListaCombo(11),
       roundingType: this.tesoreriaService.getListaCombo(12),
       interestStructure: this.tesoreriaService.getListaCombo(13),
-      classesProduct: this.tesoreriaService.getListaCombo(15)
+      classesProduct: this.tesoreriaService.getListaCombo(15),
+      loanAmortizationTypes: this.tesoreriaService.getListaCombo(16)
     }).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -565,6 +566,11 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         this.listProductClasses = result.classesProduct.map((classProduct: OpcionesCombo) => ({
           codigo: classProduct.id_combo,
           name: classProduct.descripcion_combo
+        }));
+
+        this.listLoanAmortizationTypes = result.loanAmortizationTypes.map((loanAmortizationType: OpcionesCombo) => ({
+          codigo: loanAmortizationType.id_combo,
+          name: loanAmortizationType.descripcion_combo
         }));
 
         this.loading = false;
