@@ -23,6 +23,10 @@ public class DebtRegistryRequest {
     @NotBlank(message = "El tipo de producto es obligatorio")
     private Integer productTypeId;
 
+    // CAMPOS DE NOMBRE DE PRODUCTO
+    private Integer productNameId;  // ID si ya existe
+    private String productName;     // Nombre/descripción del producto (para crear nuevo si no existe)
+
     // TODOS LOS DEMÁS CAMPOS SIN VALIDACIONES
     private Integer amortizationStartDate;
     private Integer rateExpressionTypeId;
@@ -31,7 +35,6 @@ public class DebtRegistryRequest {
     private String creditorType;
     private Integer subsidiaryCreditorId;
     private Integer counterpartCreditorId;
-    private Integer loanTypeId;
     private Integer validityStartDate;
     private Integer disbursementDate;
     private Integer interestStartDate;
@@ -44,7 +47,7 @@ public class DebtRegistryRequest {
     private Integer rateClassificationId;
     private BigDecimal fixedRatePercentage;
     private String referenceRate;
-    private BigDecimal termSofrAdj;
+    private BigDecimal rateAdjustment;
     private BigDecimal applicableMargin;
     private BigDecimal others;
     private Boolean applyAmortizationException = false;
