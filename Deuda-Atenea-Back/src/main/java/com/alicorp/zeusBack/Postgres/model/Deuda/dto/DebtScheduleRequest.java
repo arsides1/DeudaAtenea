@@ -14,25 +14,52 @@ import java.math.BigDecimal;
 public class DebtScheduleRequest {
 
     private Long id;
+    private Integer seq;
     private Integer paymentNumber;
-    private Integer calculationDate;
+    private Integer periodDate;           // calculationDate en BD
     private Integer paymentDate;
-    private BigDecimal initialBalance;
-    private BigDecimal finalBalance;
-    private BigDecimal amortization;
-    private BigDecimal interest;
-    private BigDecimal interestRate;
+    private BigDecimal nominalOpening;     // initialBalance en BD
+    private BigDecimal nominalClosing;      // finalBalance en BD
+    private BigDecimal nominal;
+    private BigDecimal prepayment;
+    private BigDecimal amortizationPrinc;  // amortization en BD
+    private BigDecimal interestPaid;        // interest en BD
+    private BigDecimal rate;                // interestRate y appliedRate en BD
     private Integer variableRateDate;
-    private BigDecimal appliedRate;
-    private BigDecimal termSofrAdj;
+    private BigDecimal rateAdjustment;
     private BigDecimal applicableMargin;
-    private BigDecimal installment;
-    private String finalGuarantor;
-    private String registeredBy;
+    private BigDecimal fee;                 // installment en BD
+    private Object finalGuarantor;          // puede ser String o Number
+    private BigDecimal insurance;
     private String rateType;
     private String referenceRate;
     private String provider;
     private Integer acceptanceDate;
     private BigDecimal fees;
-    private BigDecimal insurance;
+    private Boolean status;
+    private String registeredBy;
+
+    // =====================================================
+    // CAMPOS NUEVOS PARA TIPO DE PAGO
+    // =====================================================
+
+    /**
+     * ID del tipo de pago
+     * 1 = NORMAL (Cuota Normal)
+     * 2 = PREPAGO_PARCIAL (Prepago Parcial)
+     * 3 = PREPAGO_TOTAL (Prepago Total)
+     */
+    private Integer paymentTypeId = 1;
+
+    /**
+     * Descripción adicional cuando es prepago
+     * Ejemplo: "Prepago por excedente de caja"
+     */
+    private String prepaymentDescription;
+
+    /**
+     * Fecha efectiva del prepago en formato YYYYMMDD
+     * Solo aplica cuando paymentTypeId es 2 o 3
+     */
+    private Integer prepaymentDate;
 }

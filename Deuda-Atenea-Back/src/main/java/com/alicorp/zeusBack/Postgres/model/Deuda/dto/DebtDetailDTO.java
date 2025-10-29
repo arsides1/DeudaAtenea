@@ -24,7 +24,7 @@ public class DebtDetailDTO {
     private String creditorType;
     private Integer subsidiaryCreditorId;
     private Integer counterpartCreditorId;
-    private Integer loanTypeId;
+    private Integer productNameId;
     private Integer validityStartDate;
     private Integer disbursementDate;
     private Integer interestStartDate;
@@ -37,7 +37,7 @@ public class DebtDetailDTO {
     private Integer rateClassificationId;
     private BigDecimal fixedRatePercentage;
     private String referenceRate;
-    private BigDecimal termSofrAdj;
+    private BigDecimal rateAdjustment;
     private BigDecimal applicableMargin;
     private BigDecimal others;
     private Boolean applyAmortizationException;
@@ -64,7 +64,7 @@ public class DebtDetailDTO {
     private String subsidiaryDebtorName;
     private String subsidiaryCreditorName;
     private String counterpartCreditorName;
-    private String loanTypeName;
+    private String productNameName;
     private String currencyName;
     private String periodsName;
     private String rateClassificationName;

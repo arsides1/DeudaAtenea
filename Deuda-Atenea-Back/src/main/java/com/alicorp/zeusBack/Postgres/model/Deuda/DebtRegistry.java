@@ -1,6 +1,5 @@
 package com.alicorp.zeusBack.Postgres.model.Deuda;
 
-import com.alicorp.zeusBack.Postgres.model.Deuda.dto.LoanType;
 import com.alicorp.zeusBack.Postgres.model.Tesoreria.Basis;
 import com.alicorp.zeusBack.Postgres.model.Tesoreria.Moneda;
 import com.alicorp.zeusBack.Postgres.model.Tesoreria.Subsidiaria;
@@ -40,9 +39,8 @@ public class DebtRegistry {
     @Column(name = "t532_id_counterpart_creditor")
     private Integer counterpartCreditorId;
 
-    @NotNull
-    @Column(name = "t532_id_loan_type")
-    private Integer loanTypeId;
+    @Column(name = "t532_id_product_name")
+    private Integer productNameId;
 
     @NotNull
     @Column(name = "t532_validity_start_date")
@@ -90,8 +88,8 @@ public class DebtRegistry {
     @Column(name = "t532_reference_rate", length = 20)
     private String referenceRate;
 
-    @Column(name = "t532_term_sofr_adj", precision = 8, scale = 4)
-    private BigDecimal termSofrAdj;
+    @Column(name = "t532_rate_adjustment", precision = 8, scale = 4)
+    private BigDecimal rateAdjustment;
 
     @Column(name = "t532_applicable_margin", precision = 8, scale = 4)
     private BigDecimal applicableMargin;
@@ -155,7 +153,7 @@ public class DebtRegistry {
 
     @NotNull
     @Column(name = "t532_id_product_type")
-    private Integer  productTypeId;
+    private Integer productTypeId;
 
     @Column(name = "t532_amortization_start_date")
     private Integer amortizationStartDate;
@@ -166,7 +164,7 @@ public class DebtRegistry {
     @Column(name = "t532_id_amortization_type", length = 10)
     private Integer amortizationTypeId;
 
-    // RELACIONES JPA EXISTENTES
+    // RELACIONES JPA
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t532_id_subsidiary_debtor", insertable = false, updatable = false)
     private Subsidiaria subsidiaryDebtor;
@@ -200,10 +198,6 @@ public class DebtRegistry {
     private RateClassification rateClassification;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "t532_id_loan_type", insertable = false, updatable = false)
-    private LoanType loanType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t532_id_amortization_method", insertable = false, updatable = false)
     private AmortizationMethod amortizationMethod;
 
@@ -214,6 +208,10 @@ public class DebtRegistry {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t532_id_interest_structure", insertable = false, updatable = false)
     private InterestStructure interestStructure;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "t532_id_product_name", insertable = false, updatable = false)
+    private ProductName productName;
 
     @OneToMany(mappedBy = "debtRegistry", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference

@@ -1,9 +1,8 @@
 package com.alicorp.zeusBack.Postgres.model.Deuda.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -14,9 +13,11 @@ public class DebtSearchRequest {
     // Búsqueda por texto libre
     private String searchText;
 
-    // Filtros de texto - se buscarán con LIKE
+    // Filtros de texto
     private String productClassId;
     private String productTypeId;
+    private Integer loanTypeId;
+    private Integer productNameId;  // AGREGAR ESTE CAMPO
     private String currencyId;
     private String rateTypeId;
     private String referenceRate;
@@ -25,11 +26,10 @@ public class DebtSearchRequest {
     private String assignment;
     private String internalReference;
 
-    // Filtros numéricos - comparación exacta
+    // Filtros numéricos
     private Integer subsidiaryDebtorId;
     private Integer subsidiaryCreditorId;
     private Integer counterpartCreditorId;
-    private Integer loanTypeId;
     private Integer periodsId;
     private Integer rateClassificationId;
     private Integer basisId;
@@ -54,21 +54,25 @@ public class DebtSearchRequest {
     private BigDecimal amortizationRateMax;
     private BigDecimal operationTrmMin;
     private BigDecimal operationTrmMax;
-    private BigDecimal termSofrAdjMin;
-    private BigDecimal termSofrAdjMax;
+    private BigDecimal rateAdjustmentMin;
+    private BigDecimal rateAdjustmentMax;
     private BigDecimal applicableMarginMin;
     private BigDecimal applicableMarginMax;
 
-    // Estado y otros
+    // Filtros booleanos
     private Boolean applyAmortizationException;
     private Boolean status;
+
+    // Filtro por usuario
     private String registeredBy;
+
+    // Rangos de fecha de registro
     private LocalDateTime registrationDateFrom;
     private LocalDateTime registrationDateTo;
 
     // Paginación
-    private Integer page = 0;
-    private Integer size = 10;
+    private int page = 0;
+    private int size = 10;
     private String sortBy = "registrationDate";
     private String sortDirection = "DESC";
 }

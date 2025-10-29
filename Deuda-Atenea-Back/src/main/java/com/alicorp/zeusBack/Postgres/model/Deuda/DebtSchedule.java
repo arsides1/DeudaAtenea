@@ -1,6 +1,7 @@
 package com.alicorp.zeusBack.Postgres.model.Deuda;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
@@ -63,8 +64,8 @@ public class DebtSchedule {
     @Column(name = "t533_applied_rate", precision = 8, scale = 4)
     private BigDecimal appliedRate;
 
-    @Column(name = "t533_term_sofr_adj", precision = 8, scale = 4)
-    private BigDecimal termSofrAdj;
+    @Column(name = "t533_rate_adjustment", precision = 8, scale = 4)
+    private BigDecimal rateAdjustment;
 
     @Column(name = "t533_applicable_margin", precision = 8, scale = 4)
     private BigDecimal applicableMargin;
@@ -86,7 +87,6 @@ public class DebtSchedule {
     @Column(name = "t533_registration_date")
     private LocalDateTime registrationDate;
 
-    // CAMPOS NUEVOS AGREGADOS
     @Column(name = "t533_rate_type", length = 20)
     private String rateType;
 
@@ -105,6 +105,27 @@ public class DebtSchedule {
     @Column(name = "t533_insurance", precision = 18, scale = 2)
     private BigDecimal insurance;
 
+    // =====================================================
+    // CAMPOS NUEVOS PARA TIPO DE PAGO
+    // =====================================================
+
+    @Column(name = "t533_id_payment_type")
+    private Integer paymentTypeId = 1;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "t533_id_payment_type", insertable = false, updatable = false)
+    private PaymentType paymentType;
+
+    @Column(name = "t533_prepayment_description", length = 200)
+    private String prepaymentDescription;
+
+    @Column(name = "t533_prepayment_date")
+    private Integer prepaymentDate;
+
+    // =====================================================
+    // RELACIÓN EXISTENTE
+    // =====================================================
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t533_id_debt_registry", insertable = false, updatable = false)
@@ -113,5 +134,28 @@ public class DebtSchedule {
     @PrePersist
     protected void onCreate() {
         registrationDate = LocalDateTime.now();
+        if (paymentTypeId == null) {
+            paymentTypeId = 1;
+        }
+    }
+
+    // =====================================================
+    // MÉTODO PARA MOSTRAR EN FRONTEND
+    // =====================================================
+
+    /**
+     * Campo calculado para mostrar en la columna "Nro. Pago"
+     * - Si es NORMAL: retorna el número (ej: "0", "1", "2")
+     * - Si es PREPAGO: retorna "Prepago"
+     */
+    @Transient
+    @JsonProperty("paymentDisplayLabel")
+    public String getPaymentDisplayLabel() {
+        if (paymentType != null &&
+                ("PREPAGO_PARCIAL".equals(paymentType.getCode()) ||
+                        "PREPAGO_TOTAL".equals(paymentType.getCode()))) {
+            return "Prepago";
+        }
+        return String.valueOf(paymentNumber);
     }
 }

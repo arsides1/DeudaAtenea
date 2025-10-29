@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -140,6 +141,57 @@ public class DeudaResource {
             return ResponseEntity.ok(debts);
         } catch (Exception e) {
             log.error("Error en búsqueda por texto: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * Búsqueda de deudas por rangos de fechas
+     * <p>
+     * Permite filtrar por:
+     * - F. Inicio Vigencia (validityStartDate)
+     * - F. Desembolso (disbursementDate)
+     * - F. Vencimiento (maturityDate)
+     */
+
+    @GetMapping("/buscarPorFechas")
+    public ResponseEntity<Page<DebtSummaryDTO>> buscarPorFechas(
+            // F. Inicio Vigencia
+            @RequestParam(required = false) Integer validityStartDateFrom,
+            @RequestParam(required = false) Integer validityStartDateTo,
+            // F. Desembolso
+            @RequestParam(required = false) Integer disbursementDateFrom,
+            @RequestParam(required = false) Integer disbursementDateTo,
+            // F. Vencimiento
+            @RequestParam(required = false) Integer maturityDateFrom,
+            @RequestParam(required = false) Integer maturityDateTo,
+            // Paginación y ordenamiento
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "registrationDate") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDir) {
+
+        try {
+            DebtSearchRequest searchRequest = new DebtSearchRequest();
+            searchRequest.setValidityStartDateFrom(validityStartDateFrom);
+            searchRequest.setValidityStartDateTo(validityStartDateTo);
+            searchRequest.setDisbursementDateFrom(disbursementDateFrom);
+            searchRequest.setDisbursementDateTo(disbursementDateTo);
+            searchRequest.setMaturityDateFrom(maturityDateFrom);
+            searchRequest.setMaturityDateTo(maturityDateTo);
+            searchRequest.setPage(page);
+            searchRequest.setSize(size);
+            searchRequest.setSortBy(sortBy);
+            searchRequest.setSortDirection(sortDir);
+            searchRequest.setStatus(true);
+
+            Page<DebtSummaryDTO> debts = debtRegistryService.searchDebts(searchRequest);
+
+            log.info("Búsqueda por fechas ejecutada exitosamente. Resultados: {}", debts.getTotalElements());
+            return ResponseEntity.ok(debts);
+
+        } catch (Exception e) {
+            log.error("Error en búsqueda por fechas: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
