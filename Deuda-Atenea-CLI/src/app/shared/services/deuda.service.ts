@@ -96,4 +96,38 @@ export class DeudaService {
       { params }
     );
   }
+
+  public buscarDeudasPorFechas(searchRequest: DebtSearchRequest): Observable<DebtPageResponse> {
+    let params = new HttpParams();
+
+  // Agrega solo los parámetros definidos
+  const fechaParams: (keyof DebtSearchRequest)[] = [
+      'validityStartDateFrom',
+      'validityStartDateTo',
+      'disbursementDateFrom',
+      'disbursementDateTo',
+      'maturityDateFrom',
+      'maturityDateTo'
+    ];
+
+    fechaParams.forEach(key => {
+      const value = searchRequest[key];
+      console.log("los rangos", value)
+      if (value !== undefined && value !== null) {
+        params = params.set(key, value.toString());
+      }
+    });
+
+    // El resto del request (sin fechas)
+    const { 
+      validityStartDateFrom, validityStartDateTo,
+      disbursementDateFrom, disbursementDateTo,
+      maturityDateFrom, maturityDateTo
+    } = searchRequest;
+
+    return this.http.get<DebtPageResponse>(
+      `${this.apiServerUrl}/Tesoreria/Deuda/buscarPorFechas`,
+      { params }
+    );
+  }
 }

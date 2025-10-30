@@ -325,7 +325,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     if (this.debtInfo.rateClassificationId === ClasificacionTasa.FIJA) {
       return this.debtInfo.fixedRatePercentage || 0;
     } else {
-      return (this.debtInfo.termSofrAdj || 0) + (this.debtInfo.applicableMargin || 0);
+      return (this.debtInfo.rateAdjustment || 0) + (this.debtInfo.applicableMargin || 0);
     }
   }
 
@@ -333,7 +333,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     if (this.data.debtData?.rateClassificationId === ClasificacionTasa.FIJA) {
       return this.data.debtData?.fixedRatePercentage || 0;
     } else {
-      return (this.data.debtData?.termSofrAdj || 0) + (this.data.debtData?.applicableMargin || 0);
+      return (this.data.debtData?.rateAdjustment || 0) + (this.data.debtData?.applicableMargin || 0);
     }
   }
 
@@ -448,8 +448,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       mappedData.tasa = schedule.interestRate || schedule.rate;
     }
 
-    if (schedule.termSofrAdj !== undefined) {
-      mappedData.term_sofr_adj = schedule.termSofrAdj || 0;
+    if (schedule.rateAdjustment !== undefined) {
+      mappedData.term_sofr_adj = schedule.rateAdjustment || 0;
     }
 
     if (schedule.applicableMargin !== undefined) {
@@ -562,7 +562,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
 
   save(): void {
     const payload = this.prepareSaveData();
-
+    console.log("Grabando deuda:", payload )
     const saveOperation = this.data.modo === 'editar'
       ? this.deudaService.editarDeuda(this.debtId, payload)
       : this.deudaService.registrarDeuda(payload);
@@ -661,7 +661,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       installment: schedule.fee ?? null,
       variableRateDate: schedule.variableRateDate || null,
       appliedRate: schedule.rate ?? null,
-      termSofrAdj: schedule.termSofrAdj ?? null,
+      rateAdjustment: schedule.rateAdjustment ?? null,
       applicableMargin: schedule.applicableMargin ?? null,
       finalGuarantor: String(schedule.finalGuarantor ?? ''),
       rateType: schedule.rateType || '',
@@ -703,7 +703,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       rateClassificationId: this.data.debtData?.rateClassificationId ?? null,
       fixedRatePercentage: cleanNumeric(this.data.debtData?.fixedRatePercentage),
       referenceRate: this.data.debtData?.referenceRate || '',
-      termSofrAdj: cleanNumeric(this.data.debtData?.termSofrAdj),
+      rateAdjustment: cleanNumeric(this.data.debtData?.rateAdjustment),
       applicableMargin: cleanNumeric(this.data.debtData?.applicableMargin),
       others: cleanNumeric(this.data.debtData?.otherRateParams),
 

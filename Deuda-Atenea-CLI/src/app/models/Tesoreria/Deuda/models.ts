@@ -33,7 +33,7 @@ export interface DebtRequest {
   rateClassificationId: number | null;
   fixedRatePercentage: number | null;
   referenceRate: string;
-  termSofrAdj: number | null;
+  rateAdjustment: number | null;
   applicableMargin: number | null;
   others: number | null;
 
@@ -83,7 +83,7 @@ export interface DebtScheduleRequest {
   referenceRate?: string;
   variableRateDate?: number | null;
   interestRate?: number;
-  termSofrAdj?: number;
+  rateAdjustment?: number;
   applicableMargin?: number;
   fee?: number;
   finalGuarantor?: number | string;
@@ -110,7 +110,7 @@ export interface DebtScheduleBackend {
   interestRate: number | null;
   variableRateDate: number | null;
   appliedRate: number | null;
-  termSofrAdj: number | null;
+  rateAdjustment: number | null;
   applicableMargin: number | null;
   installment: number | null;
   finalGuarantor: string;
@@ -279,7 +279,7 @@ export function mapScheduleToBackend(schedule: DebtScheduleRequest): DebtSchedul
     installment: schedule.fee ?? null,
     variableRateDate: schedule.variableRateDate || null,
     appliedRate: schedule.rate ?? null,
-    termSofrAdj: schedule.termSofrAdj ?? null,
+    rateAdjustment: schedule.rateAdjustment ?? null,
     applicableMargin: schedule.applicableMargin ?? null,
     finalGuarantor: String(schedule.finalGuarantor ?? ''),
     rateType: schedule.rateType ?? '',
@@ -313,7 +313,7 @@ export function mapScheduleFromBackend(schedule: any): DebtScheduleRequest {
     referenceRate: schedule.referenceRate || '',
     variableRateDate: schedule.variableRateDate,
     interestRate: schedule.interestRate,
-    termSofrAdj: schedule.termSofrAdj,
+    rateAdjustment: schedule.rateAdjustment,
     applicableMargin: schedule.applicableMargin,
     fee: schedule.installment,
     finalGuarantor: schedule.finalGuarantor,
@@ -355,14 +355,14 @@ export interface DebtSearchRequest {
   interestStructureId?: number;
 
   // Rangos de fechas (formato YYYYMMDD)
-  validityStartDateFrom?: number;
-  validityStartDateTo?: number;
-  disbursementDateFrom?: number;
-  disbursementDateTo?: number;
-  interestStartDateFrom?: number;
-  interestStartDateTo?: number;
-  maturityDateFrom?: number;
-  maturityDateTo?: number;
+  validityStartDateFrom?: string;
+  validityStartDateTo?: string;
+  disbursementDateFrom?: string;
+  disbursementDateTo?: string;
+  //interestStartDateFrom?: number;
+  //interestStartDateTo?: number;
+  maturityDateFrom?: string;
+  maturityDateTo?: string;
 
   // Rangos numéricos
   nominalMin?: number;
@@ -371,8 +371,8 @@ export interface DebtSearchRequest {
   amortizationRateMax?: number;
   operationTrmMin?: number;
   operationTrmMax?: number;
-  termSofrAdjMin?: number;
-  termSofrAdjMax?: number;
+  rateAdjustmentMin?: number;
+  rateAdjustmentMax?: number;
   applicableMarginMin?: number;
   applicableMarginMax?: number;
 

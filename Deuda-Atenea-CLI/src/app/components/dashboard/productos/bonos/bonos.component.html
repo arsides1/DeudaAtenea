@@ -48,9 +48,9 @@
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Desde</mat-label>
                       <input matInput [matDatepicker]="pickerVigenciaDesde" 
-                        [(ngModel)]="filtrosFecha.validityStartDateDesde"
-                        [min]="getFechaMin('validity')"
-                        [max]="getFechaMax('validity')" >
+                        [(ngModel)]="filtrosFecha.validityStartDateFrom"
+                        [min]="getRangoPermitido('validity').min"
+                        [max]="getRangoPermitido('validity').max" >
                       <mat-datepicker-toggle matSuffix [for]="pickerVigenciaDesde"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVigenciaDesde></mat-datepicker>
                     </mat-form-field>
@@ -58,9 +58,9 @@
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Hasta</mat-label>
                       <input matInput [matDatepicker]="pickerVigenciaHasta" 
-                        [(ngModel)]="filtrosFecha.validityStartDateHasta"
-                        [min]="getFechaMin('validity')"
-                        [max]="getFechaMax('validity')">
+                        [(ngModel)]="filtrosFecha.validityStartDateTo"
+                        [min]="getRangoPermitido('validity').min"
+                        [max]="getRangoPermitido('validity').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerVigenciaHasta"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVigenciaHasta></mat-datepicker>
                     </mat-form-field>
@@ -74,9 +74,9 @@
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Desde</mat-label>
                       <input matInput [matDatepicker]="pickerDesembolsoDesde" 
-                        [(ngModel)]="filtrosFecha.disbursementDateDesde"
-                        [min]="getFechaMin('disbursement')"
-                        [max]="getFechaMax('disbursement')">
+                        [(ngModel)]="filtrosFecha.disbursementDateFrom"
+                        [min]="getRangoPermitido('disbursement').min"
+                        [max]="getRangoPermitido('disbursement').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoDesde"></mat-datepicker-toggle>
                       <mat-datepicker #pickerDesembolsoDesde></mat-datepicker>
                     </mat-form-field>
@@ -84,9 +84,9 @@
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Hasta</mat-label>
                       <input matInput [matDatepicker]="pickerDesembolsoHasta" 
-                        [(ngModel)]="filtrosFecha.disbursementDateHasta"
-                        [min]="getFechaMin('disbursement')"
-                        [max]="getFechaMax('disbursement')" >
+                        [(ngModel)]="filtrosFecha.disbursementDateTo"
+                        [min]="getRangoPermitido('disbursement').min"
+                        [max]="getRangoPermitido('disbursement').max" >
                       <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoHasta"></mat-datepicker-toggle>
                       <mat-datepicker #pickerDesembolsoHasta></mat-datepicker>
                     </mat-form-field>
@@ -100,9 +100,9 @@
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Desde</mat-label>
                       <input matInput [matDatepicker]="pickerVencimientoDesde" 
-                        [(ngModel)]="filtrosFecha.maturityDateDesde"
-                        [min]="getFechaMin('maturity')"
-                        [max]="getFechaMax('maturity')">
+                        [(ngModel)]="filtrosFecha.maturityDateFrom"
+                        [min]="getRangoPermitido('maturity').min"
+                        [max]="getRangoPermitido('maturity').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerVencimientoDesde"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVencimientoDesde></mat-datepicker>
                     </mat-form-field>
@@ -110,9 +110,9 @@
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Hasta</mat-label>
                       <input matInput [matDatepicker]="pickerVencimientoHasta" 
-                        [(ngModel)]="filtrosFecha.maturityDateHasta"
-                        [min]="getFechaMin('maturity')"
-                        [max]="getFechaMax('maturity')">
+                        [(ngModel)]="filtrosFecha.maturityDateTo"
+                        [min]="getRangoPermitido('maturity').min"
+                        [max]="getRangoPermitido('maturity').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerVencimientoHasta"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVencimientoHasta></mat-datepicker>
                     </mat-form-field>
@@ -251,9 +251,9 @@
                     <td mat-cell *matCellDef="let element"> {{element.referenceRate || '-' }} </td>
                   </ng-container>
 
-                  <ng-container matColumnDef="termSofrAdj">
+                  <ng-container matColumnDef="rateAdjustment">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Ajuste de Tasa </th>
-                    <td mat-cell *matCellDef="let element"> {{element.termSofrAdj || '-' }} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.rateAdjustment || '-' }} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="applicableMargin">

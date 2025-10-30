@@ -13,7 +13,7 @@ export class DeudaPost {
     periodicityId!: number;
     rateClassificationId!: number;
     referenceRate!: string;
-    termSofrAdj!: number;
+    rateAdjustment!: number;
     applicableMargin!: number;
     percentage!: number;
     basisId!: number;

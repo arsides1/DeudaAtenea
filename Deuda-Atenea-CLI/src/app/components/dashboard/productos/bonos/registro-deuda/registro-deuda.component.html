@@ -142,7 +142,7 @@
 
                       <div class="form-item">
                         <label>Tipo de Expresión de Tasa*</label>
-                        <ng-select [items]="loanRateExpressionTypes" bindLabel="name" bindValue="id"
+                        <ng-select [items]="listLoanRateExpressionTypes" bindLabel="name" bindValue="codigo"
                                   formControlName="tipoe">
                         </ng-select>
                       </div>
@@ -228,9 +228,9 @@
                         <input class="redondeado" type="text" formControlName="referenceRate">
                       </div>
 
-                      <div class="form-item" *ngIf="mostrarCampo('termSofrAdj')">
+                      <div class="form-item" *ngIf="mostrarCampo('rateAdjustment')">
                         <label>Ajuste de Tasa*</label>
-                        <input class="redondeado" type="text" formControlName="termSofrAdj" (input)="formatearValor($event, false, 'porcentaje')">
+                        <input class="redondeado" type="text" formControlName="rateAdjustment" (input)="formatearValor($event, false, 'porcentaje')">
                       </div>
 
                       <div class="form-item" *ngIf="mostrarCampo('applicableMargin')">
@@ -285,7 +285,7 @@
                     </div>
 
                     <div class="form-item">
-                      <label>Tasa1nominal/efectiva*</label>
+                      <label>Tasa nominal/efectiva*</label>
                       <ng-select [items]="listTasaNominal" bindLabel="nombre" bindValue="codigo" formControlName="rateTypeId">
                       </ng-select>
                     </div>

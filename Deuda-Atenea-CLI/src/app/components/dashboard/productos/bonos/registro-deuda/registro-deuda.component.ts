@@ -63,12 +63,13 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   listProductClasses: any[] = [];
   listLoanTypes: any[] = [];
   listLoanAmortizationTypes: any[]= [];
+  listLoanRateExpressionTypes: any[]=[];
 
   listTasaNominal: any[] = [
-    { codigo: 1, nombre: 'Tasa Nominal Anual', status: true },
-    { codigo: 2, nombre: 'Tasa Efectiva Anual', status: true }
-    /*{ codigo: 'TNA', nombre: 'Tasa Nominal Anual', status: true },
-    { codigo: 'TEA', nombre: 'Tasa Efectiva Anual', status: true }*/
+    /*{ codigo: 1, nombre: 'Tasa Nominal Anual', status: true },
+    { codigo: 2, nombre: 'Tasa Efectiva Anual', status: true }*/
+    { codigo: 'TNA', nombre: 'Tasa Nominal Anual', status: true },
+    { codigo: 'TEA', nombre: 'Tasa Efectiva Anual', status: true }
   ];
 
   excepcionesGuardadas: any[] = [];
@@ -122,10 +123,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     { id: '04', name: 'Cuota constante' }
   ];
 
-  loanRateExpressionTypes = [
+  /*loanRateExpressionTypes = [ //--> reemplazado por listLoanRateExpressionTypes
     { id: 'TEA', name: 'TEA' },
     { id: 'TNA', name: 'TNA' }
-  ];
+  ];*/ 
+
+
 
   mostrarExcepcion: boolean = true;
   rateClassificationsOriginal: any[] | null = null;
@@ -248,7 +251,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       rateClassificationDescripcion: [''],
       fixedRatePercentage: [null],
       referenceRate: [''],
-      termSofrAdj: [null],
+      rateAdjustment: [null],
       applicableMargin: [null],
       otherRateParams: [null],
       applyAmortizationException: [false],
@@ -341,7 +344,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'loanTypeId', 'validityStartDate', 'disbursementDate', 'interestStartDate',
       'maturityDate', 'currencyId', 'nominal', 'amortizationRate',
       'amortizationStartPayment', 'periodsId', 'rateClassificationId',
-      'fixedRatePercentage', 'referenceRate', 'termSofrAdj', 'applicableMargin',
+      'fixedRatePercentage', 'referenceRate', 'rateAdjustment', 'applicableMargin',
       'otherRateParams', 'applyAmortizationException', 'operationTrm', 'basisId',
       'rateTypeId', 'amortizationMethodId', 'roundingTypeId', 'periodicidadIntereses',
       'portfolio', 'project', 'assignment', 'internalReference', 'features',
@@ -462,24 +465,24 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
   private updateRateValidators(rateClassificationId: number): void {
     const fixedRateControl = this.debtForm.get('fixedRatePercentage');
-    const termSofrAdjControl = this.debtForm.get('termSofrAdj');
+    const rateAdjustmentControl = this.debtForm.get('rateAdjustment');
     const applicableMarginControl = this.debtForm.get('applicableMargin');
 
     if (rateClassificationId === ClasificacionTasa.FIJA || rateClassificationId === 1) {
       fixedRateControl?.setValidators([Validators.required, Validators.min(0)]);
-      termSofrAdjControl?.clearValidators();
+      rateAdjustmentControl?.clearValidators();
       applicableMarginControl?.clearValidators();
-      termSofrAdjControl?.setValue(null);
+      rateAdjustmentControl?.setValue(null);
       applicableMarginControl?.setValue(null);
     } else {
       fixedRateControl?.clearValidators();
-      termSofrAdjControl?.setValidators([Validators.required, Validators.min(0)]);
+      rateAdjustmentControl?.setValidators([Validators.required, Validators.min(0)]);
       applicableMarginControl?.setValidators([Validators.required]);
       fixedRateControl?.setValue(null);
     }
 
     fixedRateControl?.updateValueAndValidity();
-    termSofrAdjControl?.updateValueAndValidity();
+    rateAdjustmentControl?.updateValueAndValidity();
     applicableMarginControl?.updateValueAndValidity();
   }
 
@@ -499,7 +502,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       roundingType: this.tesoreriaService.getListaCombo(12),
       interestStructure: this.tesoreriaService.getListaCombo(13),
       classesProduct: this.tesoreriaService.getListaCombo(15),
-      loanAmortizationTypes: this.tesoreriaService.getListaCombo(16)
+      loanAmortizationTypes: this.tesoreriaService.getListaCombo(16),
+      loanRateExpressionTypes:this.tesoreriaService.getListaCombo(17) //--> tipo de expresion de tasa (rateExpresionType)
     }).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
@@ -571,6 +575,11 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         this.listLoanAmortizationTypes = result.loanAmortizationTypes.map((loanAmortizationType: OpcionesCombo) => ({
           codigo: loanAmortizationType.id_combo,
           name: loanAmortizationType.descripcion_combo
+        }));
+
+        this.listLoanRateExpressionTypes = result.loanRateExpressionTypes.map((loanRateExpresionType: OpcionesCombo) => ({
+          codigo: loanRateExpresionType.id_combo,
+          name: loanRateExpresionType.descripcion_combo
         }));
 
         this.loading = false;
@@ -664,7 +673,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       referenceRate: schedule.referenceRate,
       variableRateDate: schedule.variableRateDate,
       interestRate: schedule.interestRate,
-      termSofrAdj: schedule.termSofrAdj,
+      rateAdjustment: schedule.rateAdjustment,
       applicableMargin: schedule.applicableMargin,
       fee: schedule.installment,
       finalGuarantor: schedule.finalGuarantor,
@@ -721,7 +730,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       rateClassificationId: debt.rateClassificationId,
       fixedRatePercentage: debt.fixedRatePercentage,
       referenceRate: debt.referenceRate,
-      termSofrAdj: debt.termSofrAdj,
+      rateAdjustment: debt.rateAdjustment,
       applicableMargin: debt.applicableMargin,
       otherRateParams: debt.others,
       applyAmortizationException: debt.applyAmortizationException || false,
@@ -822,7 +831,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     // Calcular tasa aplicable
     let tasaFija = 0;
     let tasaReferencia = 0;
-    let termSofrAdj = 0;
+    let rateAdjustment = 0;
     let applicableMargin = 0;
     let tipoTasa = 'FIJA';
 
@@ -831,9 +840,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       tipoTasa = 'FIJA';
     } else {
       tasaReferencia = parseFloat(deudaData.referenceRate) || 0;
-      termSofrAdj = parseFloat(deudaData.termSofrAdj) || 0;
+      rateAdjustment = parseFloat(deudaData.rateAdjustment) || 0;
       applicableMargin = parseFloat(deudaData.applicableMargin) || 0;
-      tasaFija = tasaReferencia + termSofrAdj + applicableMargin;
+      tasaFija = tasaReferencia + rateAdjustment + applicableMargin;
       tipoTasa = 'VARIABLE';
     }
 
@@ -868,7 +877,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       tasaFija: tasaFija,
       tipoTasa: tipoTasa,
       tasaReferencia: tasaReferencia,
-      termSofrAdj: termSofrAdj,
+      rateAdjustment: rateAdjustment,
       applicableMargin: applicableMargin,
       amortizationRate: amortizationRate,
       excepciones: this.excepcionesGuardadas,
@@ -939,7 +948,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         scheduleData.referenceRate = item.referenceRate || deudaData.referenceRate || '';
         scheduleData.variableRateDate = tipoTasa === 'VARIABLE' ? item.periodDate : null;
         scheduleData.interestRate = item.interestRate || item.rate;
-        scheduleData.termSofrAdj = item.termSofrAdj;
+        scheduleData.rateAdjustment = item.rateAdjustment;
         scheduleData.applicableMargin = item.applicableMargin;
       }
 
@@ -1082,7 +1091,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       interestRate: schedule.interestRate ?? schedule.rate ?? 0,
       variableRateDate: schedule.variableRateDate || null,
       appliedRate: schedule.rate ?? 0,
-      termSofrAdj: schedule.termSofrAdj ?? 0,
+      rateAdjustment: schedule.rateAdjustment ?? 0,
       applicableMargin: schedule.applicableMargin ?? 0,
       installment: schedule.fee ?? 0,
       finalGuarantor: String(schedule.finalGuarantor ?? ''),
@@ -1119,7 +1128,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       rateClassificationId: formValue.rateClassificationId,
       fixedRatePercentage: cleanNumeric(formValue.fixedRatePercentage),
       referenceRate: formValue.referenceRate || '',
-      termSofrAdj: cleanNumeric(formValue.termSofrAdj),
+      rateAdjustment: cleanNumeric(formValue.rateAdjustment),
       applicableMargin: cleanNumeric(formValue.applicableMargin),
       others: cleanNumeric(formValue.otherRateParams),
 
@@ -1328,7 +1337,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         return false;
       }
     } else if (rateClassification === ClasificacionTasa.VARIABLE || rateClassification === 2) {
-      if (!this.debtForm.get('applicableMargin')?.value || !this.debtForm.get('termSofrAdj')?.value) {
+      if (!this.debtForm.get('applicableMargin')?.value || !this.debtForm.get('rateAdjustment')?.value) {
         Swal.fire({
           icon: 'warning',
           title: 'Datos de tasa variable requeridos',
@@ -1813,7 +1822,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
   mostrarCampo(campo: string): boolean {
     const clase = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
-    console.log("mostrarCampo", clase)
+    //console.log("mostrarCampo", clase)
     const tipoa = this.debtForm.get('tipoa')?.value;
     const clasificacionTasa = this.debtForm.get('rateClassificationId')?.value;
 
@@ -1835,7 +1844,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       rateClassificationId: true,
       fixedRatePercentage: clasificacionTasa === 1,
       referenceRate: clasificacionTasa === 2,
-      termSofrAdj: clasificacionTasa === 2,
+      rateAdjustment: clasificacionTasa === 2,
       applicableMargin: clasificacionTasa === 2,
       otherRateParams: clasificacionTasa === 2,
 

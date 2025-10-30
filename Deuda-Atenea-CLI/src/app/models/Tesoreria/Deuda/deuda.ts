@@ -28,7 +28,7 @@ export class Deuda {
 
     porcentaje: string;
     tasaReferencia: string;
-    termSofrAdj: string;
+    rateAdjustment: string;
     applicableMargin: string;
     otros: string;
     excepcionTasaAmortizacion: boolean;
