@@ -86,7 +86,6 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     'saldo_inicial',
     'saldo_final',
     'nominal',
-    'prepagos',
     'amortizacion',
     'intereses',
     'tasa_interes',
@@ -409,27 +408,32 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private mapScheduleForView(schedule: DebtScheduleRequest): any {
-    // Objeto base con valores por defecto
+  private mapScheduleForView(schedule: any): any {
+    const isBackendData = schedule.hasOwnProperty('initialBalance');
+
+    console.log('Mapeando schedule:', isBackendData ? 'BACKEND' : 'PREVIEW', schedule);
+
     const mappedData: any = {
       nro_pago: schedule.paymentNumber,
       moneda: schedule.currency || this.headerData.moneda,
-      saldo_inicial: schedule.nominalOpening,
-      saldo_final: schedule.nominalClosing,
-      nominal: schedule.nominal || this.headerData.nominal,
-      amortizacion: schedule.amortizationPrinc,
-      intereses: schedule.interestPaid,
-      tasa_interes: schedule.rate,
-      cuota: schedule.fee
+      saldo_inicial: isBackendData ? schedule.initialBalance : schedule.nominalOpening,
+      saldo_final: isBackendData ? schedule.finalBalance : schedule.nominalClosing,
+      amortizacion: isBackendData ? schedule.amortization : schedule.amortizationPrinc,
+      intereses: isBackendData ? schedule.interest : schedule.interestPaid,
+      tasa_interes: isBackendData ? schedule.interestRate : schedule.rate,
+      cuota: isBackendData ? schedule.installment : schedule.fee,
+      nominal: schedule.nominal || this.headerData.nominal
     };
 
-    // Agregar campos opcionales solo si existen
-    if (schedule.periodDate !== undefined) {
-      mappedData.fecha = this.parseDate(schedule.periodDate);
+    const fechaCalculo = isBackendData ? schedule.calculationDate : schedule.periodDate;
+    if (fechaCalculo !== undefined && fechaCalculo !== null) {
+      const parsedDate = this.parseDate(fechaCalculo);
+      mappedData.fecha = parsedDate ? this.formatDateForDisplay(parsedDate) : '';
     }
 
-    if (schedule.paymentDate !== undefined) {
-      mappedData.fecha_pago = this.parseDate(schedule.paymentDate);
+    if (schedule.paymentDate !== undefined && schedule.paymentDate !== null) {
+      const parsedDate = this.parseDate(schedule.paymentDate);
+      mappedData.fecha_pago = parsedDate ? this.formatDateForDisplay(parsedDate) : '';
     }
 
     if (schedule.rateType !== undefined) {
@@ -440,12 +444,17 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       mappedData.tasa_referencia = schedule.referenceRate || '';
     }
 
-    if (schedule.variableRateDate !== undefined) {
-      mappedData.fecha_tasa_variable = this.parseDate(schedule.variableRateDate);
+    if (schedule.variableRateDate !== undefined && schedule.variableRateDate !== null) {
+      const parsedDate = this.parseDate(schedule.variableRateDate);
+      mappedData.fecha_tasa_variable = parsedDate ? this.formatDateForDisplay(parsedDate) : '';
     }
 
-    if (schedule.interestRate !== undefined) {
-      mappedData.tasa = schedule.interestRate || schedule.rate;
+    if (schedule.appliedRate !== undefined) {
+      mappedData.tasa = schedule.appliedRate;
+    } else if (schedule.interestRate !== undefined) {
+      mappedData.tasa = schedule.interestRate;
+    } else if (schedule.rate !== undefined) {
+      mappedData.tasa = schedule.rate;
     }
 
     if (schedule.rateAdjustment !== undefined) {
@@ -468,8 +477,17 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       mappedData.seguros = schedule.insurance || 0;
     }
 
+    console.log('Schedule mapeado:', mappedData);
     return mappedData;
   }
+
+  private formatDateForDisplay(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
 
   private prepareFullData(): void {
     const formattedSchedules = this.schedules.map(schedule => this.mapScheduleForView(schedule));
