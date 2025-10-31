@@ -164,7 +164,7 @@
 
                       <div class="form-item" *ngIf="mostrarCampo('amortizationStartPayment')">
                         <label># Cuota inicio amortización</label>
-                        <input class="redondeado" type="text" formControlName="amortizationStartPayment" (input)="formatearValor($event, false)">
+                        <input class="redondeado" type="text" formControlName="amortizationStartPayment" (input)="formatearValor($event, false)" (keyup)="generateAmortizationStartDate($event)">
                       </div>
 
                       <!-- Checkbox: Aplicar excepción -->

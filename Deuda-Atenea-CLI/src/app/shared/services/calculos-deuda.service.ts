@@ -413,13 +413,21 @@ export class CalculosDeudaService {
    * Obtener meses por período según periodicidad
    */
   private getMesesPorPeriodo(periodicidad: number): number {
-    const mapa: { [key: number]: number } = {
+    /*const mapa: { [key: number]: number } = {
       1: 1,   // Mensual
       2: 2,   // Bimestral
       3: 3,   // Trimestral
       4: 4,   // Cuatrimestral
       6: 6,   // Semestral
       12: 12  // Anual
+    };*/
+    const mapa: { [key: number]: number } = {
+      1: 12,
+      2: 6,
+      3: 4,
+      4: 3,
+      5: 2,
+      6: 1
     };
     return mapa[periodicidad] || 3;
   }
@@ -448,6 +456,8 @@ export class CalculosDeudaService {
   calcularNumeroCuotas(fechaInicio: Date, fechaFin: Date, periodicidad: number): number {
     const mesesTotal = this.calcularMesesEntreFechas(fechaInicio, fechaFin);
     const mesesPorPeriodo = this.getMesesPorPeriodo(periodicidad);
+    //console.log("meses Total",mesesTotal )
+    //console.log("meses periodo",mesesPorPeriodo )
     return Math.ceil(mesesTotal / mesesPorPeriodo);
   }
 

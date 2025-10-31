@@ -1171,13 +1171,21 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   private getMonthsPerPeriod(periodsId: number): number {
-    const monthsMap: { [key: number]: number } = {
+    /*const monthsMap: { [key: number]: number } = {
       1: 1,
       2: 2,
       3: 3,
       4: 4,
       6: 6,
       12: 12
+    };*/
+    const monthsMap: { [key: number]: number } = {
+      1: 12,
+      2: 6,
+      3: 4,
+      4: 3,
+      5: 2,
+      6: 1
     };
     return monthsMap[periodsId] || 3;
   }
@@ -1501,9 +1509,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   private calculateTotalPeriods(): number {
-    const startDate = this.debtForm.get('disbursementDate')?.value;
-    const endDate = this.debtForm.get('maturityDate')?.value;
-    const periodsId = this.debtForm.get('periodsId')?.value;
+    const startDate = this.debtForm.get('disbursementDate')?.value; //--> Fecha de desembolso
+    const endDate = this.debtForm.get('maturityDate')?.value; //--> Fecha de vencimiento
+    const periodsId = this.debtForm.get('periodsId')?.value; //-- Periodicidad de pagos
 
     if (!startDate || !endDate || !periodsId) return 0;
 
@@ -1511,7 +1519,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const end = new Date(endDate);
     const monthsDifference = this.monthsDiff(start, end);
     const monthsPerPeriod = this.getMonthsPerPeriod(periodsId);
-
+    console.log("calculateTotalPeriods", Math.ceil(monthsDifference / monthsPerPeriod));
     return Math.ceil(monthsDifference / monthsPerPeriod);
   }
 
@@ -1806,18 +1814,18 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
    private claseProductoMapper: Record<number, string> = {
-    1: 'PBC',
-    2: 'PBL',
-    3: 'IPC',
-    4: 'IPL',
-    5: 'PAC',
-    6: 'PAL',
-    7: 'FIC',
-    8: 'FIL',
-    9: 'PCM',
-    10: 'LEA',
-    11: 'EMI'
-};
+      1: 'PBC',
+      2: 'PBL',
+      3: 'IPC',
+      4: 'IPL',
+      5: 'PAC',
+      6: 'PAL',
+      7: 'FIC',
+      8: 'FIL',
+      9: 'PCM',
+      10: 'LEA',
+      11: 'EMI'
+  };
 
 
   mostrarCampo(campo: string): boolean {
@@ -1872,6 +1880,46 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     };
 
     return mapa[campo] ?? true;
+  }
+
+  generateAmortizationStartDate(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const valor = input.value;
+    const numberQuote = Number(valor)
+
+    if (isNaN(numberQuote) || numberQuote < 1) return;
+
+
+    const formValue = this.debtForm.value;
+    const disbursementDate = this.parseDate(formValue.disbursementDate) //--> fecha de desembolso
+    const maturyDate = this.parseDate(formValue.maturityDate) //--> fecha de vencimiento
+    const paymentFrequency = formValue.periodsId //--> Periodicidad de Pagos
+
+    const monthsDifference = this.monthsDiff(disbursementDate, maturyDate);
+    const monthsPerPeriod = this.getMonthsPerPeriod(paymentFrequency);
+
+    console.log("Periodicidad",paymentFrequency.toString());
+    console.log("monthsDifference",monthsDifference.toString());
+    console.log("monthsPerPeriod",monthsPerPeriod.toString());
+    
+    let totalNumberInstallments = this.calculosService.calcularNumeroCuotas(disbursementDate,maturyDate,paymentFrequency)
+    console.log("Total de Cuotas",totalNumberInstallments.toString());
+
+    if (numberQuote > totalNumberInstallments) {
+      this.debtForm.patchValue({ fechai: null });
+      return;
+    }
+
+       
+    console.log("numberQuote",numberQuote);
+
+      const fecha = new Date(disbursementDate);
+
+      fecha.setMonth(fecha.getMonth() + (numberQuote - 1) * monthsPerPeriod);
+
+      // ✅ Actualizar el control del formulario
+      this.debtForm.patchValue({ fechai: fecha });
+
   }
 
 }
