@@ -82,10 +82,10 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     'fecha',
     'fecha_pago',
     'nro_pago',
-    'moneda',
+    //'moneda',
     'saldo_inicial',
     'saldo_final',
-    'nominal',
+    //'nominal',
     'amortizacion',
     'intereses',
     'tasa_interes',
@@ -666,6 +666,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       registeredBy: this.data.debtData?.registeredBy || ''
     })) || [];
 
+    
     // Mapear schedules con TODOS los campos
     const mappedSchedules: DebtScheduleBackend[] = this.schedules.map(schedule => ({
       paymentNumber: schedule.paymentNumber ?? null,
@@ -691,6 +692,9 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       registeredBy: schedule.registeredBy ?? this.data.debtData?.registeredBy ?? ''
     }));
 
+    //console.log("PREPAREFORMDATA",formatDateToInt(formValue.disbursementDate))
+      console.log("FECHA DE DESEMBOLSO",formatDateToInt(this.data.debtData?.disbursementDate))
+
     const debtRequest: DebtRequest = {
       // Campos de producto
       productClassId: this.data.debtData?.idClaseProducto || '',
@@ -701,6 +705,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       creditorType: creditorType,
       subsidiaryCreditorId: subsidiaryCreditorId,
       counterpartCreditorId: counterpartCreditorId,
+
+      
 
       // Información del préstamo
       loanTypeId: this.data.debtData?.loanTypeId ?? null,
@@ -932,5 +938,9 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     if (index >= 0 && index < this.schedules.length) {
       this.schedules[index].finalGuarantor = parseFloat(value) || 0;
     }
+  }
+
+  adicionarPrepago(){
+
   }
 }

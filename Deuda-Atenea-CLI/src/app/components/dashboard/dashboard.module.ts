@@ -82,6 +82,7 @@ import { CronogramaComponent } from './productos/bonos/cronograma/cronograma.com
 import { ExcepcionComponent } from './productos/bonos/excepcion/excepcion.component';
 import { ProductosComponent } from './productos/productos.component';
 import { BonosComponent } from './productos/bonos/bonos.component';
+import { PrepagosComponent } from './productos/bonos/prepagos/prepagos.component';
 
 
 FusionChartsModule.fcRoot(FusionCharts, Maps, PowerCharts, world);
@@ -104,7 +105,8 @@ const DEFAULT_DROPZONE_CONFIG: DropzoneConfigInterface = {
     CronogramaComponent,
     ExcepcionComponent,
     ProductosComponent,
-    BonosComponent
+    BonosComponent,
+    PrepagosComponent
   ],
   imports: [
     CommonModule,

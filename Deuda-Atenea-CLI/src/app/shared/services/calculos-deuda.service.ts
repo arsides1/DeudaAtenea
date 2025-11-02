@@ -130,6 +130,7 @@ export class CalculosDeudaService {
    * CÁLCULO CAPITAL CONSTANTE (CAPCONST)
    */
   calcularCapitalConstante(params: ParametrosCalculo): ScheduleItem[] {
+    console.log("calcularCapitalConstante");
     const schedules: ScheduleItem[] = [];
     let saldoInicial = params.nominal;
     const numCuotas = params.numCuotas;
@@ -198,6 +199,7 @@ export class CalculosDeudaService {
    * CÁLCULO CAPITAL VARIABLE (CAPVAR)
    */
   calcularCapitalVariable(params: ParametrosCalculo): ScheduleItem[] {
+    console.log("calcularCapitalVariable");
     const schedules: ScheduleItem[] = [];
     let saldoInicial = params.nominal;
     const numCuotas = params.numCuotas;
@@ -266,6 +268,7 @@ export class CalculosDeudaService {
    * CÁLCULO CUOTA CONSTANTE (Sistema Francés)
    */
   calcularCuotaConstante(params: ParametrosCalculo): ScheduleItem[] {
+    console.log("calcularCuotaConstante");
     const schedules: ScheduleItem[] = [];
     let saldoInicial = params.nominal;
     const numCuotas = params.numCuotas;
@@ -403,6 +406,7 @@ export class CalculosDeudaService {
    * Calcular fecha de pago según período
    */
   private calcularFechaPago(fechaInicio: Date, periodo: number, periodicidad: number): Date {
+    console.log("calcularFechaPago");
     const fecha = new Date(fechaInicio);
     const mesesPorPeriodo = this.getMesesPorPeriodo(periodicidad);
     fecha.setMonth(fecha.getMonth() + (periodo * mesesPorPeriodo));

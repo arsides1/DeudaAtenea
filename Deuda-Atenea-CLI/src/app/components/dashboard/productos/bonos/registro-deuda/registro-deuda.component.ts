@@ -28,10 +28,40 @@ import {
   ClasificacionTasa,
 } from 'src/app/models/Tesoreria/Deuda/models';
 
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  MatDateFormats,
+} from '@angular/material/core';
+import { DatePipe } from '@angular/common';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+
+export const MY_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'DD/MM/YYYY',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
 @Component({
   selector: 'app-registro-deuda',
   templateUrl: './registro-deuda.component.html',
-  styleUrls: ['./registro-deuda.component.scss']
+  styleUrls: ['./registro-deuda.component.scss'],
+  providers: [
+      DatePipe,
+      {
+        provide: DateAdapter,
+        useClass: MomentDateAdapter,
+        deps: [MAT_DATE_LOCALE],
+      },
+      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    ],
 })
 export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
@@ -663,8 +693,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       periodDate: schedule.calculationDate,
       paymentDate: schedule.paymentDate,
       currency: this.debtForm.get('currencyId')?.value || '',
-      nominalOpening: schedule.initialBalance,
-      nominalClosing: schedule.finalBalance,
+      /*nominalOpening: schedule.initialBalance,
+      nominalClosing: schedule.finalBalance,*/
       nominal: schedule.initialBalance,
       amortizationPrinc: schedule.amortization,
       interestPaid: schedule.interest,
@@ -802,9 +832,10 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     // DETERMINAR TIPO DE AMORTIZACIÓN SEGÚN CLASE DE PRODUCTO
     let tipoAmortizacion = 'CAPCONST';
-
+    console.log("CLASE-PRODUCTO", claseProducto)
+    console.log("CLASE-PRODUCTO MAPPER", this.claseProductoMapper[claseProducto])
     // Primero verificar por clase de producto
-    if (['IPC', 'IPL', 'FIC', 'FIL'].includes(claseProducto)) {
+    if (['IPC', 'IPL', 'FIC', 'FIL'].includes(this.claseProductoMapper[claseProducto])) {
       tipoAmortizacion = 'BULLET';
     } else if (claseProducto === 'PCM') {
       tipoAmortizacion = 'CUOTACONST';
@@ -830,19 +861,19 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     // Calcular tasa aplicable
     let tasaFija = 0;
-    let tasaReferencia = 0;
-    let rateAdjustment = 0;
-    let applicableMargin = 0;
+    let referenceRate = 0; //--> Tasa de Referencia
+    let rateAdjustment = 0; //--> Ajuste de tasa
+    let applicableMargin = 0; //-- Margen Aplicable
     let tipoTasa = 'FIJA';
 
     if (rateClassificationId === ClasificacionTasa.FIJA || rateClassificationId === 1) {
       tasaFija = parseFloat(deudaData.fixedRatePercentage) || 0;
       tipoTasa = 'FIJA';
     } else {
-      tasaReferencia = parseFloat(deudaData.referenceRate) || 0;
+      referenceRate = parseFloat(deudaData.referenceRate) || 0;
       rateAdjustment = parseFloat(deudaData.rateAdjustment) || 0;
       applicableMargin = parseFloat(deudaData.applicableMargin) || 0;
-      tasaFija = tasaReferencia + rateAdjustment + applicableMargin;
+      tasaFija = referenceRate + rateAdjustment + applicableMargin;
       tipoTasa = 'VARIABLE';
     }
 
@@ -876,7 +907,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       rateTypeId: rateTypeId,
       tasaFija: tasaFija,
       tipoTasa: tipoTasa,
-      tasaReferencia: tasaReferencia,
+      tasaReferencia: referenceRate,
       rateAdjustment: rateAdjustment,
       applicableMargin: applicableMargin,
       amortizationRate: amortizationRate,
@@ -1098,6 +1129,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       registeredBy: schedule.registeredBy ?? formValue.registeredBy ?? ''
     }));
 
+    
     const debtRequest: DebtRequest = {
       // Campos de producto
       productClassId: formValue.idClaseProducto || '',
@@ -1109,6 +1141,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       subsidiaryCreditorId: subsidiaryCreditorId,
       counterpartCreditorId: counterpartCreditorId,
 
+    
       // Información del préstamo
       loanTypeId: formValue.loanTypeId,
       validityStartDate: formatDateToNumber(formValue.validityStartDate),
