@@ -93,10 +93,30 @@
                         </mat-form-field>
                       </div>
 
+                      <div class="form-item">
+                        <label>Fecha de vencimiento*</label>
+                        <mat-form-field appearance="outline">
+                          <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate" >
+                          <mat-datepicker-toggle matSuffix [for]="pickerVencimiento"></mat-datepicker-toggle>
+                          <mat-datepicker #pickerVencimiento></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+
+                      <div class="form-item" *ngIf="mostrarCampo('periodsId')">
+                        <label>Periodicidad de pagos*</label>
+                        <ng-select [items]="periods" bindLabel="name" bindValue="id" formControlName="periodsId">
+                        </ng-select>
+                      </div>
+                      
+                      <div class="form-item" *ngIf="mostrarCampo('amortizationStartPayment')">
+                        <label># Cuota inicio amortización</label>
+                        <input class="redondeado" type="text" formControlName="amortizationStartPayment" (input)="formatearValor($event, false)" (keyup)="generateAmortizationStartDate($event)">
+                      </div>
+
                       <div class="form-item" *ngIf="mostrarCampo('fechai')">
                         <label>Fecha de inicio amortización*</label>
                         <mat-form-field appearance="outline">
-                          <input matInput [matDatepicker]="pickerInicioAmortizacion" formControlName="fechai">
+                          <input matInput [matDatepicker]="pickerInicioAmortizacion" formControlName="fechai" [disabled]="true">
                           <mat-datepicker-toggle matSuffix [for]="pickerInicioAmortizacion"></mat-datepicker-toggle>
                           <mat-datepicker #pickerInicioAmortizacion></mat-datepicker>
                         </mat-form-field>
@@ -111,14 +131,7 @@
                         </mat-form-field>
                       </div>
 
-                      <div class="form-item">
-                        <label>Fecha de vencimiento*</label>
-                        <mat-form-field appearance="outline">
-                          <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate">
-                          <mat-datepicker-toggle matSuffix [for]="pickerVencimiento"></mat-datepicker-toggle>
-                          <mat-datepicker #pickerVencimiento></mat-datepicker>
-                        </mat-form-field>
-                      </div>
+
 
 
                       <div class="form-item">
@@ -162,10 +175,7 @@
                         <input class="redondeado" type="text" formControlName="amortizationRate" (input)="formatearValor($event, false, 'porcentaje')">
                       </div>
 
-                      <div class="form-item" *ngIf="mostrarCampo('amortizationStartPayment')">
-                        <label># Cuota inicio amortización</label>
-                        <input class="redondeado" type="text" formControlName="amortizationStartPayment" (input)="formatearValor($event, false)" (keyup)="generateAmortizationStartDate($event)">
-                      </div>
+                      
 
                       <!-- Checkbox: Aplicar excepción -->
                       <div class="form-item" *ngIf="mostrarCampo('applyAmortizationException')">
@@ -201,11 +211,7 @@
                         </div>
                       </div-->
                       
-                      <div class="form-item" *ngIf="mostrarCampo('periodsId')">
-                        <label>Periodicidad de pagos*</label>
-                        <ng-select [items]="periods" bindLabel="name" bindValue="id" formControlName="periodsId">
-                        </ng-select>
-                      </div>
+                      
 
                       <div class="form-item" *ngIf="mostrarCampo('rateClassificationId')">
                         <label>Tipo de Tasa*</label>
