@@ -1,5 +1,6 @@
 package com.alicorp.zeusBack.Postgres.model.Deuda.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,19 +17,26 @@ public class DebtScheduleRequest {
     private Long id;
     private Integer seq;
     private Integer paymentNumber;
-    private Integer periodDate;           // calculationDate en BD
+    @JsonProperty("calculationDate")
+    private Integer periodDate;         // calculationDate en BD
     private Integer paymentDate;
-    private BigDecimal nominalOpening;     // initialBalance en BD
-    private BigDecimal nominalClosing;      // finalBalance en BD
+    @JsonProperty("initialBalance")
+    private BigDecimal nominalOpening;    // initialBalance en BD
+    @JsonProperty("finalBalance")
+    private BigDecimal nominalClosing;     // finalBalance en BD
     private BigDecimal nominal;
     private BigDecimal prepayment;
+    @JsonProperty("amortization")
     private BigDecimal amortizationPrinc;  // amortization en BD
-    private BigDecimal interestPaid;        // interest en BD
-    private BigDecimal rate;                // interestRate y appliedRate en BD
+    @JsonProperty("interest")
+    private BigDecimal interestPaid;       // interest en BD
+    @JsonProperty("interestRate")
+    private BigDecimal rate;              // interestRate y appliedRate en BD
     private Integer variableRateDate;
     private BigDecimal rateAdjustment;
     private BigDecimal applicableMargin;
-    private BigDecimal fee;                 // installment en BD
+    @JsonProperty("installment")
+    private BigDecimal fee;                // installment en BD
     private Object finalGuarantor;          // puede ser String o Number
     private BigDecimal insurance;
     private String rateType;
