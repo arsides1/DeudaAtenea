@@ -363,13 +363,13 @@ export class BonosComponent implements OnInit {
       this.deudaService.obtenerDeuda(element.id).subscribe({
         next: (response: DebtDetail) => {
           this.loading = false;
-
+          console.log("ABRIR MODAL - cronograma",response)
           this.objetoInitPadre = {
             debt: response,
             schedules: response.schedules
           };
 
-          console.log(this.objetoInitPadre)
+          console.log("ObjetoInitPadre",this.objetoInitPadre)
           this.myModal = true;
           this.modalService.open(modal, {
             windowClass: "my-classModal",
@@ -387,7 +387,35 @@ export class BonosComponent implements OnInit {
           });
         }
       });
-    } if (tipo === 'nuevo') {
+    } if(tipo === 'prepago'){
+        this.deudaService.obtenerDeuda(element.id).subscribe({
+        next: (response: DebtDetail) => {
+          this.loading = false;
+          console.log("ABRIR MODAL - prepago",response)
+          this.objetoInitPadre = {
+            debt: response,
+            schedules: response.schedules
+          };
+
+          console.log("ObjetoInitPadre",this.objetoInitPadre)
+          this.myModal = true;
+          this.modalService.open(modal, {
+            windowClass: "my-classModal",
+            backdrop: 'static',
+            keyboard: false
+          });
+        },
+        error: (error) => {
+          console.error('Error al cargar detalle:', error);
+          this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo cargar el detalle de la deuda'
+          });
+        }
+      });
+    }if (tipo === 'nuevo') {
       this.objetoInitPadre = undefined;
     } else {
       const modalRef = this.modalService.open(modal, {
@@ -395,6 +423,7 @@ export class BonosComponent implements OnInit {
         backdrop: 'static',
         keyboard: false
       });
+     
       console.log(this.objetoInitPadre)
       modalRef.result.then(
         (result) => {

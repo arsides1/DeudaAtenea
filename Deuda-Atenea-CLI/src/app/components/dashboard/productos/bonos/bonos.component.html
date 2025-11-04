@@ -417,7 +417,7 @@
   <ng-template matMenuContent let-item="item">
     <button mat-menu-item (click)="abrirModal(EditarIntercompanyForm, item)">Editar</button>
     <button mat-menu-item (click)="abrirModal(VerCronogramaForm, item, 'cronograma')">Ver Cronograma</button>
-    <button mat-menu-item (click)="abrirModal(VerCronogramaForm, item, 'prepago')">Agregar Prepago</button>
+    <button mat-menu-item (click)="abrirModal(AgregarPrepagoForm, item, 'prepago')">Agregar Prepago</button>
   </ng-template>
 </mat-menu>
 
@@ -437,4 +437,10 @@
   <app-cronograma [visible]="myModal" [data]="objetoInitPadre" (close)="cerrarModal($event)" [objForm]="objetoInitPadre"
     [objIntercompany]="objIntecompany">
   </app-cronograma>
+</ng-template>
+
+<ng-template #AgregarPrepagoForm let-modal [style.width.px]="modalWidth">
+  <app-prepagos [visible]="myModal" [data]="objetoInitPadre" (close)="cerrarModal($event)" [objForm]="objetoInitPadre"
+    [objIntercompany]="objIntecompany">
+  </app-prepagos>
 </ng-template>

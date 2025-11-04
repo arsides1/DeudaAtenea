@@ -267,9 +267,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
       loanTypeId: [null],
       validityStartDate: [null],
-      disbursementDate: [null],
-      interestStartDate: [null],
-      maturityDate: [null],
+      disbursementDate: [null], //--> Fecha de desembolso
+      interestStartDate: [null], //--> Fecha de inicio de pago de intereses
+      maturityDate: [null], //--> Fecha de vencimiento
       currencyId: [null],
       currencyDescripcion: [''],
       nominal: [null],
@@ -804,6 +804,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     }
 
     const formValue = this.prepareDataForCalculation();
+    console.log("GenerateSchedule", formValue)
     this.schedules = this.calculateSchedule(formValue);
 
     this.totalesAgregados = this.calcularTotalesAgregados();
@@ -1082,6 +1083,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const formValue = this.debtForm.value;
 
     const formatDateToNumber = (date: any): number => {
+      console.log("FORMAT-DATE-TO-NUMBER", date)
       if (!date) return 0;
       if (typeof date === 'number') return date;
       const d = new Date(date);
@@ -1479,6 +1481,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
   openScheduleDialog(): void {
     const formValue = this.debtForm.getRawValue();
+    console.log("OpenScheduleDialog", formValue)
 
     const deudorDescripcion = this.subsidiaries.find(s => s.id === formValue.subsidiaryDebtorId)?.name || '';
     const acreedorDescripcion = formValue.creditorType === 'SUBSIDIARY'
@@ -1491,7 +1494,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       width: '95%',
       maxWidth: '1400px',
       height: '90vh',
-      data: {
+      data: { //-- > Datos que se envian al Dialog: Cronograma
         schedules: this.schedules,
         debtData: {
           ...formValue,
