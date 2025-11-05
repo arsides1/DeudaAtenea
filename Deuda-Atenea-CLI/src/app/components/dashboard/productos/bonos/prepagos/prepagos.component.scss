@@ -1,3 +1,74 @@
+// ============================================
+// FIX NGBOOTSTRAP - Elimina línea blanca superior
+// ============================================
+::ng-deep .modal-dialog {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+::ng-deep .modal-content {
+  border: none !important;
+  border-radius: 8px !important;
+}
+
+// ============================================
+// CONTROL DE ANCHO DEL MODAL
+// ============================================
+#myModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 500px !important;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  z-index: 1050;
+}
+
+.msg_card_body {
+  width: 100% !important;
+}
+
+.modal-body {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.form-item {
+  margin-bottom: 15px;
+  padding: 0 30px;
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #555;
+  }
+}
+
+.form-item:first-child {
+  padding-top: 20px;
+}
+
+.form-item:last-child {
+  padding-bottom: 10px;
+}
+
+// ============================================
+// ESTILOS DE BOTONES
+// ============================================
 .btn-green {
   color: #fff !important;
   background-color: rgb(75, 130, 45);
@@ -9,15 +80,18 @@
 .btn-green:hover {
   color: #fff !important;
   background-color: rgba(120, 185, 40, 0.397);
-  ;
   border-color: rgb(120, 185, 40);
 }
 
+// ============================================
+// CAMPOS DE FORMULARIO
+// ============================================
 .mat-form-field {
   height: 35px !important;
   align-content: center;
   text-align: center;
   border: 0px;
+  width: 100%;
 }
 
 ::ng-deep .mat-form-field-flex>.mat-form-field-infix {
@@ -31,6 +105,18 @@
   height: 35px !important;
 }
 
+.redondeado {
+  border-radius: 5px;
+  width: 100%;
+  border: 1px solid #ccc !important;
+  height: 35px !important;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+// ============================================
+// TABLA
+// ============================================
 table {
   table-layout: fixed;
   width: 100%;
@@ -49,28 +135,51 @@ td {
   overflow: visible;
 }
 
-.redondeado {
-  border-radius: 5px;
-  width: 100%;
-  border: 1px solid #ccc !important;
-  height: 35px !important;
-}
-
-.mat-form-field {
-  width: 100%;
-}
-
+// ============================================
+// MODAL HEADER
+// ============================================
 .modal-header {
   background-color: rgb(200, 15, 30);
   color: white;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.modal-header table {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-spacing: 0 !important;
+}
+
+.modal-header td {
+  padding: 10px 15px !important;
+  vertical-align: middle;
+  border: none !important;
+}
+
+.modal-header .modal-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2;
 }
 
 .close {
-  color: #111111;
+  color: #ffffff !important;
   opacity: 1;
   font-size: 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
 }
 
+.close:hover {
+  opacity: 0.8;
+}
+
+// ============================================
+// OTROS ESTILOS
+// ============================================
 :host ::ng-deep .mat-checkbox-checked .mat-checkbox-background {
   background-color: rgb(200, 15, 30);
   border-color: black;
