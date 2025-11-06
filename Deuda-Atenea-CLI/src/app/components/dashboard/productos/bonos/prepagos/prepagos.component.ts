@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DebtDetail, DebtScheduleRequest } from 'src/app/models/Tesoreria/Deuda/models';
 import { DeudaService } from 'src/app/shared/services/deuda.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CalculosDeudaService } from 'src/app/shared/services/calculos-deuda.service';
 
 @Component({
   selector: 'app-prepagos',
@@ -17,25 +18,27 @@ export class PrepagosComponent implements OnInit {
   prepaymentForm: FormGroup;
   debtForm: FormGroup;
   schedulesGrid: DebtScheduleRequest[] = [];
+  roundingTypeId: null;
 
   constructor(
     private fb: FormBuilder,
     private deudaService: DeudaService,
+    private calculosService: CalculosDeudaService,
     private modalService: NgbModal  // ← IGUAL QUE REGISTRO-DEUDA
   ) {
     this.prepaymentForm = this.createForm();
   }
 
   ngOnInit(): void {
-    console.log("En PREPAGO", this.data.schedules);
+    console.log("En PREPAGO - CRONOGRAMA", this.data.schedules);
+    console.log("En PREPAGO - CABECERA", this.data.debt)
   }
 
   private createForm(): FormGroup {
     return this.fb.group({
       prepaymentDate: [null, Validators.required],
-      prepaymentType: ['', Validators.required],
       prepaymentAmount: [null, [Validators.required, Validators.min(0)]],
-      prepaymentInterest: [{ value: null, disabled: true }],
+      prepaymentInterest: [ null ],
       previousPaymentDate: [null],
       nextInterestRate: [null],
       prepaidInstallmentAmount: [null]
@@ -48,6 +51,7 @@ export class PrepagosComponent implements OnInit {
   obtenerTasa() {
     const fechaPrepago: Date = new Date(this.prepaymentForm.get('prepaymentDate')!.value);
     const dateFP = this.dateToNumber(fechaPrepago);
+    const roundingTypeId = this.data.debt.roundingTypeId || 0;
 
     console.log("📅 Fecha prepago:", dateFP);
 
@@ -65,7 +69,7 @@ export class PrepagosComponent implements OnInit {
     for (let i = 0; i < schedulesOrdenados.length; i++) {
       const schedule = schedulesOrdenados[i];
       const fechaCuota = schedule.paymentDate || 0;
-
+     
       if (fechaCuota < dateFP) {
         cuotaAnterior = schedule;
       } else if (fechaCuota >= dateFP && !cuotaSiguiente) {
@@ -80,14 +84,19 @@ export class PrepagosComponent implements OnInit {
     // 3. Determinar la tasa aplicable
     let tasaAplicable = 0;
     let fechaAnterior = 0;
+    
 
     if (cuotaSiguiente) {
-      tasaAplicable = cuotaSiguiente.rate || 0;
+      console.log("1");
+      tasaAplicable = cuotaSiguiente.interestRate || 0;
       fechaAnterior = cuotaAnterior ? (cuotaAnterior.paymentDate || 0) : dateFP;
+      
     } else if (cuotaAnterior) {
-      tasaAplicable = cuotaAnterior.rate || 0;
+      console.log("2");
+      tasaAplicable = cuotaAnterior.interestRate || 0;
       fechaAnterior = cuotaAnterior.paymentDate || 0;
     } else {
+      console.log("else");
       tasaAplicable = this.data.debt.fixedRatePercentage || 0;
       fechaAnterior = this.dateToNumber(new Date(this.data.debt.disbursementDate || new Date()));
     }
@@ -101,20 +110,47 @@ export class PrepagosComponent implements OnInit {
     // 5. Calcular interés del prepago
     const montoAmortizacion = this.prepaymentForm.get('prepaymentAmount')?.value || 0;
     const saldoActual = cuotaAnterior?.nominalClosing || this.data.debt.nominal || 0;
+    const saldoFinal =  cuotaAnterior?.nominalClosing ||- montoAmortizacion
 
     const interes = saldoActual * (tasaAplicable / 100) * (dias / 360);
 
     console.log("💵 Interés calculado:", interes);
     console.log("💰 Saldo actual:", saldoActual);
+    console.log("Fecha Anterior:",fechaAnterior);
+    console.log("Fecha Anterior DAte:",this.numberToDate(fechaAnterior));
 
     // 6. Actualizar campos del formulario
     this.prepaymentForm.patchValue({
-      prepaymentInterest: interes,
+      prepaymentInterest: this.calculosService.aplicarRedondeo(interes, roundingTypeId),
       previousPaymentDate: this.numberToDate(fechaAnterior),
       nextInterestRate: tasaAplicable,
-      prepaidInstallmentAmount: montoAmortizacion + interes
+      prepaidInstallmentAmount: this.calculosService.aplicarRedondeo(montoAmortizacion + interes, roundingTypeId)
     }, { emitEvent: false });
 
+    // 7. Duplicar cuotaAnterior y actualizar con datos del formulario
+    if (cuotaAnterior) {
+      const filaDuplicada: DebtScheduleRequest = { ...cuotaAnterior };
+
+    
+      filaDuplicada.paymentDate = dateFP;
+      filaDuplicada.rate = tasaAplicable;
+      filaDuplicada.nominalClosing = montoAmortizacion;
+      filaDuplicada.interestPaid = interes;
+      filaDuplicada.fees = montoAmortizacion+interes;
+      
+      (filaDuplicada as any).esPrepago = true;
+
+      const indexOriginal = this.data.schedules.findIndex(s =>
+        s.paymentDate === cuotaAnterior!.paymentDate
+      );
+
+      if (indexOriginal !== -1) {
+        this.data.schedules.splice(indexOriginal + 1, 0, filaDuplicada);
+        console.log("🆕 Fila duplicada insertada:", filaDuplicada);
+      }
+
+    }
+    
     return {
       tasa: tasaAplicable,
       interes: interes,
@@ -123,6 +159,10 @@ export class PrepagosComponent implements OnInit {
       cuotaAnterior: cuotaAnterior,
       cuotaSiguiente: cuotaSiguiente
     };
+  }
+
+  insertandoFila(){
+
   }
 
   /**
@@ -167,8 +207,8 @@ export class PrepagosComponent implements OnInit {
       console.log("💾 Guardando prepago con resultado:", resultado);
 
       // Emitir evento al padre y cerrar
-      this.close.emit(true);
-      this.modalService.dismissAll();
+      /*this.close.emit(true);
+      this.modalService.dismissAll();*/
     } else {
       console.warn('Formulario inválido');
       Object.keys(this.prepaymentForm.controls).forEach(key => {

@@ -19,6 +19,7 @@
   <!-- BODY -->
   <div class="modal-body">
     <form [formGroup]="prepaymentForm">
+
       <div class="form-item">
         <label>Fecha de prepago</label>
         <mat-form-field appearance="outline">
@@ -29,18 +30,28 @@
       </div>
 
       <div class="form-item">
+        <label>Fecha de Pago Anterior*</label>
+        <input class="redondeado" type="text" formControlName="previousPaymentDate" disabled="true">
+      </div>
+
+      <div class="form-item">
         <label>Amortizacion*</label>
         <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValorNumeric($event, true)">
+      </div>
+    
+      <div class="form-item">
+        <label>Tasa Aplicable</label>
+        <input class="redondeado" type="text" formControlName="nextInterestRate" disabled="true">
       </div>
 
       <div class="form-item">
         <label>Interes</label>
-        <input class="redondeado" type="text" formControlName="prepaymentInterest" (input)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" formControlName="prepaymentInterest" (input)="formatearValorNumeric($event, true) " disabled="true">
       </div>
 
       <div class="form-item">
         <label>Cuota*</label>
-        <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" (input)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" (input)="formatearValorNumeric($event, true)" disabled="true">
       </div>
     </form>
   </div>
