@@ -135,6 +135,7 @@ export interface DebtScheduleBackend {
  * Modelo para la respuesta con ID y campos adicionales
  */
 export interface DebtResponse extends Omit<DebtRequest, 'schedules'> {
+  seleccionado: boolean;
   id: string;
   status: boolean;
   registrationDate: string;

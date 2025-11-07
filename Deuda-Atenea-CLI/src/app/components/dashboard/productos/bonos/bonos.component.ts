@@ -16,6 +16,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Acreedor } from 'src/app/models/Tesoreria/acreedor';
 import { OpcionesCombo } from 'src/app/models/Tesoreria/opcionesCombo';
 import { TesoreriaService } from 'src/app/models/Tesoreria/tesoreria.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-bonos',
@@ -67,6 +68,7 @@ export class BonosComponent implements OnInit {
 
   // COLUMNAS DE LA TABLA
   displayedColumns: string[] = [
+    'seleccionado',
     'claseProducto',
     'productType',
     'productName',
@@ -200,7 +202,8 @@ export class BonosComponent implements OnInit {
 
     this.deudaService.listarDeudas().subscribe({
       next: (response: DebtPageResponse) => {
-        this.debts = response.content;
+        this.debts = response.content.map(d => ({ ...d, seleccionado: false }));
+
         this.dataSource.data = this.debts;
         this.totalElements = response.totalElements;
         this.portafolioOpenDS = this.dataSource;
@@ -646,5 +649,11 @@ export class BonosComponent implements OnInit {
 
     return { min, max };
   }
+
+  toggleSelectAll(event: MatCheckboxChange): void {
+    const checked = event.checked;
+    this.dataSource.data.forEach(row => row.seleccionado = checked);
+  }
+
 
 }

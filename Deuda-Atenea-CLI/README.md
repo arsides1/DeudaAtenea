@@ -19,3 +19,14 @@ Este documento detalla los cambios realizados en el módulo de cálculo de cuota
 - Se adaptó para convertir `null` a `undefined` usando `?? undefined`, cumpliendo con el tipo `string | undefined`.
 
 ---
+
+## 🗓️ 06/11/2025
+### ✅ `bono.html`, `bono.ts`
+- Se adiciono en HTML columna check para seleccion
+- Se adiciono en HTML boton de "Eliminar"
+- Se agrego estilo para pintar la fila al ser seleccionada con el check.
+- Se agrego en TS metodo para seleccionar todas las filas
+
+### ✅ `registro-deuda.html`, `registro-deuda.ts`
+- Se quito la obligatoriedad en HTML y TS a los campos adicionales (Operation TMR, Basis, Tasa Nominal/Efectiva, Forma de aortizacion, tipo de redondeo y periodicidad)
+- Se adiciono en TS la condicion para BULLET, los campos  Fecha Inicio Amortizacion, Tasa de Amortizacion seran no visibles cuando se seleccione BULLET en Tipo de Amortizacion

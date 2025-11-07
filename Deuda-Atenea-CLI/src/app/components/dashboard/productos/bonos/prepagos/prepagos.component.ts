@@ -19,6 +19,7 @@ export class PrepagosComponent implements OnInit {
   debtForm: FormGroup;
   schedulesGrid: DebtScheduleRequest[] = [];
   roundingTypeId: null;
+  //minFechaPermitida: any;
 
   constructor(
     private fb: FormBuilder,
@@ -32,6 +33,7 @@ export class PrepagosComponent implements OnInit {
   ngOnInit(): void {
     console.log("En PREPAGO - CRONOGRAMA", this.data.schedules);
     console.log("En PREPAGO - CABECERA", this.data.debt)
+    //console.log("FECHA MINIMA" , this.minFechaPermitida)
   }
 
   private createForm(): FormGroup {

@@ -96,7 +96,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     'term_sofr_adj',
     'applicable_margin',
     'cuota',
-    'garante_final',
+    //'garante_final',
     'seguros'
   ];
 
@@ -283,7 +283,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       saldoPorPagar: this.calculateSaldoPorPagar(),
       inicioValidez: this.debtInfo.validityStartDate,
       vencimiento: this.debtInfo.maturityDate,
-      tipoTasa: this.debtInfo.rateClassificationName || ''
+      tipoTasa: this.debtInfo.rateClassificationName || '',
+      finalGuarantor: this.debtInfo.finalGuarantor || ''
     };
   }
 
