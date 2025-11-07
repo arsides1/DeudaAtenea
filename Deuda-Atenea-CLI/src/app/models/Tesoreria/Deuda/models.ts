@@ -58,6 +58,14 @@ export interface DebtRequest {
   internalReference: string;
   characteristics: string;
 
+  // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+  subsidiaryGuarantorId: number | null;
+  merchant: string;
+  valuationCategory: string;
+  externalReference: string;
+  structuringCost: number | null;
+  // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
   registeredBy: string;
   schedules: DebtScheduleBackend[];
 }
@@ -141,6 +149,11 @@ export interface DebtResponse extends Omit<DebtRequest, 'schedules'> {
   amortizationMethodName?: string;
   roundingTypeName?: string;
   interestStructureName?: string;
+
+  // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+  subsidiaryGuarantorName?: string;
+  // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
   schedules: DebtScheduleRequest[];
 }
 
@@ -198,8 +211,6 @@ export interface DebtApiResponse {
   code?: number;
   timestamp?: string;
 }
-
-
 
 /**
  * Modelo para las excepciones como las espera el backend
@@ -324,9 +335,8 @@ export function mapScheduleFromBackend(schedule: any): DebtScheduleRequest {
     status: schedule.status !== undefined ? schedule.status : true,
     registeredBy: schedule.registeredBy
   };
-
-
 }
+
 export interface DebtSearchRequest {
   // Búsqueda por texto libre
   searchText?: string;
@@ -354,13 +364,20 @@ export interface DebtSearchRequest {
   roundingTypeId?: number;
   interestStructureId?: number;
 
+  // ========== FILTROS NUEVOS - CAMPOS ADICIONALES (TRM) ==========
+  subsidiaryGuarantorId?: number;
+  merchant?: string;
+  valuationCategory?: string;
+  externalReference?: string;
+  structuringCostMin?: number;
+  structuringCostMax?: number;
+  // ========== FIN FILTROS NUEVOS ==========
+
   // Rangos de fechas (formato YYYYMMDD)
   validityStartDateFrom?: string;
   validityStartDateTo?: string;
   disbursementDateFrom?: string;
   disbursementDateTo?: string;
-  //interestStartDateFrom?: number;
-  //interestStartDateTo?: number;
   maturityDateFrom?: string;
   maturityDateTo?: string;
 

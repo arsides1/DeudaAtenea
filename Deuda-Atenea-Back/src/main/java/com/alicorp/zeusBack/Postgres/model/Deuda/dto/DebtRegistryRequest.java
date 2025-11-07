@@ -63,6 +63,15 @@ public class DebtRegistryRequest {
     private String assignment;
     private String internalReference;
     private String characteristics;
+
+    // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+    private Integer subsidiaryGuarantorId;
+    private String merchant;
+    private String valuationCategory;
+    private String externalReference;
+    private BigDecimal structuringCost;
+    // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
     private String registeredBy;
     private List<DebtScheduleRequest> schedules;
 }

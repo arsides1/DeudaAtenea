@@ -61,7 +61,7 @@ public class DebtSearchRequest {
 
     // Filtros booleanos
     private Boolean applyAmortizationException;
-    private Boolean status;
+    private String debtState;
 
     // Filtro por usuario
     private String registeredBy;
