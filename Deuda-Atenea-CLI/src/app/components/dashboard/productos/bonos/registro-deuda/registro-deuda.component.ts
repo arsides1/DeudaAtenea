@@ -54,14 +54,14 @@ export const MY_DATE_FORMATS: MatDateFormats = {
   templateUrl: './registro-deuda.component.html',
   styleUrls: ['./registro-deuda.component.scss'],
   providers: [
-      DatePipe,
-      {
-        provide: DateAdapter,
-        useClass: MomentDateAdapter,
-        deps: [MAT_DATE_LOCALE],
-      },
-      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-    ],
+    DatePipe,
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE],
+    },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+  ],
 })
 export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
@@ -156,7 +156,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   /*loanRateExpressionTypes = [ //--> reemplazado por listLoanRateExpressionTypes
     { id: 'TEA', name: 'TEA' },
     { id: 'TNA', name: 'TNA' }
-  ];*/ 
+  ];*/
 
 
 
@@ -301,6 +301,15 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       assignment: [''],
       internalReference: [''],
       features: [''],
+
+      // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+      subsidiaryGuarantorId: [null],
+      merchant: [''],
+      valuationCategory: [''],
+      externalReference: [''],
+      structuringCost: [null],
+      // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
       registeredBy: [this.tokenService.getUserName() || '']
     });
   }
@@ -1131,7 +1140,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       registeredBy: schedule.registeredBy ?? formValue.registeredBy ?? ''
     }));
 
-    
+
     const debtRequest: DebtRequest = {
       // Campos de producto
       productClassId: formValue.idClaseProducto || '',
@@ -1143,7 +1152,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       subsidiaryCreditorId: subsidiaryCreditorId,
       counterpartCreditorId: counterpartCreditorId,
 
-    
+
       // Información del préstamo
       loanTypeId: formValue.loanTypeId,
       validityStartDate: formatDateToNumber(formValue.validityStartDate),
@@ -1185,6 +1194,15 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       assignment: formValue.assignment || '',
       internalReference: formValue.internalReference || '',
       characteristics: formValue.features || '',
+
+      // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+      subsidiaryGuarantorId: formValue.subsidiaryGuarantorId || null,
+      merchant: formValue.merchant || '',
+      valuationCategory: formValue.valuationCategory || '',
+      externalReference: formValue.externalReference || '',
+      structuringCost: cleanNumeric(formValue.structuringCost),
+      // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
 
       registeredBy: formValue.registeredBy || '',
       schedules: mappedSchedules
@@ -1288,7 +1306,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     let requiredFields = [
       'idClaseProducto',
-     // 'idTipoProducto',
+      // 'idTipoProducto',
       'subsidiaryDebtorId',
       'loanTypeId',
       'validityStartDate',
@@ -1849,18 +1867,18 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     this.modalService.dismissAll();
   }
 
-   private claseProductoMapper: Record<number, string> = {
-      1: 'PBC',
-      2: 'PBL',
-      3: 'IPC',
-      4: 'IPL',
-      5: 'PAC',
-      6: 'PAL',
-      7: 'FIC',
-      8: 'FIL',
-      9: 'PCM',
-      10: 'LEA',
-      11: 'EMI'
+  private claseProductoMapper: Record<number, string> = {
+    1: 'PBC',
+    2: 'PBL',
+    3: 'IPC',
+    4: 'IPL',
+    5: 'PAC',
+    6: 'PAL',
+    7: 'FIC',
+    8: 'FIL',
+    9: 'PCM',
+    10: 'LEA',
+    11: 'EMI'
   };
 
 
@@ -1937,7 +1955,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     console.log("Periodicidad",paymentFrequency.toString());
     console.log("monthsDifference",monthsDifference.toString());
     console.log("monthsPerPeriod",monthsPerPeriod.toString());
-    
+
     let totalNumberInstallments = this.calculosService.calcularNumeroCuotas(disbursementDate,maturyDate,paymentFrequency)
     console.log("Total de Cuotas",totalNumberInstallments.toString());
 
@@ -1946,15 +1964,15 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       return;
     }
 
-       
+
     console.log("numberQuote",numberQuote);
 
-      const fecha = new Date(disbursementDate);
+    const fecha = new Date(disbursementDate);
 
-      fecha.setMonth(fecha.getMonth() + (numberQuote - 1) * monthsPerPeriod);
+    fecha.setMonth(fecha.getMonth() + (numberQuote - 1) * monthsPerPeriod);
 
-      // ✅ Actualizar el control del formulario
-      this.debtForm.patchValue({ fechai: fecha });
+    // ✅ Actualizar el control del formulario
+    this.debtForm.patchValue({ fechai: fecha });
 
   }
 

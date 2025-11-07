@@ -666,7 +666,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       registeredBy: this.data.debtData?.registeredBy || ''
     })) || [];
 
-    
+
     // Mapear schedules con TODOS los campos
     const mappedSchedules: DebtScheduleBackend[] = this.schedules.map(schedule => ({
       paymentNumber: schedule.paymentNumber ?? null,
@@ -693,7 +693,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     }));
 
     //console.log("PREPAREFORMDATA",formatDateToInt(formValue.disbursementDate))
-      console.log("FECHA DE DESEMBOLSO",formatDateToInt(this.data.debtData?.disbursementDate))
+    console.log("FECHA DE DESEMBOLSO",formatDateToInt(this.data.debtData?.disbursementDate))
 
     const debtRequest: DebtRequest = {
       // Campos de producto
@@ -706,7 +706,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       subsidiaryCreditorId: subsidiaryCreditorId,
       counterpartCreditorId: counterpartCreditorId,
 
-      
+
 
       // Información del préstamo
       loanTypeId: this.data.debtData?.loanTypeId ?? null,
@@ -751,6 +751,15 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       assignment: this.data.debtData?.assignment || '',
       internalReference: this.data.debtData?.internalReference || '',
       characteristics: this.data.debtData?.features || '',
+
+      // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+      subsidiaryGuarantorId: this.data.debtData?.subsidiaryGuarantorId ?? null,
+      merchant: this.data.debtData?.merchant || '',
+      valuationCategory: this.data.debtData?.valuationCategory || '',
+      externalReference: this.data.debtData?.externalReference || '',
+      structuringCost: cleanNumeric(this.data.debtData?.structuringCost),
+      // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
 
       registeredBy: this.data.debtData?.registeredBy || '',
       schedules: mappedSchedules
