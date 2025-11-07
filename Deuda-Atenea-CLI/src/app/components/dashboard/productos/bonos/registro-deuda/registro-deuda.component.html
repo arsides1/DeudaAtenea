@@ -309,36 +309,36 @@
                     <!-- ========== FIN CAMPOS ADICIONALES (TRM) ========== -->
 
                     <div class="form-item">
-                      <label>Operación (TRM)*</label>
+                      <label>Operación (TRM)</label>
                       <input class="redondeado" type="text" formControlName="operationTrm" (input)="formatearValor($event, false)">
                     </div>
 
                     <div class="form-item">
-                      <label>Basis*</label>
+                      <label>Basis</label>
                       <ng-select [items]="basisOptions" bindLabel="name" bindValue="id" formControlName="basisId">
                       </ng-select>
                     </div>
 
                     <div class="form-item">
-                      <label>Tasa nominal/efectiva*</label>
+                      <label>Tasa nominal/efectiva</label>
                       <ng-select [items]="listTasaNominal" bindLabel="nombre" bindValue="codigo" formControlName="rateTypeId">
                       </ng-select>
                     </div>
 
                     <div class="form-item">
-                      <label>Forma de amortización*</label>
+                      <label>Forma de amortización</label>
                       <ng-select [items]="amortizationMethods" bindLabel="name" bindValue="id" formControlName="amortizationMethodId">
                       </ng-select>
                     </div>
 
                     <div class="form-item">
-                      <label>Tipo de redondeo*</label>
+                      <label>Tipo de redondeo</label>
                       <ng-select [items]="roundingTypes" bindLabel="name" bindValue="id" formControlName="roundingTypeId">
                       </ng-select>
                     </div>
 
                     <div class="form-item">
-                      <label>Periodicidad (estructura de intereses)*</label>
+                      <label>Periodicidad (estructura de intereses)</label>
                       <ng-select [items]="rateTypeOptions" bindLabel="nombre" bindValue="codigo" formControlName="periodicidadIntereses">
                       </ng-select>
                     </div>

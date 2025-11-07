@@ -50,7 +50,9 @@
       <td class="value-cell">SI/No</td>
       <td class="label-cell"><strong>Saldo por pagar:</strong></td>
       <td class="value-cell">{{ headerData.saldoPorPagar | number:'1.2-2' }}</td>
-      <td colspan="2"></td>
+      <td class="label-cell"><strong>Garante Final:</strong></td>
+      <td class="value-cell">{{ formatHeaderDate(headerData.finalGuarantor) }}</td>
+
     </tr>
   </table>
 </div>
@@ -60,19 +62,19 @@
     <div class="row">
       <div class="col-xl-12 col-lg-12 col-md-12">
         <div class="card">
-          <div class="card-body">
+          
 
             <div style="width:100%; height:130%">
               <div class="scroll-container" style="width:100%;">
                 <table mat-table #dsSort="matSort" style="width:100%" matSort matSortActive="created"
-                       matSortDisableClear matSortDirection="desc" [dataSource]="dataSource">
+                      matSortDisableClear matSortDirection="desc" [dataSource]="dataSource">
 
                   <ng-container matColumnDef="fecha">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header > Fecha </th>
                     <td mat-cell *matCellDef="let element" class="cell-border">
                       <mat-form-field appearance="outline" class="form-field-md">
                         <input matInput [matDatepicker]="pickerFecha" [(ngModel)]="element.fecha"
-                               [ngModelOptions]="{standalone: true}" placeholder="dd/MM/yyyy" />
+                              [ngModelOptions]="{standalone: true}" placeholder="dd/MM/yyyy" />
                         <mat-datepicker-toggle matSuffix [for]="pickerFecha"></mat-datepicker-toggle>
                         <mat-datepicker #pickerFecha></mat-datepicker>
                       </mat-form-field>
@@ -180,15 +182,15 @@
                     <td mat-cell *matCellDef="let element" class="cell-border"> {{element.cuota | number:'1.2-2'}} </td>
                   </ng-container>
 
-                  <ng-container matColumnDef="garante_final">
+                  <!--ng-container matColumnDef="garante_final">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Garante Final </th>
                     <td mat-cell *matCellDef="let element" class="cell-border">
                       <input type="text"
-                             class="form-control"
-                             [(ngModel)]="element.garante_final"
-                             placeholder="Ingrese garante final" />
+                            class="form-control"
+                            [(ngModel)]="element.garante_final"
+                            placeholder="Ingrese garante final" />
                     </td>
-                  </ng-container>
+                  </ng-container-->
 
                   <ng-container matColumnDef="seguros">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Seguros </th>
@@ -201,7 +203,7 @@
               </div>
             </div>
             <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-          </div>
+          
         </div>
       </div>
     </div>

@@ -426,6 +426,7 @@ mat-spinner {
 .boton-derecha {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
 }
 
 /* Responsive */
@@ -438,4 +439,8 @@ mat-spinner {
   .boton-derecha {
     justify-content: flex-start;
   }
+}
+
+.fila-seleccionada {
+  background-color: #e0f7fa !important; /* celeste claro */
 }

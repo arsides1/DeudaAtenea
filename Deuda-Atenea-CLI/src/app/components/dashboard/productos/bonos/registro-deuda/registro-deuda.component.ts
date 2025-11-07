@@ -315,7 +315,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   }
 
   private updateValidatorsByProductClass(claseProducto: string): void {
-
+    console.log("updateValidatorsByProductClass",claseProducto)
     this.clearAllValidators();
 
     // Validadores base que siempre aplican (solo campos antes de "Campos Adicionales")
@@ -332,12 +332,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     this.debtForm.get('rateClassificationId')?.setValidators([Validators.required]);
 
     // Campos adicionales base (antes de la sección "Campos Adicionales")
-    this.debtForm.get('operationTrm')?.setValidators([Validators.required]);
-    this.debtForm.get('basisId')?.setValidators([Validators.required]);
-    this.debtForm.get('rateTypeId')?.setValidators([Validators.required]);
+    //this.debtForm.get('operationTrm')?.setValidators([Validators.required]);
+    //this.debtForm.get('basisId')?.setValidators([Validators.required]);
+    //this.debtForm.get('rateTypeId')?.setValidators([Validators.required]);
     this.debtForm.get('amortizationMethodId')?.setValidators([Validators.required]);
-    this.debtForm.get('roundingTypeId')?.setValidators([Validators.required]);
-    this.debtForm.get('periodicidadIntereses')?.setValidators([Validators.required]);
+    //this.debtForm.get('roundingTypeId')?.setValidators([Validators.required]);
+    //this.debtForm.get('periodicidadIntereses')?.setValidators([Validators.required]);
 
     if (claseProducto !== 'PCM') {
       this.debtForm.get('subsidiaryCreditorId')?.setValidators([Validators.required]);
@@ -1895,11 +1895,11 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       // Sección 2: Fechas
       disbursementDate: !['IPC', 'IPL', 'FIC', 'FIL'].includes(clase),
       interestStartDate: !['IPC', 'IPL'].includes(clase),
-      fechai: !['PCM', 'IPC', 'IPL', 'FIL', 'FIC'].includes(clase),
+      fechai: !['PCM', 'IPC', 'IPL', 'FIL', 'FIC'].includes(clase) && tipoa !== '01',
       fechaaceptacion: ['FIL', 'FIC'].includes(clase),
 
       // Sección 2: Excepciones y tasas
-      amortizationRate: ['PBC', 'PBL', 'PAC', 'PAL', 'EMI', 'LEA'].includes(clase),
+      amortizationRate: ['PBC', 'PBL', 'PAC', 'PAL', 'EMI', 'LEA'].includes(clase) && tipoa !== '01',
       amortizationStartPayment: tipoa !== '01',
       applyAmortizationException: tipoa !== '01',
       periodsId: true,
@@ -1936,8 +1936,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     return mapa[campo] ?? true;
   }
 
-  generateAmortizationStartDate(event: Event) {
-    const input = event.target as HTMLInputElement;
+  generateAmortizationStartDate(event?: Event) {
+    const input = event?.target as HTMLInputElement;
     const valor = input.value;
     const numberQuote = Number(valor)
 
