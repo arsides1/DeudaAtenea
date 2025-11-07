@@ -136,6 +136,23 @@ public class DebtRegistry {
     @Column(name = "t532_characteristics")
     private String characteristics;
 
+    // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+    @Column(name = "t532_id_subsidiary_guarantor")
+    private Integer subsidiaryGuarantorId;
+
+    @Column(name = "t532_merchant", length = 100)
+    private String merchant;
+
+    @Column(name = "t532_valuation_category", length = 100)
+    private String valuationCategory;
+
+    @Column(name = "t532_external_reference", length = 200)
+    private String externalReference;
+
+    @Column(name = "t532_structuring_cost", precision = 18, scale = 2)
+    private BigDecimal structuringCost;
+    // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
     @Column(name = "t532_status")
     private Boolean status = true;
 
@@ -146,7 +163,7 @@ public class DebtRegistry {
     @Column(name = "t532_registration_date")
     private LocalDateTime registrationDate;
 
-    // CAMPOS NUEVOS AGREGADOS
+    // CAMPOS NUEVOS AGREGADOS ANTERIORMENTE
     @NotNull
     @Column(name = "t532_id_product_class")
     private Integer productClassId;
@@ -212,6 +229,12 @@ public class DebtRegistry {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t532_id_product_name", insertable = false, updatable = false)
     private ProductName productName;
+
+    // ========== RELACIÓN NUEVA: GARANTE ==========
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "t532_id_subsidiary_guarantor", insertable = false, updatable = false)
+    private Subsidiaria subsidiaryGuarantor;
+    // ========== FIN RELACIÓN NUEVA ==========
 
     @OneToMany(mappedBy = "debtRegistry", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
