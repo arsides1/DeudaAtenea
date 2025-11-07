@@ -164,4 +164,19 @@ public class DebtAuditService {
         ZonedDateTime now = ZonedDateTime.now(zoneId);
         return now.toLocalDateTime();
     }
+
+    @Transactional
+    public void auditarCambioEstado(String debtId, String estadoAnterior, String estadoNuevo, String usuario) {
+        ModificationHistory audit = new ModificationHistory();
+        audit.setT486_id_process(PROCESO_ELIMINACION_DEUDA);
+        audit.setT486_table_name("t532_debt_registry");
+        audit.setT486_table_register_id(debtId);
+        audit.setT486_column_name("t532_debt_state");
+        audit.setT486_previous_value(estadoAnterior);
+        audit.setT486_new_value(estadoNuevo);
+        audit.setT486_registered_by(usuario);
+        audit.setT486_register_date(obtenerFechaHoraActual());
+
+        modificationHistoryRepo.save(audit);
+    }
 }

@@ -153,8 +153,8 @@ public class DebtRegistry {
     private BigDecimal structuringCost;
     // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
-    @Column(name = "t532_status")
-    private Boolean status = true;
+    @Column(name = "t532_debt_state", length = 20)
+    private String debtState = "ACTIVO";
 
     @NotBlank
     @Column(name = "t532_registered_by", length = 25)
@@ -244,11 +244,4 @@ public class DebtRegistry {
     @JsonManagedReference
     private List<AmortizationRateException> amortizationExceptions;
 
-    @PrePersist
-    protected void onCreate() {
-        registrationDate = LocalDateTime.now();
-        if (status == null) {
-            status = true;
-        }
-    }
 }
