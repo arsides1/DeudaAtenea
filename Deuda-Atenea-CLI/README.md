@@ -30,3 +30,10 @@ Este documento detalla los cambios realizados en el módulo de cálculo de cuota
 ### ✅ `registro-deuda.html`, `registro-deuda.ts`
 - Se quito la obligatoriedad en HTML y TS a los campos adicionales (Operation TMR, Basis, Tasa Nominal/Efectiva, Forma de aortizacion, tipo de redondeo y periodicidad)
 - Se adiciono en TS la condicion para BULLET, los campos  Fecha Inicio Amortizacion, Tasa de Amortizacion seran no visibles cuando se seleccione BULLET en Tipo de Amortizacion
+
+## 🗓️ 06/11/2025
+### ✅ `registro-deuda.component.ts`, `calculos-deuda.service`
+- Se corrigio el envio de Tasa ajustable, Margen aplicable al cronograma y ya guarda en cronograma
+- Se corrigio el envio de las fechas del prestamo y yay guarda em registro-deuda esos valores
+
+
