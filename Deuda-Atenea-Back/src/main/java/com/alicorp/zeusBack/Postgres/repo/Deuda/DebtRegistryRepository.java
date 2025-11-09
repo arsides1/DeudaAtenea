@@ -42,11 +42,12 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             "LEFT JOIN FETCH d.basis " +
             "LEFT JOIN FETCH d.rateType " +
             "LEFT JOIN FETCH d.amortizationMethod " +
-            "WHERE d.status = true",
-            countQuery = "SELECT COUNT(d) FROM DebtRegistry d WHERE d.status = true")
+            "WHERE d.debtState = 'ACTIVO'",
+            countQuery = "SELECT COUNT(d) FROM DebtRegistry d WHERE d.debtState = 'ACTIVO'")
     Page<DebtRegistry> findByStatusTrueWithRelations(Pageable pageable);
 
-    Optional<DebtRegistry> findByIdAndStatusTrue(String id);
+    @Query("SELECT d FROM DebtRegistry d WHERE d.id = :id AND d.debtState = 'ACTIVO'")
+    Optional<DebtRegistry> findByIdAndDebtStateActivo(@Param("id") String id);
     @Query("SELECT DISTINCT d FROM DebtRegistry d " +
             "LEFT JOIN d.subsidiaryDebtor sd " +
             "LEFT JOIN d.subsidiaryCreditor sc " +

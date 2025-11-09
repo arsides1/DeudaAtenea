@@ -24,6 +24,7 @@ public class DebtRegistryService {
     private final ProductNameService productNameService;
     private final DebtAuditService auditService;
 
+
     /**
      * Guardar nueva deuda - Solo registra lo que viene del frontend
      */
@@ -158,8 +159,8 @@ public class DebtRegistryService {
     /**
      * Eliminar deuda (borrado lógico)
      */
-    @Transactional
-    public void deleteDebt(String id, String usuario) {
+   /* @Transactional
+   public void deleteDebt(String id, String usuario) {
         DebtRegistry debt = debtRegistryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Deuda no encontrada: " + id));
         debt.setStatus(false);
@@ -167,7 +168,7 @@ public class DebtRegistryService {
 
         // AUDITORÍA - Registrar eliminación lógica
         auditService.auditarEliminacionDeuda(id, usuario);
-    }
+    }*/
 
     // ==================== MÉTODOS PRIVADOS ====================
 
@@ -331,7 +332,6 @@ public class DebtRegistryService {
         dto.setAssignment(debt.getAssignment());
         dto.setInternalReference(debt.getInternalReference());
         dto.setCharacteristics(debt.getCharacteristics());
-        dto.setStatus(debt.getStatus());
         dto.setRegisteredBy(debt.getRegisteredBy());
         dto.setRegistrationDate(debt.getRegistrationDate());
 
@@ -379,7 +379,6 @@ public class DebtRegistryService {
         dto.setAssignment(debt.getAssignment());
         dto.setInternalReference(debt.getInternalReference());
         dto.setCharacteristics(debt.getCharacteristics());
-        dto.setStatus(debt.getStatus());
         dto.setRegisteredBy(debt.getRegisteredBy());
         dto.setRegistrationDate(debt.getRegistrationDate());
 
@@ -472,13 +471,15 @@ public class DebtRegistryService {
                 Sort.by(direction, searchRequest.getSortBy())
         );
 
-        // Si no se especifica status, buscar solo activos
-        Boolean statusFilter = searchRequest.getStatus();
-        if (statusFilter == null) {
-            statusFilter = true;
+        // ========== CAMBIO: Usar debtState (String) en lugar de status (Boolean) ==========
+        // Si no se especifica debtState, buscar solo ACTIVAS
+        String debtStateFilter = searchRequest.getDebtState();
+        if (debtStateFilter == null || debtStateFilter.isEmpty()) {
+            debtStateFilter = "ACTIVO";  // Por defecto solo deudas activas
         }
+        // ========== FIN CAMBIO ==========
 
-        // Ejecutar búsqueda en el repository (SIN applyAmortizationException y status)
+        // Ejecutar búsqueda en el repository
         Page<DebtRegistry> debts = debtRegistryRepository.searchDebts(
                 searchRequest.getSearchText(),
                 searchRequest.getProductClassId(),
@@ -524,24 +525,25 @@ public class DebtRegistryService {
                 pageable
         );
 
-        // Filtrar en memoria por los campos Boolean
-        final Boolean finalStatusFilter = statusFilter;
+        // ========== CAMBIO: Filtrar por debtState (String) en lugar de status (Boolean) ==========
+        final String finalDebtStateFilter = debtStateFilter;
         final Boolean exceptionFilter = searchRequest.getApplyAmortizationException();
 
         List<DebtRegistry> filteredList = debts.getContent().stream()
                 .filter(debt -> {
-                    // Filtro por status
-                    boolean statusMatch = (finalStatusFilter == null) ||
-                            (debt.getStatus() != null && debt.getStatus().equals(finalStatusFilter));
+                    // Filtro por debtState (ACTIVO, INACTIVO, PAGADO)
+                    boolean stateMatch = (finalDebtStateFilter == null) ||
+                            (debt.getDebtState() != null && debt.getDebtState().equals(finalDebtStateFilter));
 
                     // Filtro por applyAmortizationException
                     boolean exceptionMatch = (exceptionFilter == null) ||
                             (debt.getApplyAmortizationException() != null &&
                                     debt.getApplyAmortizationException().equals(exceptionFilter));
 
-                    return statusMatch && exceptionMatch;
+                    return stateMatch && exceptionMatch;
                 })
                 .collect(Collectors.toList());
+        // ========== FIN CAMBIO ==========
 
         // Crear nueva Page con resultados filtrados
         Page<DebtRegistry> filteredDebts = new PageImpl<>(
@@ -553,8 +555,16 @@ public class DebtRegistryService {
         // Convertir a DTOs
         return filteredDebts.map(this::convertToSummaryDTO);
     }
-
     private String generateDebtId() {
         return "DEBT-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
+
+    @Transactional
+    public void eliminarDeuda(String debtId) {
+        DebtRegistry debt = debtRegistryRepository.findById(debtId)
+                .orElseThrow(() -> new RuntimeException("Deuda no encontrada: " + debtId));
+
+        debt.setDebtState("INACTIVO");
+        debtRegistryRepository.save(debt);
     }
 }

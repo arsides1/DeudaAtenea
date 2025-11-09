@@ -1,3 +1,5 @@
+<!-- ============ prepagos.component.html ============ -->
+
 <div id="myModal" tabindex="-1" data-keyboard="false" role="dialog">
 
   <!-- HEADER -->
@@ -21,24 +23,22 @@
     <form [formGroup]="prepaymentForm">
 
       <div class="form-item">
-        <label>Fecha de prepago</label>
+        <label>Fecha de prepago*</label>
         <mat-form-field appearance="outline">
-          <input matInput [matDatepicker]="pickerInicioValidez" formControlName="prepaymentDate" >
-          <mat-datepicker-toggle matSuffix [for]="pickerInicioValidez"></mat-datepicker-toggle>
-          <mat-datepicker #pickerInicioValidez></mat-datepicker>
+          <input matInput
+                 [matDatepicker]="pickerPrepago"
+                 formControlName="prepaymentDate"
+                 [min]="minFechaPermitida">
+          <mat-datepicker-toggle matSuffix [for]="pickerPrepago"></mat-datepicker-toggle>
+          <mat-datepicker #pickerPrepago></mat-datepicker>
         </mat-form-field>
-      </div>
-
-      <div class="form-item">
-        <label>Fecha de Pago Anterior*</label>
-        <input class="redondeado" type="text" formControlName="previousPaymentDate" disabled="true">
       </div>
 
       <div class="form-item">
         <label>Amortizacion*</label>
         <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValorNumeric($event, true)">
       </div>
-    
+
       <div class="form-item">
         <label>Tasa Aplicable</label>
         <input class="redondeado" type="text" formControlName="nextInterestRate" disabled="true">
@@ -46,12 +46,12 @@
 
       <div class="form-item">
         <label>Interes</label>
-        <input class="redondeado" type="text" formControlName="prepaymentInterest" (input)="formatearValorNumeric($event, true) " disabled="true">
+        <input class="redondeado" type="text" formControlName="prepaymentInterest" disabled="true">
       </div>
 
       <div class="form-item">
         <label>Cuota*</label>
-        <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" (input)="formatearValorNumeric($event, true)" disabled="true">
+        <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" disabled="true">
       </div>
     </form>
   </div>

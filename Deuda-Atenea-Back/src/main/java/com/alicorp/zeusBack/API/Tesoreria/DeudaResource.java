@@ -134,7 +134,7 @@ public class DeudaResource {
         searchRequest.setSize(size);
         searchRequest.setSortBy(sortBy);
         searchRequest.setSortDirection(sortDir);
-        searchRequest.setStatus(true);
+        searchRequest.setDebtState("ACTIVO");
 
         try {
             Page<DebtSummaryDTO> debts = debtRegistryService.searchDebts(searchRequest);
@@ -183,7 +183,7 @@ public class DeudaResource {
             searchRequest.setSize(size);
             searchRequest.setSortBy(sortBy);
             searchRequest.setSortDirection(sortDir);
-            searchRequest.setStatus(true);
+            searchRequest.setDebtState("ACTIVO");
 
             Page<DebtSummaryDTO> debts = debtRegistryService.searchDebts(searchRequest);
 
@@ -195,4 +195,16 @@ public class DeudaResource {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+
+    @DeleteMapping("/eliminarDeuda/{id}")
+    public ResponseEntity<?> eliminarDeuda(@PathVariable String id) {
+        try {
+            debtRegistryService.eliminarDeuda(id);
+            return ResponseEntity.ok("Deuda eliminada correctamente");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }
