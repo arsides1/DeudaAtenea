@@ -384,7 +384,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'maturityDate', 'currencyId', 'nominal', 'amortizationRate',
       'amortizationStartPayment', 'periodsId', 'rateClassificationId',
       'fixedRatePercentage', 'referenceRate', 'rateAdjustment', 'applicableMargin',
-      'otherRateParams', 'applyAmortizationException', 'operationTrm', 'basisId',
+      'otherRateParams', 'applyAmortizationException', 'operationTrm', 
       'rateTypeId', 'amortizationMethodId', 'roundingTypeId', 'periodicidadIntereses',
       'portfolio', 'project', 'assignment', 'internalReference', 'features',
       'fechai', 'fechaaceptacion', 'precio', 'tipoa', 'tipoe',
@@ -1507,7 +1507,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       : this.counterparts.find(c => c.id === formValue.counterpartCreditorId)?.name || '';
     const loanTypeDescripcion = this.listLoanTypes.find(l => l.id === formValue.loanTypeId)?.name || '';
     const rateClassificationDescripcion = this.rateClassifications.find(r => r.id === formValue.rateClassificationId)?.name || '';
-
+    console.log("antes de abrir Cronograma", formValue)
     const dialogRef = this.dialog.open(CronogramaComponent, {
       width: '95%',
       maxWidth: '1400px',

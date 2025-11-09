@@ -93,9 +93,10 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     'tasa_referencia',
     'fecha_tasa_variable',
     'tasa',
-    'term_sofr_adj',
-    'applicable_margin',
+    'term_sofr_adj', //--> ajuste de tasa
+    'applicable_margin', //--> margen aplicable
     'cuota',
+        
     //'garante_final',
     'seguros'
   ];
@@ -242,8 +243,9 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
 
     // APLICAR COLUMNAS SEGÚN CLASE DE PRODUCTO
     const claseProducto = this.data?.debtData?.idClaseProducto || this.data?.debt?.productClass;
+    //const claseProducto = this.claseProductoMapper[this.data?.debt?.productClassId]
 
-    console.log('Clase de producto detectada:', claseProducto);
+    console.log('Clase de producto detectada 1:', claseProducto);
 
     if (claseProducto && this.columnsByProductClass[claseProducto]) {
       this.displayedColumns = [...this.columnsByProductClass[claseProducto]];
@@ -423,7 +425,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       intereses: isBackendData ? schedule.interest : schedule.interestPaid,
       tasa_interes: isBackendData ? schedule.interestRate : schedule.rate,
       cuota: isBackendData ? schedule.installment : schedule.fee,
-      nominal: schedule.nominal || this.headerData.nominal
+      nominal: schedule.nominal || this.headerData.nominal,
+      applicable_margin: isBackendData ? schedule.applicableMargin : schedule.applicable_margin
     };
 
     const fechaCalculo = isBackendData ? schedule.calculationDate : schedule.periodDate;
@@ -459,10 +462,12 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     }
 
     if (schedule.rateAdjustment !== undefined) {
+      console.log("en RateAjustment", schedule.rateAdjustment )
       mappedData.term_sofr_adj = schedule.rateAdjustment || 0;
     }
 
     if (schedule.applicableMargin !== undefined) {
+      console.log("en ApplicableMargin", schedule.applicableMargin )
       mappedData.applicable_margin = schedule.applicableMargin || 0;
     }
 
@@ -949,6 +954,20 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       this.schedules[index].finalGuarantor = parseFloat(value) || 0;
     }
   }
+
+    private claseProductoMapper: Record<number, string> = {
+    1: 'PBC',
+    2: 'PBL',
+    3: 'IPC',
+    4: 'IPL',
+    5: 'PAC',
+    6: 'PAL',
+    7: 'FIC',
+    8: 'FIL',
+    9: 'PCM',
+    10: 'LEA',
+    11: 'EMI'
+  };
 
   adicionarPrepago(){
 
