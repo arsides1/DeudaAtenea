@@ -667,8 +667,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         // Si hay schedules, guardarlos
         if (response.schedules && response.schedules.length > 0) {
           this.schedules = response.schedules.map((schedule: any) =>
-            this.mapScheduleFromBackend(schedule)
+            this.mapScheduleFromBackend(schedule)          
           );
+          console.log("// Si hay schedules, guardarlos", response.schedules)
         }
 
         // Si hay excepciones, guardarlas
@@ -788,6 +789,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     });
 
     this.updateAuxiliaryDescriptions();
+    console.log("patchValue: ", debt)
   }
 
   private updateAuxiliaryDescriptions(): void {
@@ -847,9 +849,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     // Primero verificar por clase de producto
     if (['IPC', 'IPL', 'FIC', 'FIL'].includes(this.claseProductoMapper[claseProducto])) {
       tipoAmortizacion = 'BULLET';
-    } else if (claseProducto === 'PCM') {
+    } else if (this.claseProductoMapper[claseProducto] === 'PCM') {
       tipoAmortizacion = 'CUOTACONST';
-    } else if (claseProducto === 'LEA') {
+    } else if (this.claseProductoMapper[claseProducto] === 'LEA') {
       tipoAmortizacion = 'CUOTACONST';
     } else {
       // Para otros productos (PBC, PBL, PAC, PAL, EMI) usar el tipo seleccionado
@@ -937,6 +939,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     } else if (tipoAmortizacion === 'CUOTACONST') {
       schedulesFromService = this.calculosService.calcularCuotaConstante(parametros);
     }
+    console.log("tipoAmortizacion ", tipoAmortizacion)
 
     // MANEJO ESPECIAL PARA LEASING - Considerar portes
     if (claseProducto === 'LEA') {
@@ -952,6 +955,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     // Convertir la respuesta del servicio al formato DebtScheduleRequest
     const schedules: DebtScheduleRequest[] = schedulesFromService.map((item, index) => {
+      console.log("schedulesFromService ",item)
       // Aplicar redondeo usando el servicio
       const nominalOpening = this.calculosService.aplicarRedondeo(item.nominalOpening, roundingTypeId);
       const nominalClosing = this.calculosService.aplicarRedondeo(item.nominalClosing, roundingTypeId);
@@ -984,7 +988,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       }
 
       // Campos de tasa variable - Solo para PBC, PBL, PAC, PAL, EMI
-      if (['PBC', 'PBL', 'PAC', 'PAL', 'EMI'].includes(claseProducto)) {
+      if (['PBC', 'PBL', 'PAC', 'PAL', 'EMI'].includes(this.claseProductoMapper[claseProducto])) {
         scheduleData.rateType = rateTypeId;
         scheduleData.referenceRate = item.referenceRate || deudaData.referenceRate || '';
         scheduleData.variableRateDate = tipoTasa === 'VARIABLE' ? item.periodDate : null;
@@ -1497,6 +1501,13 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     return labels[field] || field;
   }
 
+  private dateToNumber(date: Date): number {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return parseInt(`${year}${month}${day}`);
+  }
+
   openScheduleDialog(): void {
     const formValue = this.debtForm.getRawValue();
     console.log("OpenScheduleDialog", formValue)
@@ -1507,7 +1518,45 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       : this.counterparts.find(c => c.id === formValue.counterpartCreditorId)?.name || '';
     const loanTypeDescripcion = this.listLoanTypes.find(l => l.id === formValue.loanTypeId)?.name || '';
     const rateClassificationDescripcion = this.rateClassifications.find(r => r.id === formValue.rateClassificationId)?.name || '';
-    console.log("antes de abrir Cronograma", formValue)
+
+    //formato fechas 
+    const validityStartDate = formValue.validityStartDate;
+    let validityStartDateP = 0;
+    if (validityStartDate !== undefined && validityStartDate !== null) {
+      const parsedDate = this.parseDate(validityStartDate);
+      validityStartDateP = parsedDate ? this.dateToNumber(parsedDate) : 0;
+    }
+
+    const disbursementDate = formValue.disbursementDate;
+    let disbursementDateP = 0;
+    if (disbursementDate !== undefined && disbursementDate !== null) {
+      const parsedDate = this.parseDate(disbursementDate);
+      disbursementDateP = parsedDate ? this.dateToNumber(parsedDate) : 0;
+    }
+
+    const interestStartDate = formValue.interestStartDate;
+    let interestStartDateP = 0;
+    if (interestStartDate !== undefined && interestStartDate !== null) {
+      const parsedDate = this.parseDate(interestStartDate);
+      interestStartDateP = parsedDate ? this.dateToNumber(parsedDate) : 0;
+    }
+
+    const maturityDate = formValue.maturityDate;
+    let maturityDateP = 0;
+    if (maturityDate !== undefined && maturityDate !== null) {
+      const parsedDate = this.parseDate(maturityDate);
+      maturityDateP = parsedDate ? this.dateToNumber(parsedDate) : 0;
+    }
+
+    const fechai = formValue.fechai;
+    let fechaiP = 0;
+    if (fechai !== undefined && fechai !== null) {
+      const parsedDate = this.parseDate(fechai);
+      fechaiP = parsedDate ? this.dateToNumber(parsedDate) : 0;
+    }
+
+    console.log("antes de abrir Cronograma - formValue", formValue)
+    console.log("antes de abrir Cronograma - schedules", this.schedules)
     const dialogRef = this.dialog.open(CronogramaComponent, {
       width: '95%',
       maxWidth: '1400px',
@@ -1520,7 +1569,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           acreedorDescripcion: acreedorDescripcion,
           loanTypeDescripcion: loanTypeDescripcion,
           rateClassificationDescripcion: rateClassificationDescripcion,
-          currencyDescripcion: formValue.currencyId
+          currencyDescripcion: formValue.currencyId,
+          validityStartDate: validityStartDateP,
+          disbursementDate: disbursementDateP,
+          interestStartDate: interestStartDateP,
+          maturityDate: maturityDateP,
+          fechai: fechaiP
         },
         isEditMode: this.isEditMode,
         totalesAgregados: this.totalesAgregados,
