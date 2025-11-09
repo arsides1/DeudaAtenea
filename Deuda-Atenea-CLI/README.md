@@ -30,3 +30,8 @@ Este documento detalla los cambios realizados en el módulo de cálculo de cuota
 ### ✅ `registro-deuda.html`, `registro-deuda.ts`
 - Se quito la obligatoriedad en HTML y TS a los campos adicionales (Operation TMR, Basis, Tasa Nominal/Efectiva, Forma de aortizacion, tipo de redondeo y periodicidad)
 - Se adiciono en TS la condicion para BULLET, los campos  Fecha Inicio Amortizacion, Tasa de Amortizacion seran no visibles cuando se seleccione BULLET en Tipo de Amortizacion
+
+## 🗓️ 09/11/2025
+### ✅ `registro-deuda.html`, `registro-deuda.ts`
+- Modificacion de HTML de prepago con campo necesarios para el recalculo.
+- Modificacion de TS para realizar los calculos del los datos para el prepago.
