@@ -101,6 +101,8 @@ export interface DebtScheduleRequest {
   fees?: number;
   status?: boolean;
   registeredBy?: string;
+  paymentDisplayLabel?: string;
+  paymentTypeId?: number;
 }
 
 /**
@@ -129,6 +131,7 @@ export interface DebtScheduleBackend {
   fees: number | null;
   insurance: number | null;
   registeredBy: string;
+  paymentDisplayLabel: string | null;
 }
 
 /**
@@ -300,7 +303,8 @@ export function mapScheduleToBackend(schedule: DebtScheduleRequest): DebtSchedul
     acceptanceDate: schedule.acceptanceDate ?? null,
     fees: schedule.fees ?? null,
     insurance: schedule.insurance ?? null,
-    registeredBy: schedule.registeredBy ?? ''
+    registeredBy: schedule.registeredBy ?? '',
+    paymentDisplayLabel: schedule.paymentDisplayLabel ?? ''
   };
 }
 

@@ -426,7 +426,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       tasa_interes: isBackendData ? schedule.interestRate : schedule.rate,
       cuota: isBackendData ? schedule.installment : schedule.fee,
       nominal: schedule.nominal || this.headerData.nominal,
-      applicable_margin: isBackendData ? schedule.applicableMargin : schedule.applicable_margin
+      applicable_margin: isBackendData ? schedule.applicableMargin : schedule.applicable_margin,
+      paymentDisplayLabel:  isBackendData ? schedule.paymentDisplayLabel : schedule.paymentDisplayLabel
     };
 
     const fechaCalculo = isBackendData ? schedule.calculationDate : schedule.periodDate;
@@ -695,7 +696,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       acceptanceDate: schedule.acceptanceDate ?? null,
       fees: schedule.fees ?? null,
       insurance: schedule.insurance ?? null,
-      registeredBy: schedule.registeredBy ?? this.data.debtData?.registeredBy ?? ''
+      registeredBy: schedule.registeredBy ?? this.data.debtData?.registeredBy ?? '',
+      paymentDisplayLabel: schedule.paymentDisplayLabel ?? null
     }));
 
     //console.log("PREPAREFORMDATA",formatDateToInt(formValue.disbursementDate))
