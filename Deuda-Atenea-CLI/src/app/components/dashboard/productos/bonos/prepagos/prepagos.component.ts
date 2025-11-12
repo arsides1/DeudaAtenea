@@ -93,6 +93,36 @@ export class PrepagosComponent  {
     });
   }
 
+  private mapScheduleFromBackend(schedule: DebtScheduleBackend): DebtScheduleRequest {
+    return {
+      //seq: schedule.id || undefined,
+      paymentNumber: schedule.paymentNumber || undefined,
+      periodDate: schedule.calculationDate || undefined,
+      paymentDate: schedule.paymentDate || undefined,
+      //currency: schedule.currency || undefined,
+      nominalOpening: schedule.initialBalance || undefined,
+      nominalClosing: schedule.finalBalance || undefined,
+      nominal: schedule.initialBalance || undefined,
+      amortizationPrinc: schedule.amortization || undefined,
+      interestPaid: schedule.interest || undefined,
+      rate: schedule.appliedRate || undefined,
+      rateType: schedule.rateType,
+      referenceRate: schedule.referenceRate,
+      variableRateDate: schedule.variableRateDate,
+      interestRate: schedule.interestRate || undefined,
+      rateAdjustment: schedule.rateAdjustment || undefined,
+      applicableMargin: schedule.applicableMargin || undefined,
+      fee: schedule.installment || undefined,
+      finalGuarantor: schedule.finalGuarantor,
+      insurance: schedule.insurance || undefined, 
+      provider: schedule.provider,
+      acceptanceDate: schedule.acceptanceDate,
+      fees: schedule.fees || undefined,
+      //status: schedule.status || undefined,
+      registeredBy: schedule.registeredBy
+    };
+  }
+
   private inicializarFormulario(data: { debt: DebtDetail; schedules: DebtScheduleBackend[] }): void {
     console.log("En PREPAGO - CRONOGRAMA", data.schedules);
     console.log("En PREPAGO - CABECERA", data.debt);
@@ -243,12 +273,13 @@ export class PrepagosComponent  {
     console.log("fecha anterior", fechaAnterior)
     console.log("la fila de inicio", numeroCuotaPrepago)
     for (let i = numeroCuotaPrepago + 1; i < this._data.schedules.length; i++) {
-      
+        console.log("index ", i)
         this._data.schedules[i].initialBalance = this.calculosService.aplicarRedondeo(saldoAnterior, roundingTypeId)
         const saldoInicial = this._data.schedules[i].initialBalance ?? 0;
         const amortizacion = this._data.schedules[i].amortization ?? 0;
         const saldoFinal= this.calculosService.aplicarRedondeo(saldoInicial - amortizacion, roundingTypeId)
-        
+        this._data.schedules[i].paymentNumber = i + 1;
+
         if (saldoFinal>0){
           this._data.schedules[i].finalBalance = saldoFinal
         }
@@ -502,13 +533,18 @@ export class PrepagosComponent  {
   openScheduleDialog(): void {
       const formValue = this.prepaymentForm.getRawValue();
       console.log("OpenScheduleDialog", formValue)
+      console.log("OpenScheduleDialog - this._data.schedules", this._data.schedules)
+      const schedules = this._data.schedules.map((schedule: any) =>
+            this.mapScheduleFromBackend(schedule)          
+          );
+      console.log("OpenScheduleDialog - schedules", schedules)
 
       const dialogRef = this.dialog.open(CronogramaComponent, {
         width: '95%',
         maxWidth: '1400px',
         height: '90vh',
         data: { //-- > Datos que se envian al Dialog: Cronograma
-          schedules: this._data.schedules,
+          schedules: schedules,
           debtData: this._data.debt,
           isEditMode: true,
           totalesAgregados: this.totalesAgregados,

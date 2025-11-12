@@ -52,3 +52,9 @@ Este documento detalla los cambios realizados en el módulo de cálculo de cuota
 ### ✅ `cronograma.component.ts`, `cronograma.component.html`
  - Se adiciono paymentDisplayLabel en datos de la tabla
  - Se modifico en HTML para hacer uso de `paymentDisplayLabel` en el `nro_cuota`
+
+## 🗓️ 12/11/2025
+ ### ✅ `cronograma.component.ts`, `prepagos.component.component.ts`, `prepagos.component.html`, `registro-deuda.component.ts`
+ - ya esta funcionando el editar deuda.
+ - ya esta grabando prepago con la fila prepago, sin embargo no esta mostrando el texto 'prepago' cuando se consulta cronograma.
+ - se desahbilitaron los siguientes campos en prepago: Tasa Aplicable, Cuota, Saldo Inicial y Fecha Última Cuota.

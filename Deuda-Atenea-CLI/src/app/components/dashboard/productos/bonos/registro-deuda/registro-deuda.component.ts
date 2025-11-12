@@ -1259,9 +1259,14 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       const month = parseInt(str.substring(4, 6)) - 1;
       const day = parseInt(str.substring(6, 8));
       return new Date(year, month, day);
+    } else if(typeof dateValue === 'string') {
+      const year = parseInt(dateValue.substring(0, 4));
+      const month = parseInt(dateValue.substring(5, 7)) - 1;
+      const day = parseInt(dateValue.substring(8, 10));
+      return new Date(year, month, day);
     }
     return new Date(dateValue);
-  }
+  }  
 
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(field => {
@@ -1544,8 +1549,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const maturityDate = formValue.maturityDate;
     let maturityDateP = 0;
     if (maturityDate !== undefined && maturityDate !== null) {
-      const parsedDate = this.parseDate(maturityDate);
+      const parsedDate = this.parseDate(maturityDate);      
       maturityDateP = parsedDate ? this.dateToNumber(parsedDate) : 0;
+      console.log('maturityDateP -->',maturityDateP)
     }
 
     const fechai = formValue.fechai;
@@ -1574,7 +1580,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           disbursementDate: disbursementDateP,
           interestStartDate: interestStartDateP,
           maturityDate: maturityDateP,
-          fechai: fechaiP
+          fechai: fechaiP,
+          debtId: this.debtId
         },
         isEditMode: this.isEditMode,
         totalesAgregados: this.totalesAgregados,

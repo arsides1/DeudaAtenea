@@ -34,7 +34,7 @@
         </mat-form-field>
       </div>
 
-      <div class="form-item">
+      <div class="form-item" *ngIf="false">
         <label>Fecha Última Cuota</label>
         <mat-form-field appearance="outline">
           <input matInput [matDatepicker]="pickerLastPrepago" formControlName="lastPaymentDate" [disabled]="true">
@@ -43,7 +43,7 @@
         </mat-form-field>
       </div>
 
-      <div class="form-item">
+      <div class="form-item" *ngIf="false">
         <label>Saldo Inicial</label>
         <input class="redondeado" type="text" formControlName="nominalOpening" disabled="true" (input)="formatearValorNumeric($event, true)">
       </div>
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Columna derecha -->
-      <div class="form-item">
+      <div class="form-item" *ngIf="false">
         <label>Tasa Aplicable</label>
         <input class="redondeado" type="text" formControlName="nextInterestRate" disabled="true">
       </div>
@@ -64,7 +64,7 @@
         <input class="redondeado" type="text" formControlName="prepaymentInterest" disabled="true" (input)="formatearValorNumeric($event, true)">
       </div>
 
-      <div class="form-item">
+      <div class="form-item" *ngIf="false">
         <label>Cuota*</label>
         <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" disabled="true" (input)="formatearValorNumeric($event, true)">
       </div>

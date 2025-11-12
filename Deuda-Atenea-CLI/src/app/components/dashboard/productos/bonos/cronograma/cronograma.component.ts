@@ -216,7 +216,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.isPreview = this.data?.isPreview || false;
     this.isEditMode = this.data?.modo === 'editar';
-    this.debtId = this.data?.debtId || '';
+    
 
     if (this.data?.totalesAgregados) {
       this.totalesAgregados = this.data.totalesAgregados;
@@ -225,18 +225,27 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
 
     if (this.data?.debt) {
       this.debtInfo = this.data.debt;
+      this.debtId = this.data?.debt.id || '';
       this.schedules = this.data.debt.schedules || [];
       this.isFullView = true;
       this.prepareHeaderFromDebt();
       this.prepareFullData();
     } else if (this.data?.debtData) {
+      this.debtId = this.data?.debtData.id || this.data?.debtData.debtId || '';
       this.debtInfo = this.data.debtData || {};
       this.schedules = this.data?.schedules || [];
       this.isFullView = false;
-      this.prepareHeaderFromForm();
+      if(this.data?.debtData.id) {
+        this.prepareHeaderFromDebt();
+      } else {
+        this.prepareHeaderFromForm();
+      }
+      
       this.prepareSimpleData();
     }
-
+    console.log('this.data---:', this.data);
+    console.log('this.debtId: ', this.debtId);
+    
     if (!this.data?.totalesAgregados || Object.keys(this.data.totalesAgregados).length === 0) {
       this.calculateTotals();
     }
@@ -288,6 +297,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       tipoTasa: this.debtInfo.rateClassificationName || '',
       finalGuarantor: this.debtInfo.finalGuarantor || ''
     };
+
+    console.log('this.headerData', this.headerData)
   }
 
   private prepareHeaderFromForm(): void {
@@ -414,7 +425,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   private mapScheduleForView(schedule: any): any {
     const isBackendData = schedule.hasOwnProperty('initialBalance');
 
-    console.log('Mapeando schedule:', isBackendData ? 'BACKEND' : 'PREVIEW', schedule);
+    console.log('Mapeando schedule: ', isBackendData ? 'BACKEND' : 'PREVIEW', schedule);
 
     const mappedData: any = {
       nro_pago: schedule.paymentNumber,
@@ -673,7 +684,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       registeredBy: this.data.debtData?.registeredBy || ''
     })) || [];
 
-
+    console.log('imprimiendo this.schedules antes de guardar: ', this.schedules);
     // Mapear schedules con TODOS los campos
     const mappedSchedules: DebtScheduleBackend[] = this.schedules.map(schedule => ({
       paymentNumber: schedule.paymentNumber ?? null,
