@@ -30,3 +30,31 @@ Este documento detalla los cambios realizados en el módulo de cálculo de cuota
 ### ✅ `registro-deuda.html`, `registro-deuda.ts`
 - Se quito la obligatoriedad en HTML y TS a los campos adicionales (Operation TMR, Basis, Tasa Nominal/Efectiva, Forma de aortizacion, tipo de redondeo y periodicidad)
 - Se adiciono en TS la condicion para BULLET, los campos  Fecha Inicio Amortizacion, Tasa de Amortizacion seran no visibles cuando se seleccione BULLET en Tipo de Amortizacion
+
+## 🗓️ 09/11/2025
+### ✅ `registro-deuda.component.ts`, `calculos-deuda.service`
+- Se corrigio el envio de Tasa ajustable, Margen aplicable al cronograma y ya guarda en cronograma.
+- Se corrigio el envio de las fechas del prestamo y ya guarda em registro-deuda esos valores.
+
+### ✅ `registro-deuda.html`, `registro-deuda.ts`
+- Modificacion de HTML de prepago con campo necesarios para el recalculo.
+- Modificacion de TS para realizar los calculos del los datos para el prepago.
+
+## 🗓️ 10/11/2025
+### ✅ `prepagos.component.ts`, `prepagos.html`
+- Agregando prepago al cronograma
+- habilitacion de recalculo de cronograma
+
+### ✅ `models.ts`
+- Adicion de campo paymentDisplayLabel y paymentTypeId a DebtScheduleRequest 
+- Adicion de campo paymentDisplayLabel a DebtScheduleBackend
+
+### ✅ `cronograma.component.ts`, `cronograma.component.html`
+ - Se adiciono paymentDisplayLabel en datos de la tabla
+ - Se modifico en HTML para hacer uso de `paymentDisplayLabel` en el `nro_cuota`
+
+## 🗓️ 12/11/2025
+ ### ✅ `cronograma.component.ts`, `prepagos.component.component.ts`, `prepagos.component.html`, `registro-deuda.component.ts`
+ - ya esta funcionando el editar deuda.
+ - ya esta grabando prepago con la fila prepago, sin embargo no esta mostrando el texto 'prepago' cuando se consulta cronograma.
+ - se desahbilitaron los siguientes campos en prepago: Tasa Aplicable, Cuota, Saldo Inicial y Fecha Última Cuota.

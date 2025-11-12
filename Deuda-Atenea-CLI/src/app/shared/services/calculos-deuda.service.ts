@@ -18,7 +18,8 @@ export interface ScheduleItem {
   nominal: number;
   rateType: string;
   termSofrAdj: number;
-  applicableMargin: number;
+  applicableMargin: number;  
+  rateAdjustment: number;
   prepayment?: number;
   referenceRate?: string;
   variableRateDate?: number | null;
@@ -45,6 +46,7 @@ export interface ParametrosCalculo {
   termSofrAdj?: number;
   applicableMargin?: number;
   amortizationRate?: number;
+  rateAdjustment?: number;
   excepciones?: Array<{cuota: number; tasa: number}>;
   registeredBy?: string;
 }
@@ -176,7 +178,8 @@ export class CalculosDeudaService {
         nominal: params.nominal,
         rateType: params.rateTypeId,
         termSofrAdj: params.termSofrAdj || 0,
-        applicableMargin: params.applicableMargin || 0
+        applicableMargin: params.applicableMargin || 0,
+        rateAdjustment: params.rateAdjustment || 0
       });
 
       saldoInicial = saldoFinal;
@@ -253,7 +256,8 @@ export class CalculosDeudaService {
         nominal: params.nominal,
         rateType: params.rateTypeId,
         termSofrAdj: params.termSofrAdj || 0,
-        applicableMargin: params.applicableMargin || 0
+        applicableMargin: params.applicableMargin || 0,
+        rateAdjustment: params.rateAdjustment || 0
       });
 
       saldoInicial = saldoFinal;
@@ -328,7 +332,8 @@ export class CalculosDeudaService {
         nominal: params.nominal,
         rateType: params.rateTypeId,
         termSofrAdj: params.termSofrAdj || 0,
-        applicableMargin: params.applicableMargin || 0
+        applicableMargin: params.applicableMargin || 0,
+        rateAdjustment: params.rateAdjustment || 0
       });
 
       saldoInicial = saldoFinal;
@@ -383,7 +388,8 @@ export class CalculosDeudaService {
         nominal: params.nominal,
         rateType: params.rateTypeId,
         termSofrAdj: params.termSofrAdj || 0,
-        applicableMargin: params.applicableMargin || 0
+        applicableMargin: params.applicableMargin || 0,
+        rateAdjustment: params.rateAdjustment || 0
       });
     }
 

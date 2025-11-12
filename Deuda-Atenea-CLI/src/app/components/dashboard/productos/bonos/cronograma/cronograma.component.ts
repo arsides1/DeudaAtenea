@@ -93,9 +93,10 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     'tasa_referencia',
     'fecha_tasa_variable',
     'tasa',
-    'term_sofr_adj',
-    'applicable_margin',
+    'term_sofr_adj', //--> ajuste de tasa
+    'applicable_margin', //--> margen aplicable
     'cuota',
+        
     //'garante_final',
     'seguros'
   ];
@@ -215,7 +216,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.isPreview = this.data?.isPreview || false;
     this.isEditMode = this.data?.modo === 'editar';
-    this.debtId = this.data?.debtId || '';
+    
 
     if (this.data?.totalesAgregados) {
       this.totalesAgregados = this.data.totalesAgregados;
@@ -224,26 +225,36 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
 
     if (this.data?.debt) {
       this.debtInfo = this.data.debt;
+      this.debtId = this.data?.debt.id || '';
       this.schedules = this.data.debt.schedules || [];
       this.isFullView = true;
       this.prepareHeaderFromDebt();
       this.prepareFullData();
     } else if (this.data?.debtData) {
+      this.debtId = this.data?.debtData.id || this.data?.debtData.debtId || '';
       this.debtInfo = this.data.debtData || {};
       this.schedules = this.data?.schedules || [];
       this.isFullView = false;
-      this.prepareHeaderFromForm();
+      if(this.data?.debtData.id) {
+        this.prepareHeaderFromDebt();
+      } else {
+        this.prepareHeaderFromForm();
+      }
+      
       this.prepareSimpleData();
     }
-
+    console.log('this.data---:', this.data);
+    console.log('this.debtId: ', this.debtId);
+    
     if (!this.data?.totalesAgregados || Object.keys(this.data.totalesAgregados).length === 0) {
       this.calculateTotals();
     }
 
     // APLICAR COLUMNAS SEGÚN CLASE DE PRODUCTO
     const claseProducto = this.data?.debtData?.idClaseProducto || this.data?.debt?.productClass;
+    //const claseProducto = this.claseProductoMapper[this.data?.debt?.productClassId]
 
-    console.log('Clase de producto detectada:', claseProducto);
+    console.log('Clase de producto detectada 1:', claseProducto);
 
     if (claseProducto && this.columnsByProductClass[claseProducto]) {
       this.displayedColumns = [...this.columnsByProductClass[claseProducto]];
@@ -286,6 +297,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       tipoTasa: this.debtInfo.rateClassificationName || '',
       finalGuarantor: this.debtInfo.finalGuarantor || ''
     };
+
+    console.log('this.headerData', this.headerData)
   }
 
   private prepareHeaderFromForm(): void {
@@ -412,7 +425,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   private mapScheduleForView(schedule: any): any {
     const isBackendData = schedule.hasOwnProperty('initialBalance');
 
-    console.log('Mapeando schedule:', isBackendData ? 'BACKEND' : 'PREVIEW', schedule);
+    console.log('Mapeando schedule: ', isBackendData ? 'BACKEND' : 'PREVIEW', schedule);
 
     const mappedData: any = {
       nro_pago: schedule.paymentNumber,
@@ -423,7 +436,9 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       intereses: isBackendData ? schedule.interest : schedule.interestPaid,
       tasa_interes: isBackendData ? schedule.interestRate : schedule.rate,
       cuota: isBackendData ? schedule.installment : schedule.fee,
-      nominal: schedule.nominal || this.headerData.nominal
+      nominal: schedule.nominal || this.headerData.nominal,
+      applicable_margin: isBackendData ? schedule.applicableMargin : schedule.applicable_margin,
+      paymentDisplayLabel:  isBackendData ? schedule.paymentDisplayLabel : schedule.paymentDisplayLabel
     };
 
     const fechaCalculo = isBackendData ? schedule.calculationDate : schedule.periodDate;
@@ -459,10 +474,12 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     }
 
     if (schedule.rateAdjustment !== undefined) {
+      console.log("en RateAjustment", schedule.rateAdjustment )
       mappedData.term_sofr_adj = schedule.rateAdjustment || 0;
     }
 
     if (schedule.applicableMargin !== undefined) {
+      console.log("en ApplicableMargin", schedule.applicableMargin )
       mappedData.applicable_margin = schedule.applicableMargin || 0;
     }
 
@@ -667,7 +684,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       registeredBy: this.data.debtData?.registeredBy || ''
     })) || [];
 
-
+    console.log('imprimiendo this.schedules antes de guardar: ', this.schedules);
     // Mapear schedules con TODOS los campos
     const mappedSchedules: DebtScheduleBackend[] = this.schedules.map(schedule => ({
       paymentNumber: schedule.paymentNumber ?? null,
@@ -690,7 +707,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       acceptanceDate: schedule.acceptanceDate ?? null,
       fees: schedule.fees ?? null,
       insurance: schedule.insurance ?? null,
-      registeredBy: schedule.registeredBy ?? this.data.debtData?.registeredBy ?? ''
+      registeredBy: schedule.registeredBy ?? this.data.debtData?.registeredBy ?? '',
+      paymentDisplayLabel: schedule.paymentDisplayLabel ?? null
     }));
 
     //console.log("PREPAREFORMDATA",formatDateToInt(formValue.disbursementDate))
@@ -949,6 +967,20 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       this.schedules[index].finalGuarantor = parseFloat(value) || 0;
     }
   }
+
+    private claseProductoMapper: Record<number, string> = {
+    1: 'PBC',
+    2: 'PBL',
+    3: 'IPC',
+    4: 'IPL',
+    5: 'PAC',
+    6: 'PAL',
+    7: 'FIC',
+    8: 'FIL',
+    9: 'PCM',
+    10: 'LEA',
+    11: 'EMI'
+  };
 
   adicionarPrepago(){
 

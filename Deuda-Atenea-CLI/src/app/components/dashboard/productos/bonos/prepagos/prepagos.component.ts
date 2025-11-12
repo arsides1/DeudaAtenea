@@ -2,19 +2,315 @@
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { DebtDetail, DebtScheduleRequest } from 'src/app/models/Tesoreria/Deuda/models';
+import { DebtDetail, DebtScheduleRequest, DebtScheduleBackend } from 'src/app/models/Tesoreria/Deuda/models';
 import { DeudaService } from 'src/app/shared/services/deuda.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CalculosDeudaService } from 'src/app/shared/services/calculos-deuda.service';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats } from '@angular/material/core';
+import { DatePipe } from '@angular/common';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { MatDialog } from '@angular/material/dialog';
+import { CronogramaComponent } from '../cronograma/cronograma.component';
+import { ExcepcionComponent } from '../excepcion/excepcion.component';
+
+export interface Cuota {
+  numero: number;               // Número de cuota (opcional)
+  fechaPago: string | Date;     // Fecha de pago (ISO string o Date)
+  cuotaTotal: number;           // Monto total de la cuota
+  interes: number;              // Monto de interés
+  amortizacion: number;         // Monto de amortización
+  saldo: number;                // Saldo restante después de la cuota
+  interestRate?: number;        // Tasa de interés aplicable (si varía por cuota)
+  finalBalance?: number;        // Saldo final de esta cuota (si lo manejas así)
+}
+
+
+export const MY_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'DD/MM/YYYY',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 @Component({
   selector: 'app-prepagos',
   templateUrl: './prepagos.component.html',
-  styleUrls: ['./prepagos.component.scss']
+  styleUrls: ['./prepagos.component.scss'],
+  providers: [
+      DatePipe,
+      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    ],
+  
 })
-export class PrepagosComponent implements OnInit {
+export class PrepagosComponent  {
+  cuotas: Cuota[] = [];
 
-  @Input() data: { debt: DebtDetail; schedules: DebtScheduleRequest[] };
+  numeroCuota: number = 0;
+  
+  private _data: { debt: DebtDetail; schedules: DebtScheduleBackend[] };
+
+ @Input() set data(value: { debt: DebtDetail; schedules: DebtScheduleBackend[] }) {
+    if (!value || !value.debt || !value.schedules) {
+      console.warn('Datos incompletos en PrepagosComponent:', value);
+      return;
+    }
+    this._data = value;
+    this.inicializarFormulario(value);
+  }
+
+  
+
+  @Output() close = new EventEmitter<boolean>();
+
+  prepaymentForm: FormGroup;
+  minFechaPermitida: Date;
+
+  constructor(
+    private fb: FormBuilder,
+    private deudaService: DeudaService,
+    private calculosService: CalculosDeudaService,
+    private modalService: NgbModal,    
+    private dialog: MatDialog
+  ) {
+    this.prepaymentForm = this.createForm();
+  }
+
+  private createForm(): FormGroup {
+    return this.fb.group({
+      lastPaymentDate: [''],
+      prepaymentDate: ['', Validators.required],
+      prepaymentAmount: [null, [Validators.required, Validators.min(0)]],
+      prepaymentInterest: [null],
+      nextInterestRate: [null],
+      prepaidInstallmentAmount: [null],
+      nominalClosing: [null],
+      nominalOpening: [null]
+    });
+  }
+
+  private mapScheduleFromBackend(schedule: DebtScheduleBackend): DebtScheduleRequest {
+    return {
+      //seq: schedule.id || undefined,
+      paymentNumber: schedule.paymentNumber || undefined,
+      periodDate: schedule.calculationDate || undefined,
+      paymentDate: schedule.paymentDate || undefined,
+      //currency: schedule.currency || undefined,
+      nominalOpening: schedule.initialBalance || undefined,
+      nominalClosing: schedule.finalBalance || undefined,
+      nominal: schedule.initialBalance || undefined,
+      amortizationPrinc: schedule.amortization || undefined,
+      interestPaid: schedule.interest || undefined,
+      rate: schedule.appliedRate || undefined,
+      rateType: schedule.rateType,
+      referenceRate: schedule.referenceRate,
+      variableRateDate: schedule.variableRateDate,
+      interestRate: schedule.interestRate || undefined,
+      rateAdjustment: schedule.rateAdjustment || undefined,
+      applicableMargin: schedule.applicableMargin || undefined,
+      fee: schedule.installment || undefined,
+      finalGuarantor: schedule.finalGuarantor,
+      insurance: schedule.insurance || undefined, 
+      provider: schedule.provider,
+      acceptanceDate: schedule.acceptanceDate,
+      fees: schedule.fees || undefined,
+      //status: schedule.status || undefined,
+      registeredBy: schedule.registeredBy
+    };
+  }
+
+  private inicializarFormulario(data: { debt: DebtDetail; schedules: DebtScheduleBackend[] }): void {
+    console.log("En PREPAGO - CRONOGRAMA", data.schedules);
+    console.log("En PREPAGO - CABECERA", data.debt);
+
+    this.prepaymentForm.get('prepaymentDate')?.valueChanges.subscribe((fecha: Date) => {
+      this.actualizarDatosPorFechaPrepago(fecha);
+    });
+
+    this.prepaymentForm.get('prepaymentAmount')?.valueChanges.subscribe((valor: string) => {
+      const limpio = valor.replace(/[^\d.-]/g, '');
+      const monto = parseFloat(limpio);
+      if (!isNaN(monto) && monto > 0) {
+
+        this.calcularInteresPorAmortizacion(monto);
+      } else {
+        this.prepaymentForm.patchValue({ prepaymentInterest: null });
+      }
+    });
+
+   
+    //this.minFechaPermitida = this.obtenerUltimaFechaPago();
+  }
+
+
+  /** Obteniendo los datos de Fecha de Ultima Cuota y tasa de interes siguiente **/
+  private actualizarDatosPorFechaPrepago(fechaPrepago: Date): void {
+    //console.log("el parametro de fecha",fechaPrepago)
+    if (!fechaPrepago || !this._data?.schedules) return;
+
+    const prepagoTime = fechaPrepago.getTime();
+
+    const cuotas = this._data.schedules
+      .filter(s => s.paymentDate !== undefined)
+      .map(s => ({
+        ...s,
+        fechaPago: this.numberToDate(s.paymentDate!)
+      }))
+      .filter(({ fechaPago }) => !isNaN(fechaPago.getTime()))
+      .sort((a, b) => a.fechaPago.getTime() - b.fechaPago.getTime());
+
+    const index = cuotas.findIndex(({ fechaPago }) => fechaPago.getTime() > prepagoTime);
+      console.log("Indice de fila", index)
+    const cuotaAnterior = index > 0 ? cuotas[index - 1] : null;
+    const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
+    
+    this.numeroCuota = cuotaAnterior ? index : 0;
+
+    const saldoFinal =  cuotaAnterior?.finalBalance ?? 0;
+      //console.log("SALDO FINAL",saldoFinal)
+  
+
+      this.prepaymentForm.patchValue({
+        lastPaymentDate: cuotaAnterior?.fechaPago ?? null,
+        nextInterestRate: cuotaSiguiente?.interestRate ?? null,
+        nominalOpening: cuotaAnterior?.finalBalance ?? null
+      });
+    //}
+  }
+
+  /** Calculando el Interes y el monto de la Cuota **/
+  private calcularInteresPorAmortizacion(monto: number): void {
+     
+    const fechaPrepago: Date = this.prepaymentForm.get('prepaymentDate')?.value;
+    const fechaUltimoPago: Date = this.prepaymentForm.get('lastPaymentDate')?.value;
+
+    //console.log("fechaPrepago",fechaPrepago)
+    //console.log("fechaUltimoPago",fechaUltimoPago)
+    const tasaInteres: number = this.prepaymentForm.get('nextInterestRate')?.value;
+    const saldoInicial: number = this.prepaymentForm.get('nominalOpening')?.value;
+    const roundingTypeId =  this._data.debt.roundingTypeId ?? 0;
+
+    if (!monto || !fechaPrepago || !fechaUltimoPago || !tasaInteres) return;
+    const dias = this.diasEntreFechas(fechaUltimoPago, fechaPrepago);
+    const interes = monto * (dias / 360) * tasaInteres;
+    console.log("dias", dias);
+
+    this.prepaymentForm.patchValue({
+      prepaymentInterest: this.calculosService.aplicarRedondeo(interes,roundingTypeId),
+      prepaidInstallmentAmount: this.calculosService.aplicarRedondeo(monto + interes,roundingTypeId),
+      nominalClosing: this.calculosService.aplicarRedondeo(saldoInicial - monto, roundingTypeId )
+    });
+  }
+
+  private diasEntreFechas(fechaInicio: Date, fechaFin: Date): number {
+    const msPorDia = 1000 * 60 * 60 * 24;
+    const diff = fechaFin.getTime() - fechaInicio.getTime();
+    return Math.max(Math.floor(diff / msPorDia), 0); 
+  }
+
+
+  insertarCuotaPrepago(): void {
+    const form = this.prepaymentForm;
+    if (!form.valid) return;
+    
+    //console.log("QUE LLEGA?", new Date(form.get('prepaymentDate')?.value))
+    const nuevaCuotaPrepago: DebtScheduleBackend = {
+      paymentNumber: this.numeroCuota + 1,
+      paymentDate: this.dateToNumber(new Date(form.get('prepaymentDate')?.value)),
+      calculationDate:this.dateToNumber(new Date(form.get('prepaymentDate')?.value)),
+      initialBalance: form.get('nominalOpening')?.value,
+      finalBalance:  form.get('nominalClosing')?.value,
+      amortization: form.get('prepaymentAmount')?.value,
+      interest: form.get('prepaymentInterest')?.value,
+      interestRate: null,
+      variableRateDate: null,
+      appliedRate: null,
+      rateAdjustment: null,
+      applicableMargin: null,
+      installment: form.get('prepaidInstallmentAmount')?.value,
+      finalGuarantor: '',
+      rateType: '',
+      referenceRate: '',
+      provider: '',
+      acceptanceDate: null,
+      fees: null,
+      insurance: null,
+      registeredBy: this._data.debt.registeredBy,
+      paymentDisplayLabel: 'Prepago'
+    }
+
+    this._data.schedules.splice(this.numeroCuota , 0, nuevaCuotaPrepago);
+    console.log("Nuevo Cronograma", this._data.schedules)
+    //this.dataSource.data = [...this._data.schedules];
+    this.recalcularCuotasPosteriores()
+    console.log('Cuota de prepago insertada en posición', this.numeroCuota );
+  }
+
+  private recalcularCuotasPosteriores(): void {
+    console.log("recalcularCuotasPosteriores","entrando a recalcularCuotasPosteriores");
+    const cuotas = this._data.schedules?? [];
+    const roundingTypeId = this._data.debt.roundingTypeId ?? 0;
+    const numeroCuotaPrepago = this.numeroCuota; //--> la cuota anterior al prepago
+
+    if (cuotas.length === 0 || numeroCuotaPrepago == null || numeroCuotaPrepago >= cuotas.length - 1) return;
+
+    let saldoAnterior = this.calculosService.aplicarRedondeo(
+      this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
+
+    if (saldoAnterior <= 0) {
+      console.warn('Saldo final del prepago es cero. No se recalculan cuotas posteriores.');
+      return;
+    }
+    
+    console.log("fecha anterior",this._data.schedules[numeroCuotaPrepago].paymentDate)
+  
+    //let fechaAnterior = new Date(cuotas[numeroCuotaPrepago].paymentDate as number); //.fechaPago);
+    let fechaAnterior = this.parseDate(this._data.schedules[numeroCuotaPrepago - 1].paymentDate)
+    console.log("fecha anterior", fechaAnterior)
+    console.log("la fila de inicio", numeroCuotaPrepago)
+    for (let i = numeroCuotaPrepago + 1; i < this._data.schedules.length; i++) {
+        console.log("index ", i)
+        this._data.schedules[i].initialBalance = this.calculosService.aplicarRedondeo(saldoAnterior, roundingTypeId)
+        const saldoInicial = this._data.schedules[i].initialBalance ?? 0;
+        const amortizacion = this._data.schedules[i].amortization ?? 0;
+        const saldoFinal= this.calculosService.aplicarRedondeo(saldoInicial - amortizacion, roundingTypeId)
+        this._data.schedules[i].paymentNumber = i + 1;
+
+        if (saldoFinal>0){
+          this._data.schedules[i].finalBalance = saldoFinal
+        }
+        
+        //console.log( "fecha anterior "+ i, fechaAnterior)
+        const fechaActual = this.parseDate(this._data.schedules[i].paymentDate)
+       // console.log( "fecha actual " +i, this.parseDate(this._data.schedules[i].paymentDate))
+        const dias = this.diasEntreFechas(fechaAnterior, fechaActual)
+        fechaAnterior = this.parseDate(this._data.schedules[i].paymentDate)
+        //console.log("los dias", dias)
+
+        const tasaInteres = this._data.schedules[i].interestRate ?? 0; //--> tasa de la cuota
+        const interes = saldoAnterior * (dias / 360) * tasaInteres / 100;
+        this._data.schedules[i].interest = this.calculosService.aplicarRedondeo(interes, roundingTypeId);
+
+        
+        
+      /*if (saldoAnterior <= 0) {
+        // Opcional: marcar cuota como eliminada o vacía
+        cuotas[i].interestPaid =0; //.interes = 0;
+        cuotas[i].amortizationPrinc=0; // amortizacion = 0;
+        cuotas[i].saldo = 0;
+        continue;
+      }*/
+
+
+      saldoAnterior = this._data.schedules[i].finalBalance ?? 0 //cuotaActual.nominalClosing;
+    } 
+  }
+
+  /*@Input() data: { debt: DebtDetail; schedules: DebtScheduleRequest[] };
   @Output() close = new EventEmitter<boolean>();
 
   prepaymentForm: FormGroup;
@@ -43,6 +339,7 @@ export class PrepagosComponent implements OnInit {
 
   private createForm(): FormGroup {
     return this.fb.group({
+      lastPaymentDate: [null],
       prepaymentDate: [null, Validators.required],
       prepaymentAmount: [null, [Validators.required, Validators.min(0)]],
       prepaymentInterest: [null],
@@ -54,12 +351,14 @@ export class PrepagosComponent implements OnInit {
   /**
    * Obtiene la última fecha de pago que ya pasó (más cercana a hoy)
    */
-  private obtenerUltimaFechaPago(): Date {
+  
+  /*private obtenerUltimaFechaPago(): Date {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
     const cuotasPasadas = this.data.schedules.filter(s => {
       const fechaCuota = this.numberToDate(s.paymentDate || 0);
+      console.log()
       return fechaCuota <= hoy;
     });
 
@@ -69,8 +368,9 @@ export class PrepagosComponent implements OnInit {
 
     const ultimaFechaNumber = schedulesOrdenados[0]?.paymentDate || this.data.debt.disbursementDate || 0;
     return this.numberToDate(ultimaFechaNumber);
-  }
-
+  }*/
+  
+/*
   obtenerTasa() {
     const fechaPrepago: Date = new Date(this.prepaymentForm.get('prepaymentDate')!.value);
     const dateFP = this.dateToNumber(fechaPrepago);
@@ -163,7 +463,8 @@ export class PrepagosComponent implements OnInit {
       cuotaSiguiente: cuotaSiguiente
     };
   }
-
+*/
+/*
   private calcularDias(fechaInicio: number, fechaFin: number): number {
     const inicio = this.numberToDate(fechaInicio);
     const fin = this.numberToDate(fechaFin);
@@ -171,6 +472,7 @@ export class PrepagosComponent implements OnInit {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   }
+*/
 
   private numberToDate(dateNumber: number): Date {
     const dateStr = dateNumber.toString();
@@ -181,10 +483,22 @@ export class PrepagosComponent implements OnInit {
   }
 
   private dateToNumber(date: Date): number {
+    console.log("en dateToNumber", date)
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     return parseInt(`${year}${month}${day}`);
+  }
+
+  private parseDate(dateValue: any): Date {
+    if (typeof dateValue === 'number') {
+      const str = dateValue.toString();
+      const year = parseInt(str.substring(0, 4));
+      const month = parseInt(str.substring(4, 6)) - 1;
+      const day = parseInt(str.substring(6, 8));
+      return new Date(year, month, day);
+    }
+    return new Date(dateValue);
   }
 
   cerrar(): void {
@@ -194,8 +508,10 @@ export class PrepagosComponent implements OnInit {
 
   guardarPrepago() {
     if (this.prepaymentForm.valid) {
-      const resultado = this.obtenerTasa();
-      console.log("💾 Guardando prepago con resultado:", resultado);
+      //const resultado = this.obtenerTasa();
+      this.insertarCuotaPrepago();
+      console.log("💾 Guardando prepago con resultado:");
+      this.openScheduleDialog();
     } else {
       console.warn('Formulario inválido');
       Object.keys(this.prepaymentForm.controls).forEach(key => {
@@ -204,6 +520,73 @@ export class PrepagosComponent implements OnInit {
     }
   }
 
+  totalesAgregados: any = {
+    totalDeudaBancaria: 0,
+    totalDeudaMes: 0,
+    deudaPorMoneda: {},
+    deudaPorInstrumento: {},
+    tasaAntesCobertura: 0,
+    tasaDespuesCobertura: 0
+  };
+  
+//jenny
+  openScheduleDialog(): void {
+      const formValue = this.prepaymentForm.getRawValue();
+      console.log("OpenScheduleDialog", formValue)
+      console.log("OpenScheduleDialog - this._data.schedules", this._data.schedules)
+      const schedules = this._data.schedules.map((schedule: any) =>
+            this.mapScheduleFromBackend(schedule)          
+          );
+      console.log("OpenScheduleDialog - schedules", schedules)
+
+      const dialogRef = this.dialog.open(CronogramaComponent, {
+        width: '95%',
+        maxWidth: '1400px',
+        height: '90vh',
+        data: { //-- > Datos que se envian al Dialog: Cronograma
+          schedules: schedules,
+          debtData: this._data.debt,
+          isEditMode: true,
+          totalesAgregados: this.totalesAgregados,
+          isPreview: true,
+          modo: 'editar'
+        }
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          console.log('Cronograma confirmado:', result);
+          if (result.schedules) {
+            this._data.schedules = result.schedules;
+          }
+        }
+      });
+    }
+  
+    /* openExceptionDialog(): void {
+      const dialogRef = this.dialog.open(ExcepcionComponent, {
+        width: '600px',
+        data: {
+          excepciones: this.excepcionesGuardadas,
+          numeroTotalCuotas: this.calculateTotalPeriods()
+        }
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          console.log('Excepciones guardadas:', result);
+          this.excepcionesGuardadas = result;
+          this.prepaymentForm.patchValue({ applyAmortizationException: true });
+  
+          if (this.validateFormBeforeGenerateSho()) {
+            const formValue = this.prepareDataForCalculation();
+            this.schedules = this.calculateSchedule(formValue);
+          }
+        }
+      });
+    } */
+//jenny
+    
   formatearValorNumeric(event: any, esConComas: boolean): void {
     const input = event.target as HTMLInputElement;
     let value = input.value.replace(/[^0-9.]/g, '');
@@ -241,4 +624,5 @@ export class PrepagosComponent implements OnInit {
       }
     }
   }
+
 }
