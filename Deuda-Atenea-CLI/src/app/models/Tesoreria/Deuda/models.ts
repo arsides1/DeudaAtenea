@@ -174,6 +174,15 @@ export interface DebtResponse extends Omit<DebtRequest, 'schedules'> {
   roundingTypeName?: string;
   interestStructureName?: string;
   subsidiaryGuarantorName?: string;
+  productClassName?: string;
+  productTypeName?: string;
+
+  // Datos de próxima cuota
+  nextPaymentNumber?: number;
+  nextPaymentDate?: number;
+  nextInterestAmount?: number;
+  nextInstallmentAmount?: number;
+  nextAppliedRate?: number;
 
   schedules: DebtScheduleRequest[];
 }

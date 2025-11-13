@@ -10,11 +10,11 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a class="d-flex"><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24"
-            width="24">
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z" />
-            <path d="M7 10.19V18h2v-6h6v6h2v-7.81l-5-4.5z" opacity=".3" />
-          </svg><span class="breadcrumb-icon"> Home</span></a>
+                               width="24">
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm5 15h-2v-6H9v6H7v-7.81l5-4.5 5 4.5V18z" />
+          <path d="M7 10.19V18h2v-6h6v6h2v-7.81l-5-4.5z" opacity=".3" />
+        </svg><span class="breadcrumb-icon"> Home</span></a>
       </li>
       <li class="breadcrumb-item">VP Finanzas & Transformación</li>
       <li class="breadcrumb-item">Productos Financieros</li>
@@ -47,20 +47,20 @@
                   <div class="bloque-campos">
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Desde</mat-label>
-                      <input matInput [matDatepicker]="pickerVigenciaDesde" 
-                        [(ngModel)]="filtrosFecha.validityStartDateFrom"
-                        [min]="getRangoPermitido('validity').min"
-                        [max]="getRangoPermitido('validity').max" >
+                      <input matInput [matDatepicker]="pickerVigenciaDesde"
+                             [(ngModel)]="filtrosFecha.validityStartDateFrom"
+                             [min]="getRangoPermitido('validity').min"
+                             [max]="getRangoPermitido('validity').max" >
                       <mat-datepicker-toggle matSuffix [for]="pickerVigenciaDesde"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVigenciaDesde></mat-datepicker>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Hasta</mat-label>
-                      <input matInput [matDatepicker]="pickerVigenciaHasta" 
-                        [(ngModel)]="filtrosFecha.validityStartDateTo"
-                        [min]="getRangoPermitido('validity').min"
-                        [max]="getRangoPermitido('validity').max">
+                      <input matInput [matDatepicker]="pickerVigenciaHasta"
+                             [(ngModel)]="filtrosFecha.validityStartDateTo"
+                             [min]="getRangoPermitido('validity').min"
+                             [max]="getRangoPermitido('validity').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerVigenciaHasta"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVigenciaHasta></mat-datepicker>
                     </mat-form-field>
@@ -73,20 +73,20 @@
                   <div class="bloque-campos">
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Desde</mat-label>
-                      <input matInput [matDatepicker]="pickerDesembolsoDesde" 
-                        [(ngModel)]="filtrosFecha.disbursementDateFrom"
-                        [min]="getRangoPermitido('disbursement').min"
-                        [max]="getRangoPermitido('disbursement').max">
+                      <input matInput [matDatepicker]="pickerDesembolsoDesde"
+                             [(ngModel)]="filtrosFecha.disbursementDateFrom"
+                             [min]="getRangoPermitido('disbursement').min"
+                             [max]="getRangoPermitido('disbursement').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoDesde"></mat-datepicker-toggle>
                       <mat-datepicker #pickerDesembolsoDesde></mat-datepicker>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Hasta</mat-label>
-                      <input matInput [matDatepicker]="pickerDesembolsoHasta" 
-                        [(ngModel)]="filtrosFecha.disbursementDateTo"
-                        [min]="getRangoPermitido('disbursement').min"
-                        [max]="getRangoPermitido('disbursement').max" >
+                      <input matInput [matDatepicker]="pickerDesembolsoHasta"
+                             [(ngModel)]="filtrosFecha.disbursementDateTo"
+                             [min]="getRangoPermitido('disbursement').min"
+                             [max]="getRangoPermitido('disbursement').max" >
                       <mat-datepicker-toggle matSuffix [for]="pickerDesembolsoHasta"></mat-datepicker-toggle>
                       <mat-datepicker #pickerDesembolsoHasta></mat-datepicker>
                     </mat-form-field>
@@ -99,20 +99,20 @@
                   <div class="bloque-campos">
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Desde</mat-label>
-                      <input matInput [matDatepicker]="pickerVencimientoDesde" 
-                        [(ngModel)]="filtrosFecha.maturityDateFrom"
-                        [min]="getRangoPermitido('maturity').min"
-                        [max]="getRangoPermitido('maturity').max">
+                      <input matInput [matDatepicker]="pickerVencimientoDesde"
+                             [(ngModel)]="filtrosFecha.maturityDateFrom"
+                             [min]="getRangoPermitido('maturity').min"
+                             [max]="getRangoPermitido('maturity').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerVencimientoDesde"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVencimientoDesde></mat-datepicker>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="campo-fecha">
                       <mat-label>Hasta</mat-label>
-                      <input matInput [matDatepicker]="pickerVencimientoHasta" 
-                        [(ngModel)]="filtrosFecha.maturityDateTo"
-                        [min]="getRangoPermitido('maturity').min"
-                        [max]="getRangoPermitido('maturity').max">
+                      <input matInput [matDatepicker]="pickerVencimientoHasta"
+                             [(ngModel)]="filtrosFecha.maturityDateTo"
+                             [min]="getRangoPermitido('maturity').min"
+                             [max]="getRangoPermitido('maturity').max">
                       <mat-datepicker-toggle matSuffix [for]="pickerVencimientoHasta"></mat-datepicker-toggle>
                       <mat-datepicker #pickerVencimientoHasta></mat-datepicker>
                     </mat-form-field>
@@ -126,41 +126,41 @@
                 <!-- 🔎 Buscar + 🧹 Limpiar filtros -->
                 <div class="botones-izquierda">
                   <button mat-raised-button class="btn btn-green" type="button"
-                    (click)="filtrarTabla()"
-                    style="display: flex; align-items: center; gap: 5px; height: 36px;">
+                          (click)="filtrarTabla()"
+                          style="display: flex; align-items: center; gap: 5px; height: 36px;">
                     <mat-icon>search</mat-icon> Buscar
                   </button>
 
                   <button mat-raised-button class="btn btn-green" type="button" (click)="limpiarFiltrosFecha()"
-                    [disabled]="!hayFiltrosDeFecha()">
+                          [disabled]="!hayFiltrosDeFecha()">
                     <mat-icon>clear</mat-icon> Limpiar filtros
                   </button>
                 </div>
 
-                
+
                 <!-- ➕ Nuevo -->
                 <div class="boton-derecha">
                   <button mat-raised-button class="btn btn-green" type="button"
-                    (click)="abrirModal(RegistrarIntercompanyForm, objetoInitPadre, 'nuevo')"
-                    style="display: flex; align-items: center; gap: 5px; height: 36px;">
+                          (click)="abrirModal(RegistrarIntercompanyForm, objetoInitPadre, 'nuevo')"
+                          style="display: flex; align-items: center; gap: 5px; height: 36px;">
                     <mat-icon>add</mat-icon> Nuevo
                   </button>
 
                   <button mat-raised-button class="btn btn-green" type="button"
-                    (click)="abrirModal(RegistrarIntercompanyForm, objetoInitPadre, 'nuevo')"
-                    style="display: flex; align-items: center; gap: 5px; height: 36px;">
+                          (click)="abrirModal(RegistrarIntercompanyForm, objetoInitPadre, 'nuevo')"
+                          style="display: flex; align-items: center; gap: 5px; height: 36px;">
                     <mat-icon>delete</mat-icon> Eliminar
                   </button>
                 </div>
               </div>
 
             </div>
-            
+
 
             <div style="width:100%; height:130%">
               <div class="scroll-container" style="width:100%;">
                 <table mat-table [dataSource]="dataSource" #dsSort="matSort" style="width:100%" matSort
-                  matSortActive="created" matSortDisableClear matSortDirection="desc">
+                       matSortActive="created" matSortDisableClear matSortDirection="desc">
 
 
                   <ng-container matColumnDef="seleccionado">
@@ -179,12 +179,12 @@
 
                   <ng-container matColumnDef="productType">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Préstamo </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element"> {{element.productTypeName}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="productName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre de <br> Préstamo </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element"> {{element.productNameName}} </td>
                   </ng-container>
 
                   <ng-container class="border-bottom-0" matColumnDef="subsidiaryDebtorName">
@@ -192,9 +192,9 @@
                       <mat-form-field>
                         <mat-label style="color:white">Subsidiaria</mat-label>
                         <mat-select  (selectionChange)="seleccionarFiltro('subsidiaryDebtorName')"
-                          [(ngModel)]="filtrosSeleccionados.subsidiaryDebtorName" multiple>
+                                     [(ngModel)]="filtrosSeleccionados.subsidiaryDebtorName" multiple>
                           <mat-option *ngFor="let item of filtros.subsidiaryDebtorName"
-                            [value]="item">{{item}}</mat-option>
+                                      [value]="item">{{item}}</mat-option>
                         </mat-select>
                       </mat-form-field>
                     </th>
@@ -206,13 +206,13 @@
                       <mat-form-field>
                         <mat-label style="color:white">Nombre de Acreedor</mat-label>
                         <mat-select multiple [(ngModel)]="filtrosSeleccionados.subsidiaryCreditorName"
-                          (selectionChange)="seleccionarFiltro('subsidiaryCreditorName')">
+                                    (selectionChange)="seleccionarFiltro('subsidiaryCreditorName')">
                           <mat-option *ngFor="let item of filtros.subsidiaryCreditorName"
-                            [value]="item">{{item}}</mat-option>
+                                      [value]="item">{{item}}</mat-option>
                         </mat-select>
                       </mat-form-field>
                     </th>
-                    <td mat-cell *matCellDef="let e">{{ e.subsidiaryCreditorName }}</td>
+                    <td mat-cell *matCellDef="let e">{{ e.creditorType === 'SUBSIDIARY' ? e.subsidiaryCreditorName : e.counterpartCreditorName}}</td>
                   </ng-container>
 
                   <ng-container matColumnDef="validityStartDate">
@@ -240,7 +240,7 @@
                       <mat-form-field>
                         <mat-label style="color:white">Moneda</mat-label>
                         <mat-select multiple [(ngModel)]="filtrosSeleccionados.currencyId"
-                          (selectionChange)="seleccionarFiltro('currencyId')">
+                                    (selectionChange)="seleccionarFiltro('currencyId')">
                           <mat-option *ngFor="let item of filtros.currencyId" [value]="item">{{item}}</mat-option>
                         </mat-select>
                       </mat-form-field>
@@ -255,12 +255,12 @@
 
                   <ng-container matColumnDef="loanRateExpressionTypes">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Expresion de Tasa </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element"> {{getRateExpressionDescription(element.rateExpressionTypeId)}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="rateClassificationId">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Tasa </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element"> {{element.rateClassificationName}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="referenceRate">
@@ -280,47 +280,22 @@
 
                   <ng-container matColumnDef="otherRateParams">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Otros Ajustes </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element"> {{element.others ? (element.others | number:'1.4-4') : ''}} </td>
                   </ng-container>
 
                   <ng-container matColumnDef="fixedRatePercentage">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa (%) </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element">
+                      {{element.fixedRatePercentage}}
+                    </td>
                   </ng-container>
 
-                  <ng-container matColumnDef="loanAmortizationTypes" > 
+                  <ng-container matColumnDef="loanAmortizationTypes" >
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de <br> Amortizacion </th>
-                    <td mat-cell *matCellDef="let element">  </td>
+                    <td mat-cell *matCellDef="let element"> {{element.amortizationMethodName || ''}} </td>
                   </ng-container>
 
-                  <ng-container matColumnDef="installmentPayable">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Cuota por Pagar </th>
-                    <td mat-cell *matCellDef="let element">  </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="installmentPaymentDate">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha de <br> Pago de Cuota </th>
-                    <td mat-cell *matCellDef="let element">  </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="interestAmount">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Interés </th>
-                    <td mat-cell *matCellDef="let element">  </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="amortizationAmount">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Amortizacion </th>
-                    <td mat-cell *matCellDef="let element">  </td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="installmentAmount">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Cuota </th>
-                    <td mat-cell *matCellDef="let element">  </td>
-                  </ng-container>
-
-                  
-
-                  <!--ng-container matColumnDef="amortizationRate"> 
+                  <!--ng-container matColumnDef="amortizationRate">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Tasa Amortización </th>
                     <td mat-cell *matCellDef="let element"> {{element.amortizationRate}}% </td>
                   </ng-container-->
@@ -330,7 +305,7 @@
                       <mat-form-field>
                         <mat-label style="color:white">Periodicidad</mat-label>
                         <mat-select multiple [(ngModel)]="filtrosSeleccionados.periodsName"
-                          (selectionChange)="seleccionarFiltro('periodsName')">
+                                    (selectionChange)="seleccionarFiltro('periodsName')">
                           <mat-option *ngFor="let item of filtros.periodsName" [value]="item">{{item}}</mat-option>
                         </mat-select>
                       </mat-form-field>
@@ -338,7 +313,7 @@
                     <td mat-cell *matCellDef="let e">{{ e.periodsName }}</td>
                   </ng-container>
 
-                  
+
                   <!--ng-container matColumnDef="loanTypeName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
                       <mat-form-field>
@@ -352,14 +327,14 @@
                     <td mat-cell *matCellDef="let e">{{ e.loanTypeName }}</td>
                   </ng-container-->
 
-                  
+
 
                   <!--ng-container matColumnDef="amortizationStartPayment">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Cuota Amortización </th>
                     <td mat-cell *matCellDef="let element"> {{element.amortizationStartPayment}} </td>
                   </ng-container-->
 
-                  
+
 
                   <!--ng-container matColumnDef="rateClassificationName">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -375,11 +350,11 @@
                     <td mat-cell *matCellDef="let e">{{ e.rateClassificationName }}</td>
                   </ng-container-->
 
-                  
 
-                  
 
-                  
+
+
+
 
                   <!--ng-container matColumnDef="rateTypeId">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -394,6 +369,38 @@
                     <td mat-cell *matCellDef="let e">{{ e.rateTypeId }}</td>
                   </ng-container-->
 
+                  <!-- Próxima Cuota -->
+                  <ng-container matColumnDef="nextPaymentNumber">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Próxima <br> Cuota </th>
+                    <td mat-cell *matCellDef="let element">
+                      {{element.nextPaymentNumber}}
+                    </td>
+                  </ng-container>
+
+                  <!-- Fecha Próxima Cuota -->
+                  <ng-container matColumnDef="nextPaymentDate">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha <br> Próxima Cuota </th>
+                    <td mat-cell *matCellDef="let element">
+                      {{element.nextPaymentDate ? formatDate(element.nextPaymentDate) : '-'}}
+                    </td>
+                  </ng-container>
+
+                  <!-- Monto de Interés -->
+                  <ng-container matColumnDef="nextInterestAmount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Interés </th>
+                    <td mat-cell *matCellDef="let element">
+                      {{element.nextInterestAmount ? (element.nextInterestAmount | number:'1.2-2') : '-'}}
+                    </td>
+                  </ng-container>
+
+                  <!-- Monto de Cuota -->
+                  <ng-container matColumnDef="nextInstallmentAmount">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto de <br> Cuota </th>
+                    <td mat-cell *matCellDef="let element">
+                      {{element.nextInstallmentAmount ? (element.nextInstallmentAmount | number:'1.2-2') : '-'}}
+                    </td>
+                  </ng-container>
+
                   <ng-container matColumnDef="operationTrm">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> TRM Operación </th>
                     <td mat-cell *matCellDef="let element">
@@ -402,9 +409,9 @@
                   </ng-container>
 
                   <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
-                    style="text-align: center; vertical-align: middle;"></tr>
+                      style="text-align: center; vertical-align: middle;"></tr>
                   <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.fila-seleccionada]="row.seleccionado"
-                    style="text-align: center; vertical-align: middle;" (contextmenu)="onContextMenu($event, row)">
+                      style="text-align: center; vertical-align: middle;" (contextmenu)="onContextMenu($event, row)">
                   </tr>
 
                   <tr class="mat-row" *matNoDataRow>
@@ -427,7 +434,7 @@
 </div>
 
 <div style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x"
-  [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
+     [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
 </div>
 
 <mat-menu #contextMenu="matMenu">
@@ -440,24 +447,24 @@
 
 <ng-template #EditarIntercompanyForm let-modal [style.width.px]="modalWidth">
   <app-registro-deuda [visible]="myModal" (close)="cerrarModal($event)" [objForm]="objetoInitPadre"
-    [objIntercompany]="objIntecompanyEditar" [modo]="'editar'">
+                      [objIntercompany]="objIntecompanyEditar" [modo]="'editar'">
   </app-registro-deuda>
 </ng-template>
 
 <ng-template #RegistrarIntercompanyForm let-modal [style.width.px]="modalWidth">
   <app-registro-deuda [visible]="myModal" (close)="cerrarModal($event)" [objForm]="objetoInitPadre"
-    [objIntercompany]="objIntecompanyRegistrar" [modo]="'registrar'">
+                      [objIntercompany]="objIntecompanyRegistrar" [modo]="'registrar'">
   </app-registro-deuda>
 </ng-template>
 
 <ng-template #VerCronogramaForm let-modal [style.width.px]="modalWidth">
   <app-cronograma [visible]="myModal" [data]="objetoInitPadre" (close)="cerrarModal($event)" [objForm]="objetoInitPadre"
-    [objIntercompany]="objIntecompany">
+                  [objIntercompany]="objIntecompany">
   </app-cronograma>
 </ng-template>
 
 <ng-template #AgregarPrepagoForm let-modal [style.width.px]="modalWidth">
   <app-prepagos [visible]="myModal" [data]="objetoInitPadre" (close)="cerrarModal($event)" [objForm]="objetoInitPadre"
-    [objIntercompany]="objIntecompany">
+                [objIntercompany]="objIntecompany">
   </app-prepagos>
 </ng-template>

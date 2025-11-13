@@ -76,4 +76,14 @@ public class DebtSummaryDTO {
     private String roundingTypeName;
     private String interestStructureName;
     private String subsidiaryGuarantorName;
+
+    private String currencyName;
+    private String productClassName;
+    private String productTypeName;
+
+    private Integer nextPaymentNumber;
+    private Integer nextPaymentDate;
+    private BigDecimal nextInterestAmount;
+    private BigDecimal nextInstallmentAmount;
+
 }

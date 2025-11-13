@@ -31,8 +31,9 @@ public class DebtScheduleRequest {
     @JsonProperty("interest")
     private BigDecimal interestPaid;       // interest en BD
     @JsonProperty("interestRate")
-    private BigDecimal rate;              // interestRate y appliedRate en BD
+    private BigDecimal rate;              // interestRate en BD
     private Integer variableRateDate;
+    private BigDecimal appliedRate;       // ✅ NUEVO: appliedRate en BD (campo separado)
     private BigDecimal rateAdjustment;
     private BigDecimal applicableMargin;
     @JsonProperty("installment")

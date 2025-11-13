@@ -90,11 +90,10 @@ export class BonosComponent implements OnInit {
     'loanAmortizationTypes', //--> Tipo de Amortizacion
     //'amortizationRate', //--> tasa de amortizacion
     'periodsName', //--> Periodicidad de Pago
-    'installmentPayable', //--> Cuota por Pagar
-    'installmentPaymentDate', //--> Fecha de Pago de Cuota 
-    'interestAmount', //--> Monto de Interes 
-    'amortizationAmount', //--> Monto de Amortizacion 
-    'installmentAmount', //-> Monto de Cuota
+    'nextPaymentNumber', //--> Próxima Cuota
+    'nextPaymentDate', //--> Fecha Próxima Cuota
+    'nextInterestAmount', //--> Monto de Interés
+    'nextInstallmentAmount', //--> Monto de Cuota
     // 'loanTypeName',
     //'amortizationStartPayment',
     //'rateClassificationName',
@@ -130,7 +129,7 @@ export class BonosComponent implements OnInit {
   textFilter: string = '';
 
   filtrosFecha: any={
-    
+
     validityStartDateFrom: null,
     validityStartDateTo: null,
     disbursementDateFrom: null,
@@ -195,7 +194,7 @@ export class BonosComponent implements OnInit {
     return tipo ? tipo.name : String(productClassId);
   }
 
-  
+
 
   loadDebts(): void {
     this.loading = true;
@@ -391,7 +390,7 @@ export class BonosComponent implements OnInit {
         }
       });
     } if(tipo === 'prepago'){
-        this.deudaService.obtenerDeuda(element.id).subscribe({
+      this.deudaService.obtenerDeuda(element.id).subscribe({
         next: (response: DebtDetail) => {
           this.loading = false;
           console.log("ABRIR MODAL - prepago",response)
@@ -426,7 +425,7 @@ export class BonosComponent implements OnInit {
         backdrop: 'static',
         keyboard: false
       });
-     
+
       console.log(this.objetoInitPadre)
       modalRef.result.then(
         (result) => {
@@ -504,35 +503,35 @@ export class BonosComponent implements OnInit {
 
 
 
-      console.log('🕒 Rangos seleccionados:');
-      console.log('Inicio Vigencia:', this.formatDateSearch(this.filtrosFecha.validityStartDateFrom), '→', this.formatDateSearch(this.filtrosFecha.validityStartDateTo));
-      console.log('Desembolso:', this.filtrosFecha.disbursementDateFrom, '→', this.filtrosFecha.disbursementDateTo);
-      console.log('Inicio Interés:', this.filtrosFecha.interestStartDateDesde, '→', this.filtrosFecha.interestStartDateHasta);
-      console.log('Vencimiento:', this.filtrosFecha.maturityDateFrom, '→', this.filtrosFecha.maturityDateTo);
+    console.log('🕒 Rangos seleccionados:');
+    console.log('Inicio Vigencia:', this.formatDateSearch(this.filtrosFecha.validityStartDateFrom), '→', this.formatDateSearch(this.filtrosFecha.validityStartDateTo));
+    console.log('Desembolso:', this.filtrosFecha.disbursementDateFrom, '→', this.filtrosFecha.disbursementDateTo);
+    console.log('Inicio Interés:', this.filtrosFecha.interestStartDateDesde, '→', this.filtrosFecha.interestStartDateHasta);
+    console.log('Vencimiento:', this.filtrosFecha.maturityDateFrom, '→', this.filtrosFecha.maturityDateTo);
 
-      // Construir el objeto de búsqueda
-      const searchRequest: DebtSearchRequest = {
-        validityStartDateFrom: this.formatDateSearch(this.filtrosFecha.validityStartDateFrom) ?? undefined,
-        validityStartDateTo: this.formatDateSearch(this.filtrosFecha.validityStartDateTo) ?? undefined ,
-        disbursementDateFrom: this.formatDateSearch(this.filtrosFecha.disbursementDateFrom) ?? undefined,
-        disbursementDateTo: this.formatDateSearch(this.filtrosFecha.disbursementDateTo) ?? undefined,
-        maturityDateFrom: this.formatDateSearch(this.filtrosFecha.maturityDateFrom) ?? undefined,
-        maturityDateTo: this.formatDateSearch(this.filtrosFecha.maturityDateTo) ?? undefined
-        // otros campos si los hay (paginación, filtros adicionales, etc.)
-      };
+    // Construir el objeto de búsqueda
+    const searchRequest: DebtSearchRequest = {
+      validityStartDateFrom: this.formatDateSearch(this.filtrosFecha.validityStartDateFrom) ?? undefined,
+      validityStartDateTo: this.formatDateSearch(this.filtrosFecha.validityStartDateTo) ?? undefined ,
+      disbursementDateFrom: this.formatDateSearch(this.filtrosFecha.disbursementDateFrom) ?? undefined,
+      disbursementDateTo: this.formatDateSearch(this.filtrosFecha.disbursementDateTo) ?? undefined,
+      maturityDateFrom: this.formatDateSearch(this.filtrosFecha.maturityDateFrom) ?? undefined,
+      maturityDateTo: this.formatDateSearch(this.filtrosFecha.maturityDateTo) ?? undefined
+      // otros campos si los hay (paginación, filtros adicionales, etc.)
+    };
 
-      // Invocar el servicio
-      this.deudaService.buscarDeudasPorFechas(searchRequest).subscribe({
-        next: (response) => {
-          this.dataSource.data = response.content; // o response.items según tu modelo
-          console.log('✅ Datos filtrados recibidos:', response);
-        },
-        error: (err) => {
-          console.error('❌ Error al buscar deudas:', err);
-        }
-      });
+    // Invocar el servicio
+    this.deudaService.buscarDeudasPorFechas(searchRequest).subscribe({
+      next: (response) => {
+        this.dataSource.data = response.content; // o response.items según tu modelo
+        console.log('✅ Datos filtrados recibidos:', response);
+      },
+      error: (err) => {
+        console.error('❌ Error al buscar deudas:', err);
+      }
+    });
 
-      
+
     /*this.dataSource.data = this.debts.filter(deuda => {
       return this.filtraPorRango(deuda.validityStartDate, this.filtrosFecha.validityStartDateFrom, this.filtrosFecha.validityStartDateTo)
         && this.filtraPorRango(deuda.disbursementDate, this.filtrosFecha.disbursementDateFrom, this.filtrosFecha.disbursementDateTo)
@@ -608,11 +607,11 @@ export class BonosComponent implements OnInit {
   hayFiltrosDeFecha(): boolean {
     const f = this.filtrosFecha;
     return !!(f.validityStartDateFrom || f.validityStartDateTo ||
-              f.disbursementDateFrom || f.disbursementDateTo ||
-              f.maturityDateFrom || f.maturityDateTo);
+      f.disbursementDateFrom || f.disbursementDateTo ||
+      f.maturityDateFrom || f.maturityDateTo);
   }
 
-  
+
   campoTieneRango(campo: string): boolean {
     const f = this.filtrosFecha;
     switch (campo) {
@@ -654,6 +653,17 @@ export class BonosComponent implements OnInit {
     const checked = event.checked;
     this.dataSource.data.forEach(row => row.seleccionado = checked);
   }
+  getRateExpressionDescription(rateExpressionTypeId: number | null): string {
+    if (!rateExpressionTypeId) return '-';
 
+    switch (rateExpressionTypeId) {
+      case 1:
+        return 'Tasa Fija';
+      case 2:
+        return 'Tasa Variable';
+      default:
+        return String(rateExpressionTypeId);
+    }
+  }
 
 }

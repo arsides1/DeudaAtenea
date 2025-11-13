@@ -11,6 +11,8 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -221,13 +223,21 @@ public class DebtRegistryService {
         entity.setInternalReference(request.getInternalReference());
         entity.setCharacteristics(request.getCharacteristics());
 
-        // ESTADO DE LA DEUDA (si viene en el request)
+        // ✅ CAMPOS TRM AGREGADOS (NUEVO)
+        entity.setSubsidiaryGuarantorId(request.getSubsidiaryGuarantorId());
+        entity.setMerchant(request.getMerchant());
+        entity.setValuationCategory(request.getValuationCategory());
+        entity.setExternalReference(request.getExternalReference());
+        entity.setStructuringCost(request.getStructuringCost());
+
+        // ESTADO DE LA DEUDA
         if (request.getDebtStatus() != null) {
             entity.setDebtStatus(request.getDebtStatus());
         }
 
         entity.setRegisteredBy(request.getRegisteredBy());
     }
+
 
     private void saveAmortizationExceptions(String debtId, List<AmortizationExceptionRequest> exceptions, String registeredBy) {
         for (AmortizationExceptionRequest exc : exceptions) {
@@ -248,7 +258,7 @@ public class DebtRegistryService {
             DebtSchedule schedule = new DebtSchedule();
             schedule.setDebtRegistryId(debtId);
 
-            // Mapear campos del cronograma
+            // Campos principales del cronograma
             schedule.setPaymentNumber(scheduleReq.getPaymentNumber());
             schedule.setCalculationDate(scheduleReq.getPeriodDate());
             schedule.setPaymentDate(scheduleReq.getPaymentDate());
@@ -258,16 +268,38 @@ public class DebtRegistryService {
             schedule.setInterest(scheduleReq.getInterestPaid());
             schedule.setInterestRate(scheduleReq.getRate());
             schedule.setVariableRateDate(scheduleReq.getVariableRateDate());
-            schedule.setAppliedRate(scheduleReq.getRate());
+
+            // ✅ CORRECCIÓN: Usar getAppliedRate() en lugar de getRate()
+            schedule.setAppliedRate(scheduleReq.getAppliedRate());
+
             schedule.setRateAdjustment(scheduleReq.getRateAdjustment());
             schedule.setApplicableMargin(scheduleReq.getApplicableMargin());
             schedule.setInstallment(scheduleReq.getFee());
             schedule.setFinalGuarantor(scheduleReq.getFinalGuarantor() != null ?
                     scheduleReq.getFinalGuarantor().toString() : null);
 
-            // ESTADO DE LA CUOTA (si viene en el request)
+            // ✅ CAMPOS ADICIONALES AGREGADOS (NUEVO)
+            schedule.setRateType(scheduleReq.getRateType());
+            schedule.setReferenceRate(scheduleReq.getReferenceRate());
+            schedule.setProvider(scheduleReq.getProvider());
+            schedule.setAcceptanceDate(scheduleReq.getAcceptanceDate());
+            schedule.setFees(scheduleReq.getFees());
+            schedule.setInsurance(scheduleReq.getInsurance());
+
+            // ✅ CAMPOS DE PREPAGO AGREGADOS (NUEVO)
+            if (scheduleReq.getPaymentTypeId() != null) {
+                schedule.setPaymentTypeId(scheduleReq.getPaymentTypeId());
+            } else {
+                schedule.setPaymentTypeId(1); // Default: NORMAL
+            }
+            schedule.setPrepaymentDescription(scheduleReq.getPrepaymentDescription());
+            schedule.setPrepaymentDate(scheduleReq.getPrepaymentDate());
+
+            // Estado de la cuota
             if (scheduleReq.getStatus() != null) {
                 schedule.setStatus(scheduleReq.getStatus());
+            } else {
+                schedule.setStatus(1); // Default: ACTIVO
             }
 
             schedule.setRegisteredBy(registeredBy);
@@ -354,7 +386,7 @@ public class DebtRegistryService {
         dto.setRegistrationDate(debt.getRegistrationDate());
 
         mapDescriptions(debt, dto);
-
+        calculateNextPayment(debt, dto);
         return dto;
     }
 
@@ -461,6 +493,21 @@ public class DebtRegistryService {
 
         if (debt.getProductName() != null) {
             dto.setProductNameName(debt.getProductName().getDescription());
+        }
+
+        // ✅ SOLUCIÓN CORRECTA: Obtener de BD mediante relaciones JPA
+        if (debt.getCurrency() != null) {
+            dto.setCurrencyName(debt.getCurrency().getT064Description());
+        }
+
+        // ✅ CORRECTO: Obtener nombre desde la relación JPA
+        if (debt.getProductClass() != null) {
+            dto.setProductClassName(debt.getProductClass().getDescription());
+        }
+
+        // ✅ CORRECTO: Obtener nombre desde la relación JPA
+        if (debt.getProductType() != null) {
+            dto.setProductTypeName(debt.getProductType().getDescription());
         }
     }
 
@@ -579,5 +626,26 @@ public class DebtRegistryService {
 
     private String generateDebtId() {
         return "DEBT-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
+
+    private void calculateNextPayment(DebtRegistry debt, DebtSummaryDTO dto) {
+        LocalDate today = LocalDate.now();
+        int todayInt = Integer.parseInt(today.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+
+        List<DebtSchedule> schedules = debtScheduleRepository.findByDebtRegistryIdOrderByPaymentNumberAsc(debt.getId());
+
+        if (schedules == null || schedules.isEmpty()) {
+            return;
+        }
+
+        for (DebtSchedule schedule : schedules) {
+            if (schedule.getPaymentDate() != null && schedule.getPaymentDate() >= todayInt) {
+                dto.setNextPaymentNumber(schedule.getPaymentNumber());
+                dto.setNextPaymentDate(schedule.getPaymentDate());
+                dto.setNextInterestAmount(schedule.getInterest());
+                dto.setNextInstallmentAmount(schedule.getInstallment()); // ✅ TASA (%)
+                break;
+            }
+        }
     }
 }

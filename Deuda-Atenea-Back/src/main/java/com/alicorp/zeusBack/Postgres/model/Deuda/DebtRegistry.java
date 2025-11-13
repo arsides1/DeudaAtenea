@@ -248,4 +248,12 @@ public class DebtRegistry {
     @OneToMany(mappedBy = "debtRegistry", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<AmortizationRateException> amortizationExceptions;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "t532_id_product_class", insertable = false, updatable = false)
+    private ProductClass productClass;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "t532_id_product_type", insertable = false, updatable = false)
+    private ProductType productType;
 }

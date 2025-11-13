@@ -19,11 +19,11 @@ import javax.persistence.Table;
 public class ProductClass {
     @Column(name = "t547_id")
     @Id
-    private String t547_id;
+    private Integer id;
 
     @Column(name = "t547_description")
-    private String t547_description;
+    private String description;
 
     @Column(name = "t547_status")
-    private Boolean t547_status;
+    private Boolean status;
 }
