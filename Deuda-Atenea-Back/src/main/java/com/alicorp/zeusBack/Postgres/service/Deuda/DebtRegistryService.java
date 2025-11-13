@@ -159,16 +159,14 @@ public class DebtRegistryService {
     /**
      * Eliminar deuda (borrado lógico)
      */
-   /* @Transactional
-   public void deleteDebt(String id, String usuario) {
-        DebtRegistry debt = debtRegistryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Deuda no encontrada: " + id));
-        debt.setStatus(false);
-        debtRegistryRepository.save(debt);
+    @Transactional
+    public void eliminarDeuda(String debtId) {
+        DebtRegistry debt = debtRegistryRepository.findById(debtId)
+                .orElseThrow(() -> new RuntimeException("Deuda no encontrada: " + debtId));
 
-        // AUDITORÍA - Registrar eliminación lógica
-        auditService.auditarEliminacionDeuda(id, usuario);
-    }*/
+        debt.setDebtStatus(0);  // 0 = INACTIVO
+        debtRegistryRepository.save(debt);
+    }
 
     // ==================== MÉTODOS PRIVADOS ====================
 
@@ -222,6 +220,12 @@ public class DebtRegistryService {
         entity.setAssignment(request.getAssignment());
         entity.setInternalReference(request.getInternalReference());
         entity.setCharacteristics(request.getCharacteristics());
+
+        // ESTADO DE LA DEUDA (si viene en el request)
+        if (request.getDebtStatus() != null) {
+            entity.setDebtStatus(request.getDebtStatus());
+        }
+
         entity.setRegisteredBy(request.getRegisteredBy());
     }
 
@@ -261,7 +265,11 @@ public class DebtRegistryService {
             schedule.setFinalGuarantor(scheduleReq.getFinalGuarantor() != null ?
                     scheduleReq.getFinalGuarantor().toString() : null);
 
-            schedule.setStatus(true);
+            // ESTADO DE LA CUOTA (si viene en el request)
+            if (scheduleReq.getStatus() != null) {
+                schedule.setStatus(scheduleReq.getStatus());
+            }
+
             schedule.setRegisteredBy(registeredBy);
 
             debtScheduleRepository.save(schedule);
@@ -298,56 +306,13 @@ public class DebtRegistryService {
     private DebtSummaryDTO convertToSummaryDTO(DebtRegistry debt) {
         DebtSummaryDTO dto = new DebtSummaryDTO();
 
-        // Mapear campos básicos
         dto.setId(debt.getId());
         dto.setProductClassId(debt.getProductClassId());
         dto.setProductTypeId(debt.getProductTypeId());
-        dto.setSubsidiaryDebtorId(debt.getSubsidiaryDebtorId());
-        dto.setCreditorType(debt.getCreditorType());
-        dto.setSubsidiaryCreditorId(debt.getSubsidiaryCreditorId());
-        dto.setCounterpartCreditorId(debt.getCounterpartCreditorId());
-        dto.setValidityStartDate(debt.getValidityStartDate());
-        dto.setDisbursementDate(debt.getDisbursementDate());
-        dto.setMaturityDate(debt.getMaturityDate());
-        dto.setCurrencyId(debt.getCurrencyId());
-        dto.setNominal(debt.getNominal());
-        dto.setAmortizationRate(debt.getAmortizationRate());
-        dto.setAmortizationStartPayment(debt.getAmortizationStartPayment());
-        dto.setPeriodsId(debt.getPeriodsId());
-        dto.setRateClassificationId(debt.getRateClassificationId());
-        dto.setFixedRatePercentage(debt.getFixedRatePercentage());
-        dto.setReferenceRate(debt.getReferenceRate());
-        dto.setRateAdjustment(debt.getRateAdjustment());
-        dto.setApplicableMargin(debt.getApplicableMargin());
-        dto.setOthers(debt.getOthers());
-        dto.setApplyAmortizationException(debt.getApplyAmortizationException());
-        dto.setOperationTrm(debt.getOperationTrm());
-        dto.setBasisId(debt.getBasisId());
-        dto.setRateTypeId(debt.getRateTypeId());
-        dto.setAmortizationMethodId(debt.getAmortizationMethodId());
-        dto.setRoundingTypeId(debt.getRoundingTypeId());
-        dto.setInterestStructureId(debt.getInterestStructureId());
-        dto.setPortfolio(debt.getPortfolio());
-        dto.setProject(debt.getProject());
-        dto.setAssignment(debt.getAssignment());
-        dto.setInternalReference(debt.getInternalReference());
-        dto.setCharacteristics(debt.getCharacteristics());
-        dto.setRegisteredBy(debt.getRegisteredBy());
-        dto.setRegistrationDate(debt.getRegistrationDate());
-
-        // Mapear descripciones de catálogos para mostrar en el listado
-        mapDescriptions(debt, dto);
-
-        return dto;
-    }
-
-    private DebtDetailDTO convertToDetailDTO(DebtRegistry debt, List<DebtSchedule> schedules, List<AmortizationRateException> exceptions) {
-        DebtDetailDTO dto = new DebtDetailDTO();
-
-        // Mapeo directo de todos los campos
-        dto.setId(debt.getId());
-        dto.setProductClassId(debt.getProductClassId());
-        dto.setProductTypeId(debt.getProductTypeId());
+        dto.setProductNameId(debt.getProductNameId());
+        dto.setAmortizationStartDate(debt.getAmortizationStartDate());
+        dto.setRateExpressionTypeId(debt.getRateExpressionTypeId());
+        dto.setAmortizationTypeId(debt.getAmortizationTypeId());
         dto.setSubsidiaryDebtorId(debt.getSubsidiaryDebtorId());
         dto.setCreditorType(debt.getCreditorType());
         dto.setSubsidiaryCreditorId(debt.getSubsidiaryCreditorId());
@@ -379,13 +344,72 @@ public class DebtRegistryService {
         dto.setAssignment(debt.getAssignment());
         dto.setInternalReference(debt.getInternalReference());
         dto.setCharacteristics(debt.getCharacteristics());
+        dto.setSubsidiaryGuarantorId(debt.getSubsidiaryGuarantorId());
+        dto.setMerchant(debt.getMerchant());
+        dto.setValuationCategory(debt.getValuationCategory());
+        dto.setExternalReference(debt.getExternalReference());
+        dto.setStructuringCost(debt.getStructuringCost());
+        dto.setDebtStatus(debt.getDebtStatus());
         dto.setRegisteredBy(debt.getRegisteredBy());
         dto.setRegistrationDate(debt.getRegistrationDate());
 
-        // Mapear descripciones
+        mapDescriptions(debt, dto);
+
+        return dto;
+    }
+
+    private DebtDetailDTO convertToDetailDTO(DebtRegistry debt, List<DebtSchedule> schedules, List<AmortizationRateException> exceptions) {
+        DebtDetailDTO dto = new DebtDetailDTO();
+
+        dto.setId(debt.getId());
+        dto.setProductClassId(debt.getProductClassId());
+        dto.setProductTypeId(debt.getProductTypeId());
+        dto.setProductNameId(debt.getProductNameId());
+        dto.setAmortizationStartDate(debt.getAmortizationStartDate());
+        dto.setRateExpressionTypeId(debt.getRateExpressionTypeId());
+        dto.setAmortizationTypeId(debt.getAmortizationTypeId());
+        dto.setSubsidiaryDebtorId(debt.getSubsidiaryDebtorId());
+        dto.setCreditorType(debt.getCreditorType());
+        dto.setSubsidiaryCreditorId(debt.getSubsidiaryCreditorId());
+        dto.setCounterpartCreditorId(debt.getCounterpartCreditorId());
+        dto.setValidityStartDate(debt.getValidityStartDate());
+        dto.setDisbursementDate(debt.getDisbursementDate());
+        dto.setInterestStartDate(debt.getInterestStartDate());
+        dto.setMaturityDate(debt.getMaturityDate());
+        dto.setCurrencyId(debt.getCurrencyId());
+        dto.setNominal(debt.getNominal());
+        dto.setAmortizationRate(debt.getAmortizationRate());
+        dto.setAmortizationStartPayment(debt.getAmortizationStartPayment());
+        dto.setPeriodsId(debt.getPeriodsId());
+        dto.setRateClassificationId(debt.getRateClassificationId());
+        dto.setFixedRatePercentage(debt.getFixedRatePercentage());
+        dto.setReferenceRate(debt.getReferenceRate());
+        dto.setRateAdjustment(debt.getRateAdjustment());
+        dto.setApplicableMargin(debt.getApplicableMargin());
+        dto.setOthers(debt.getOthers());
+        dto.setApplyAmortizationException(debt.getApplyAmortizationException());
+        dto.setOperationTrm(debt.getOperationTrm());
+        dto.setBasisId(debt.getBasisId());
+        dto.setRateTypeId(debt.getRateTypeId());
+        dto.setAmortizationMethodId(debt.getAmortizationMethodId());
+        dto.setRoundingTypeId(debt.getRoundingTypeId());
+        dto.setInterestStructureId(debt.getInterestStructureId());
+        dto.setPortfolio(debt.getPortfolio());
+        dto.setProject(debt.getProject());
+        dto.setAssignment(debt.getAssignment());
+        dto.setInternalReference(debt.getInternalReference());
+        dto.setCharacteristics(debt.getCharacteristics());
+        dto.setSubsidiaryGuarantorId(debt.getSubsidiaryGuarantorId());
+        dto.setMerchant(debt.getMerchant());
+        dto.setValuationCategory(debt.getValuationCategory());
+        dto.setExternalReference(debt.getExternalReference());
+        dto.setStructuringCost(debt.getStructuringCost());
+        dto.setDebtStatus(debt.getDebtStatus());
+        dto.setRegisteredBy(debt.getRegisteredBy());
+        dto.setRegistrationDate(debt.getRegistrationDate());
+
         mapDetailDescriptions(debt, dto);
 
-        // Agregar cronograma y excepciones
         dto.setSchedules(schedules);
         dto.setAmortizationExceptions(exceptions);
 
@@ -430,14 +454,20 @@ public class DebtRegistryService {
         if (debt.getInterestStructure() != null) {
             dto.setInterestStructureName(debt.getInterestStructure().getDescription());
         }
+
+        if (debt.getSubsidiaryGuarantor() != null) {
+            dto.setSubsidiaryGuarantorName(debt.getSubsidiaryGuarantor().getT453DescriptionTreasury());
+        }
+
+        if (debt.getProductName() != null) {
+            dto.setProductNameName(debt.getProductName().getDescription());
+        }
     }
 
     private void mapDetailDescriptions(DebtRegistry debt, DebtDetailDTO dto) {
-        // Reutilizar mapeo base
         DebtSummaryDTO summaryDto = new DebtSummaryDTO();
         mapDescriptions(debt, summaryDto);
 
-        // Copiar descripciones
         dto.setSubsidiaryDebtorName(summaryDto.getSubsidiaryDebtorName());
         dto.setSubsidiaryCreditorName(summaryDto.getSubsidiaryCreditorName());
         dto.setCounterpartCreditorName(summaryDto.getCounterpartCreditorName());
@@ -448,8 +478,9 @@ public class DebtRegistryService {
         dto.setAmortizationMethodName(summaryDto.getAmortizationMethodName());
         dto.setRoundingTypeName(summaryDto.getRoundingTypeName());
         dto.setInterestStructureName(summaryDto.getInterestStructureName());
+        dto.setSubsidiaryGuarantorName(summaryDto.getSubsidiaryGuarantorName());
+        dto.setProductNameName(summaryDto.getProductNameName());
 
-        // Agregar descripción de moneda
         if (debt.getCurrency() != null) {
             dto.setCurrencyName(debt.getCurrency().getT064Description());
         }
@@ -471,13 +502,11 @@ public class DebtRegistryService {
                 Sort.by(direction, searchRequest.getSortBy())
         );
 
-        // ========== CAMBIO: Usar debtState (String) en lugar de status (Boolean) ==========
-        // Si no se especifica debtState, buscar solo ACTIVAS
-        String debtStateFilter = searchRequest.getDebtState();
-        if (debtStateFilter == null || debtStateFilter.isEmpty()) {
-            debtStateFilter = "ACTIVO";  // Por defecto solo deudas activas
+        // Si no se especifica debtStatus, buscar solo ACTIVAS (1)
+        Integer debtStatusFilter = searchRequest.getDebtStatus();
+        if (debtStatusFilter == null) {
+            debtStatusFilter = 1;  // Por defecto solo deudas activas
         }
-        // ========== FIN CAMBIO ==========
 
         // Ejecutar búsqueda en el repository
         Page<DebtRegistry> debts = debtRegistryRepository.searchDebts(
@@ -519,52 +548,36 @@ public class DebtRegistryService {
                 searchRequest.getRateAdjustmentMax(),
                 searchRequest.getApplicableMarginMin(),
                 searchRequest.getApplicableMarginMax(),
+                debtStatusFilter,  // ⭐ PARÁMETRO 39
+                searchRequest.getSubsidiaryGuarantorId(),
+                searchRequest.getMerchant(),
+                searchRequest.getValuationCategory(),
+                searchRequest.getExternalReference(),
+                searchRequest.getStructuringCostMin(),
+                searchRequest.getStructuringCostMax(),
                 searchRequest.getRegisteredBy(),
                 searchRequest.getRegistrationDateFrom(),
                 searchRequest.getRegistrationDateTo(),
-                pageable
+                pageable  // ⭐ PARÁMETRO 49
         );
 
-        // ========== CAMBIO: Filtrar por debtState (String) en lugar de status (Boolean) ==========
-        final String finalDebtStateFilter = debtStateFilter;
+        // Filtrar solo por applyAmortizationException (debtStatus ya se filtró en la query)
         final Boolean exceptionFilter = searchRequest.getApplyAmortizationException();
 
-        List<DebtRegistry> filteredList = debts.getContent().stream()
-                .filter(debt -> {
-                    // Filtro por debtState (ACTIVO, INACTIVO, PAGADO)
-                    boolean stateMatch = (finalDebtStateFilter == null) ||
-                            (debt.getDebtState() != null && debt.getDebtState().equals(finalDebtStateFilter));
+        if (exceptionFilter != null) {
+            List<DebtRegistry> filteredList = debts.getContent().stream()
+                    .filter(debt -> debt.getApplyAmortizationException() != null &&
+                            debt.getApplyAmortizationException().equals(exceptionFilter))
+                    .collect(Collectors.toList());
 
-                    // Filtro por applyAmortizationException
-                    boolean exceptionMatch = (exceptionFilter == null) ||
-                            (debt.getApplyAmortizationException() != null &&
-                                    debt.getApplyAmortizationException().equals(exceptionFilter));
-
-                    return stateMatch && exceptionMatch;
-                })
-                .collect(Collectors.toList());
-        // ========== FIN CAMBIO ==========
-
-        // Crear nueva Page con resultados filtrados
-        Page<DebtRegistry> filteredDebts = new PageImpl<>(
-                filteredList,
-                pageable,
-                filteredList.size()
-        );
+            debts = new PageImpl<>(filteredList, pageable, filteredList.size());
+        }
 
         // Convertir a DTOs
-        return filteredDebts.map(this::convertToSummaryDTO);
+        return debts.map(this::convertToSummaryDTO);
     }
+
     private String generateDebtId() {
         return "DEBT-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-    }
-
-    @Transactional
-    public void eliminarDeuda(String debtId) {
-        DebtRegistry debt = debtRegistryRepository.findById(debtId)
-                .orElseThrow(() -> new RuntimeException("Deuda no encontrada: " + debtId));
-
-        debt.setDebtState("INACTIVO");
-        debtRegistryRepository.save(debt);
     }
 }

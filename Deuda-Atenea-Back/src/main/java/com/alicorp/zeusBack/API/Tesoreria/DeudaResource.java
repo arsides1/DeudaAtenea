@@ -134,7 +134,7 @@ public class DeudaResource {
         searchRequest.setSize(size);
         searchRequest.setSortBy(sortBy);
         searchRequest.setSortDirection(sortDir);
-        searchRequest.setDebtState("ACTIVO");
+        searchRequest.setDebtStatus(1);  // ✅ 1 = ACTIVO
 
         try {
             Page<DebtSummaryDTO> debts = debtRegistryService.searchDebts(searchRequest);
@@ -183,7 +183,7 @@ public class DeudaResource {
             searchRequest.setSize(size);
             searchRequest.setSortBy(sortBy);
             searchRequest.setSortDirection(sortDir);
-            searchRequest.setDebtState("ACTIVO");
+            searchRequest.setDebtStatus(1);  // ✅ 1 = ACTIVO
 
             Page<DebtSummaryDTO> debts = debtRegistryService.searchDebts(searchRequest);
 

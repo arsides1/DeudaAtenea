@@ -14,17 +14,20 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DebtDetailDTO {
-    // CAMPOS NUEVOS - Información del producto
     private Integer productClassId;
     private Integer productTypeId;
+    private Integer productNameId;
 
-    // Datos principales - Solo lo que está en BD
     private String id;
+
+    private Integer amortizationStartDate;
+    private Integer rateExpressionTypeId;
+    private Integer amortizationTypeId;
+
     private Integer subsidiaryDebtorId;
     private String creditorType;
     private Integer subsidiaryCreditorId;
     private Integer counterpartCreditorId;
-    private Integer productNameId;
     private Integer validityStartDate;
     private Integer disbursementDate;
     private Integer interestStartDate;
@@ -48,19 +51,22 @@ public class DebtDetailDTO {
     private Integer roundingTypeId;
     private Integer interestStructureId;
 
-    // Campos opcionales
     private String portfolio;
     private String project;
     private String assignment;
     private String internalReference;
     private String characteristics;
 
-    // Metadatos
-    private Boolean status;
+    private Integer subsidiaryGuarantorId;
+    private String merchant;
+    private String valuationCategory;
+    private String externalReference;
+    private BigDecimal structuringCost;
+
+    private Integer debtStatus;
     private String registeredBy;
     private LocalDateTime registrationDate;
 
-    // Descripciones para mostrar
     private String subsidiaryDebtorName;
     private String subsidiaryCreditorName;
     private String counterpartCreditorName;
@@ -73,10 +79,8 @@ public class DebtDetailDTO {
     private String amortizationMethodName;
     private String roundingTypeName;
     private String interestStructureName;
+    private String subsidiaryGuarantorName;
 
-    // Cronograma completo tal como viene del frontend
     private List<DebtSchedule> schedules;
-
-    // Excepciones de amortización
     private List<AmortizationRateException> amortizationExceptions;
 }

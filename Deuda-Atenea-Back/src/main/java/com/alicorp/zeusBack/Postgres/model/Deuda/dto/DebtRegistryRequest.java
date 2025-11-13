@@ -72,6 +72,16 @@ public class DebtRegistryRequest {
     private BigDecimal structuringCost;
     // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
+    /**
+     * Estado de la deuda:
+     * 0 = INACTIVO (Eliminado/Soft delete)
+     * 1 = ACTIVO (Deuda vigente)
+     * 2 = PAGADO (Completamente liquidado)
+     *
+     * Usado para UPDATE - permite cambiar el estado de la deuda
+     */
+    private Integer debtStatus;
+
     private String registeredBy;
     private List<DebtScheduleRequest> schedules;
 }

@@ -17,7 +17,7 @@ public class DebtSearchRequest {
     private String productClassId;
     private String productTypeId;
     private Integer loanTypeId;
-    private Integer productNameId;  // AGREGAR ESTE CAMPO
+    private Integer productNameId;
     private String currencyId;
     private String rateTypeId;
     private String referenceRate;
@@ -36,6 +36,15 @@ public class DebtSearchRequest {
     private Integer amortizationMethodId;
     private Integer roundingTypeId;
     private Integer interestStructureId;
+
+    // ========== CAMPOS TRM - AGREGADOS ==========
+    private Integer subsidiaryGuarantorId;
+    private String merchant;
+    private String valuationCategory;
+    private String externalReference;
+    private BigDecimal structuringCostMin;
+    private BigDecimal structuringCostMax;
+    // ========== FIN CAMPOS TRM ==========
 
     // Rangos de fechas (formato YYYYMMDD)
     private Integer validityStartDateFrom;
@@ -61,7 +70,14 @@ public class DebtSearchRequest {
 
     // Filtros booleanos
     private Boolean applyAmortizationException;
-    private String debtState;
+
+    /**
+     * Filtro por estado de la deuda:
+     * 0 = INACTIVO (Eliminado/Soft delete)
+     * 1 = ACTIVO (Deuda vigente)
+     * 2 = PAGADO (Completamente liquidado)
+     */
+    private Integer debtStatus;
 
     // Filtro por usuario
     private String registeredBy;

@@ -78,7 +78,7 @@ public class DebtSchedule {
     private String finalGuarantor;
 
     @Column(name = "t533_status")
-    private Boolean status = true;
+    private Integer status;
 
     @NotBlank
     @Column(name = "t533_registered_by", length = 25)

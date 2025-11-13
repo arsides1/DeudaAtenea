@@ -136,7 +136,7 @@ public class DebtRegistry {
     @Column(name = "t532_characteristics")
     private String characteristics;
 
-    // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+    // ========== CAMPOS ADICIONALES (TRM) ==========
     @Column(name = "t532_id_subsidiary_guarantor")
     private Integer subsidiaryGuarantorId;
 
@@ -153,8 +153,16 @@ public class DebtRegistry {
     private BigDecimal structuringCost;
     // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
-    @Column(name = "t532_debt_state", length = 20)
-    private String debtState = "ACTIVO";
+    // ========== ESTADO DE LA DEUDA ==========
+    /**
+     * Estado de la deuda:
+     * 0 = INACTIVO (Eliminado/Soft delete)
+     * 1 = ACTIVO (Deuda vigente)
+     * 2 = PAGADO (Completamente liquidado)
+     */
+    @Column(name = "t532_debt_status")
+    private Integer debtStatus;
+    // ========================================
 
     @NotBlank
     @Column(name = "t532_registered_by", length = 25)
@@ -163,7 +171,6 @@ public class DebtRegistry {
     @Column(name = "t532_registration_date")
     private LocalDateTime registrationDate;
 
-    // CAMPOS NUEVOS AGREGADOS ANTERIORMENTE
     @NotNull
     @Column(name = "t532_id_product_class")
     private Integer productClassId;
@@ -230,11 +237,9 @@ public class DebtRegistry {
     @JoinColumn(name = "t532_id_product_name", insertable = false, updatable = false)
     private ProductName productName;
 
-    // ========== RELACIÓN NUEVA: GARANTE ==========
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t532_id_subsidiary_guarantor", insertable = false, updatable = false)
     private Subsidiaria subsidiaryGuarantor;
-    // ========== FIN RELACIÓN NUEVA ==========
 
     @OneToMany(mappedBy = "debtRegistry", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -243,5 +248,4 @@ public class DebtRegistry {
     @OneToMany(mappedBy = "debtRegistry", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<AmortizationRateException> amortizationExceptions;
-
 }

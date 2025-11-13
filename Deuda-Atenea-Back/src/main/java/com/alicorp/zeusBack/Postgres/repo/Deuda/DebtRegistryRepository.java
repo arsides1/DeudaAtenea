@@ -32,6 +32,9 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             "WHERE d.id = :id")
     Optional<DebtRegistry> findByIdWithAllRelations(@Param("id") String id);
 
+    /**
+     * Buscar deudas activas (debtStatus = 1) con relaciones
+     */
     @Query(value = "SELECT d FROM DebtRegistry d " +
             "LEFT JOIN FETCH d.subsidiaryDebtor " +
             "LEFT JOIN FETCH d.subsidiaryCreditor " +
@@ -42,12 +45,16 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             "LEFT JOIN FETCH d.basis " +
             "LEFT JOIN FETCH d.rateType " +
             "LEFT JOIN FETCH d.amortizationMethod " +
-            "WHERE d.debtState = 'ACTIVO'",
-            countQuery = "SELECT COUNT(d) FROM DebtRegistry d WHERE d.debtState = 'ACTIVO'")
+            "WHERE d.debtStatus = 1",
+            countQuery = "SELECT COUNT(d) FROM DebtRegistry d WHERE d.debtStatus = 1")
     Page<DebtRegistry> findByStatusTrueWithRelations(Pageable pageable);
 
-    @Query("SELECT d FROM DebtRegistry d WHERE d.id = :id AND d.debtState = 'ACTIVO'")
+    /**
+     * Buscar deuda por ID solo si está activa (debtStatus = 1)
+     */
+    @Query("SELECT d FROM DebtRegistry d WHERE d.id = :id AND d.debtStatus = 1")
     Optional<DebtRegistry> findByIdAndDebtStateActivo(@Param("id") String id);
+
     @Query("SELECT DISTINCT d FROM DebtRegistry d " +
             "LEFT JOIN d.subsidiaryDebtor sd " +
             "LEFT JOIN d.subsidiaryCreditor sc " +
@@ -134,6 +141,16 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             "AND (:rateAdjustmentMax IS NULL OR d.rateAdjustment <= :rateAdjustmentMax) " +
             "AND (:applicableMarginMin IS NULL OR d.applicableMargin >= :applicableMarginMin) " +
             "AND (:applicableMarginMax IS NULL OR d.applicableMargin <= :applicableMarginMax) " +
+            "AND (:debtStatus IS NULL OR d.debtStatus = :debtStatus) " +
+            "AND (:subsidiaryGuarantorId IS NULL OR d.subsidiaryGuarantorId = :subsidiaryGuarantorId) " +
+            "AND (:merchant IS NULL OR :merchant = '' OR " +
+            "     LOWER(d.merchant) LIKE LOWER(CONCAT('%', :merchant, '%'))) " +
+            "AND (:valuationCategory IS NULL OR :valuationCategory = '' OR " +
+            "     LOWER(d.valuationCategory) LIKE LOWER(CONCAT('%', :valuationCategory, '%'))) " +
+            "AND (:externalReference IS NULL OR :externalReference = '' OR " +
+            "     LOWER(d.externalReference) LIKE LOWER(CONCAT('%', :externalReference, '%'))) " +
+            "AND (:structuringCostMin IS NULL OR d.structuringCost >= :structuringCostMin) " +
+            "AND (:structuringCostMax IS NULL OR d.structuringCost <= :structuringCostMax) " +
             "AND (:registeredBy IS NULL OR :registeredBy = '' OR " +
             "     LOWER(d.registeredBy) LIKE LOWER(CONCAT('%', :registeredBy, '%'))) " +
             "AND (CAST(:registrationDateFrom AS timestamp) IS NULL OR d.registrationDate >= :registrationDateFrom) " +
@@ -177,8 +194,16 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             @Param("rateAdjustmentMax") BigDecimal rateAdjustmentMax,
             @Param("applicableMarginMin") BigDecimal applicableMarginMin,
             @Param("applicableMarginMax") BigDecimal applicableMarginMax,
+            @Param("debtStatus") Integer debtStatus,
+            @Param("subsidiaryGuarantorId") Integer subsidiaryGuarantorId,
+            @Param("merchant") String merchant,
+            @Param("valuationCategory") String valuationCategory,
+            @Param("externalReference") String externalReference,
+            @Param("structuringCostMin") BigDecimal structuringCostMin,
+            @Param("structuringCostMax") BigDecimal structuringCostMax,
             @Param("registeredBy") String registeredBy,
             @Param("registrationDateFrom") LocalDateTime registrationDateFrom,
             @Param("registrationDateTo") LocalDateTime registrationDateTo,
             Pageable pageable);
+
 }

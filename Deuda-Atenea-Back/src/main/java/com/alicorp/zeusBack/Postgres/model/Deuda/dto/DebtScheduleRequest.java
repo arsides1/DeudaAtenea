@@ -44,7 +44,13 @@ public class DebtScheduleRequest {
     private String provider;
     private Integer acceptanceDate;
     private BigDecimal fees;
-    private Boolean status;
+
+    /**
+     * Estado de la cuota:
+     * 0 = INACTIVO (Eliminada/Cancelada)
+     * 1 = ACTIVO (Vigente)
+     */
+    private Integer status;
     private String registeredBy;
 
     // =====================================================
@@ -57,7 +63,7 @@ public class DebtScheduleRequest {
      * 2 = PREPAGO_PARCIAL (Prepago Parcial)
      * 3 = PREPAGO_TOTAL (Prepago Total)
      */
-    private Integer paymentTypeId = 1;
+    private Integer paymentTypeId;
 
     /**
      * Descripción adicional cuando es prepago

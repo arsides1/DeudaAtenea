@@ -257,6 +257,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       idClaseProducto: [this.initialProductClassId], // ["EMI"],
       idTipoProducto: [""],
       productType:[""],
+      productNameId: [""],
       fechaaceptacion: [''],
 
       fechai: [''],
@@ -309,6 +310,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       externalReference: [''],
       structuringCost: [null],
       // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
+      debtStatus: [1],
 
       registeredBy: [this.tokenService.getUserName() || '']
     });
@@ -384,7 +387,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'maturityDate', 'currencyId', 'nominal', 'amortizationRate',
       'amortizationStartPayment', 'periodsId', 'rateClassificationId',
       'fixedRatePercentage', 'referenceRate', 'rateAdjustment', 'applicableMargin',
-      'otherRateParams', 'applyAmortizationException', 'operationTrm', 
+      'otherRateParams', 'applyAmortizationException', 'operationTrm',
       'rateTypeId', 'amortizationMethodId', 'roundingTypeId', 'periodicidadIntereses',
       'portfolio', 'project', 'assignment', 'internalReference', 'features',
       'fechai', 'fechaaceptacion', 'precio', 'tipoa', 'tipoe',
@@ -667,7 +670,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         // Si hay schedules, guardarlos
         if (response.schedules && response.schedules.length > 0) {
           this.schedules = response.schedules.map((schedule: any) =>
-            this.mapScheduleFromBackend(schedule)          
+            this.mapScheduleFromBackend(schedule)
           );
           console.log("// Si hay schedules, guardarlos", response.schedules)
         }
@@ -757,6 +760,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       creditorType: creditorType,
       subsidiaryCreditorId: debt.subsidiaryCreditorId,
       counterpartCreditorId: debt.counterpartCreditorId,
+      productNameId: debt.productNameId,
       loanTypeId: debt.loanTypeId,
       validityStartDate: formatDateForInput(debt.validityStartDate),
       disbursementDate: formatDateForInput(debt.disbursementDate),
@@ -785,6 +789,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       assignment: debt.assignment,
       internalReference: debt.internalReference,
       features: debt.characteristics,
+      subsidiaryGuarantorId: debt.subsidiaryGuarantorId, // ⭐ YA EXISTE
+      merchant: debt.merchant, // ⭐ YA EXISTE
+      valuationCategory: debt.valuationCategory, // ⭐ YA EXISTE
+      externalReference: debt.externalReference, // ⭐ YA EXISTE
+      structuringCost: debt.structuringCost, // ⭐ YA EXISTE
+      debtStatus: debt.debtStatus, // ⭐ AGREGADO
       registeredBy: debt.registeredBy
     });
 
@@ -975,7 +985,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         interestPaid: interestPaid,
         fee: fee,
         rate: item.rate,
-        status: true,
+        status: 1, // ⭐ CAMBIADO: de true a 1
+        paymentTypeId: 1, //
         registeredBy: parametros.registeredBy
       };
 
@@ -1149,6 +1160,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       // Campos de producto
       productClassId: formValue.idClaseProducto || '',
       productTypeId: formValue.idTipoProducto || '',
+      productNameId: formValue.productNameId, // ⭐ AGREGADO
 
       // Entidades principales
       subsidiaryDebtorId: formValue.subsidiaryDebtorId,
@@ -1163,7 +1175,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       disbursementDate: formatDateToNumber(formValue.disbursementDate),
       interestStartDate: formatDateToNumber(formValue.interestStartDate),
       maturityDate: formatDateToNumber(formValue.maturityDate),
-      amortizationStartDate: formatDateToNumber(formValue.fechai),  // AGREGADO
+      amortizationStartDate: formatDateToNumber(formValue.fechai),
 
       // Información financiera
       currencyId: formValue.currencyId,
@@ -1266,7 +1278,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       return new Date(year, month, day);
     }
     return new Date(dateValue);
-  }  
+  }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(field => {
@@ -1524,7 +1536,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const loanTypeDescripcion = this.listLoanTypes.find(l => l.id === formValue.loanTypeId)?.name || '';
     const rateClassificationDescripcion = this.rateClassifications.find(r => r.id === formValue.rateClassificationId)?.name || '';
 
-    //formato fechas 
+    //formato fechas
     const validityStartDate = formValue.validityStartDate;
     let validityStartDateP = 0;
     if (validityStartDate !== undefined && validityStartDate !== null) {
@@ -1549,7 +1561,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     const maturityDate = formValue.maturityDate;
     let maturityDateP = 0;
     if (maturityDate !== undefined && maturityDate !== null) {
-      const parsedDate = this.parseDate(maturityDate);      
+      const parsedDate = this.parseDate(maturityDate);
       maturityDateP = parsedDate ? this.dateToNumber(parsedDate) : 0;
       console.log('maturityDateP -->',maturityDateP)
     }
@@ -1769,7 +1781,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           applyAmortizationException: false,
           creditorType: 'SUBSIDIARY',
           registeredBy: this.tokenService.getUserName() || '',
-          idClaseProducto: this.initialProductClassId //'EMI'
+          idClaseProducto: this.initialProductClassId, //'EMI'
+          debtStatus: 1 // ⭐ MANTENER VALOR POR DEFECTO
         });
 
         this.schedules = [];
