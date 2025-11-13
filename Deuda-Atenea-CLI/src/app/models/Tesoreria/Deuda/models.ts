@@ -7,6 +7,12 @@ export interface DebtRequest {
   // Campos de producto
   productClassId: string;
   productTypeId: string;
+  productNameId?: number | null;
+
+  // Fechas y tipos
+  amortizationStartDate?: number | null;
+  rateExpressionTypeId?: number | null;
+  amortizationTypeId?: number | null;
 
   // Entidades principales
   subsidiaryDebtorId: number | null;
@@ -15,12 +21,11 @@ export interface DebtRequest {
   counterpartCreditorId: number | null;
 
   // Información del préstamo
-  loanTypeId: number | null;
+  loanTypeId?: number | null;
   validityStartDate: number | null;
   disbursementDate: number | null;
   interestStartDate: number | null;
   maturityDate: number | null;
-  amortizationStartDate: number | null;
 
   // Información financiera
   currencyId: string;
@@ -45,9 +50,7 @@ export interface DebtRequest {
   operationTrm: number | null;
   basisId: number | null;
   rateTypeId: string;
-  rateExpressionTypeId: string;
   amortizationMethodId: number | null;
-  amortizationTypeId: string;
   roundingTypeId: number | null;
   interestStructureId: number | null;
 
@@ -58,13 +61,16 @@ export interface DebtRequest {
   internalReference: string;
   characteristics: string;
 
-  // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+  // ========== CAMPOS ADICIONALES (TRM) ==========
   subsidiaryGuarantorId: number | null;
   merchant: string;
   valuationCategory: string;
   externalReference: string;
   structuringCost: number | null;
   // ========== FIN CAMPOS ADICIONALES (TRM) ==========
+
+  // Estado de la deuda
+  debtStatus?: number;  // 0=INACTIVO, 1=ACTIVO, 2=PAGADO
 
   registeredBy: string;
   schedules: DebtScheduleBackend[];
@@ -99,10 +105,14 @@ export interface DebtScheduleRequest {
   provider?: string;
   acceptanceDate?: number | null;
   fees?: number;
-  status?: boolean;
+  status?: number;  // 0=INACTIVO, 1=ACTIVO
   registeredBy?: string;
   paymentDisplayLabel?: string;
-  paymentTypeId?: number;
+
+  // Campos de tipo de pago
+  paymentTypeId?: number;  // 1=NORMAL, 2=PREPAGO_PARCIAL, 3=PREPAGO_TOTAL
+  prepaymentDescription?: string | undefined;
+  prepaymentDate?: number;
 }
 
 /**
@@ -130,8 +140,14 @@ export interface DebtScheduleBackend {
   acceptanceDate: number | null;
   fees: number | null;
   insurance: number | null;
+  status?: number;  // 0=INACTIVO, 1=ACTIVO
   registeredBy: string;
   paymentDisplayLabel: string | null;
+
+  // Campos de tipo de pago
+  paymentTypeId?: number;  // 1=NORMAL, 2=PREPAGO_PARCIAL, 3=PREPAGO_TOTAL
+  prepaymentDescription?: string;
+  prepaymentDate?: number;
 }
 
 /**
@@ -140,11 +156,15 @@ export interface DebtScheduleBackend {
 export interface DebtResponse extends Omit<DebtRequest, 'schedules'> {
   seleccionado: boolean;
   id: string;
-  status: boolean;
+  debtStatus: number;  // 0=INACTIVO, 1=ACTIVO, 2=PAGADO
   registrationDate: string;
+
+  // Descripciones
   subsidiaryDebtorName?: string;
   subsidiaryCreditorName?: string;
   counterpartCreditorName?: string;
+  productNameName?: string;
+  currencyName?: string;  // ⭐ AGREGADO
   loanTypeName?: string;
   periodsName?: string;
   rateClassificationName?: string;
@@ -153,10 +173,7 @@ export interface DebtResponse extends Omit<DebtRequest, 'schedules'> {
   amortizationMethodName?: string;
   roundingTypeName?: string;
   interestStructureName?: string;
-
-  // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
   subsidiaryGuarantorName?: string;
-  // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
   schedules: DebtScheduleRequest[];
 }
@@ -171,7 +188,7 @@ export interface DebtDetail extends DebtResponse {
 export interface DebtScheduleResponse extends DebtScheduleRequest {
   id: number;
   debtRegistryId: string;
-  status: boolean;
+  status: number;  // 0=INACTIVO, 1=ACTIVO
   registrationDate: string;
 }
 
@@ -229,7 +246,6 @@ export interface AmortizationExceptionRequest {
 /**
  * Enumeraciones para tipos
  */
-// Enumeraciones
 export enum TipoDeuda {
   BONOS_LOCALES = 1,
   DEUDA_BANCARIA_CORTO_PLAZO = 2,
@@ -278,6 +294,18 @@ export enum TipoAcreedor {
   COUNTERPART = 'COUNTERPART'
 }
 
+export enum DebtStatus {
+  INACTIVO = 0,
+  ACTIVO = 1,
+  PAGADO = 2
+}
+
+export enum PaymentType {
+  NORMAL = 1,
+  PREPAGO_PARCIAL = 2,
+  PREPAGO_TOTAL = 3
+}
+
 /**
  * Helper function para mapear del modelo frontend al backend
  */
@@ -303,8 +331,12 @@ export function mapScheduleToBackend(schedule: DebtScheduleRequest): DebtSchedul
     acceptanceDate: schedule.acceptanceDate ?? null,
     fees: schedule.fees ?? null,
     insurance: schedule.insurance ?? null,
+    status: schedule.status ?? 1,
     registeredBy: schedule.registeredBy ?? '',
-    paymentDisplayLabel: schedule.paymentDisplayLabel ?? ''
+    paymentDisplayLabel: schedule.paymentDisplayLabel ?? '',
+    paymentTypeId: schedule.paymentTypeId ?? 1,
+    prepaymentDescription: schedule.prepaymentDescription,
+    prepaymentDate: schedule.prepaymentDate
   };
 }
 
@@ -337,11 +369,18 @@ export function mapScheduleFromBackend(schedule: any): DebtScheduleRequest {
     provider: schedule.provider || '',
     acceptanceDate: schedule.acceptanceDate,
     fees: schedule.fees,
-    status: schedule.status !== undefined ? schedule.status : true,
-    registeredBy: schedule.registeredBy
+    status: schedule.status !== undefined ? schedule.status : 1,
+    registeredBy: schedule.registeredBy,
+    paymentDisplayLabel: schedule.paymentDisplayLabel,
+    paymentTypeId: schedule.paymentTypeId ?? 1,
+    prepaymentDescription: schedule.prepaymentDescription,
+    prepaymentDate: schedule.prepaymentDate
   };
 }
 
+/**
+ * Modelo para búsqueda de deudas con filtros
+ */
 export interface DebtSearchRequest {
   // Búsqueda por texto libre
   searchText?: string;
@@ -349,6 +388,7 @@ export interface DebtSearchRequest {
   // Filtros de texto
   productClassId?: string;
   productTypeId?: string;
+  productNameId?: number;
   currencyId?: string;
   rateTypeId?: string;
   referenceRate?: string;
@@ -369,20 +409,22 @@ export interface DebtSearchRequest {
   roundingTypeId?: number;
   interestStructureId?: number;
 
-  // ========== FILTROS NUEVOS - CAMPOS ADICIONALES (TRM) ==========
+  // ========== FILTROS TRM - AGREGADOS ==========
   subsidiaryGuarantorId?: number;
   merchant?: string;
   valuationCategory?: string;
   externalReference?: string;
   structuringCostMin?: number;
   structuringCostMax?: number;
-  // ========== FIN FILTROS NUEVOS ==========
+  // ========== FIN FILTROS TRM ==========
 
-  // Rangos de fechas (formato YYYYMMDD)
+  // Rangos de fechas (formato YYYYMMDD como string)
   validityStartDateFrom?: string;
   validityStartDateTo?: string;
   disbursementDateFrom?: string;
   disbursementDateTo?: string;
+  interestStartDateFrom?: string;
+  interestStartDateTo?: string;
   maturityDateFrom?: string;
   maturityDateTo?: string;
 
@@ -400,7 +442,7 @@ export interface DebtSearchRequest {
 
   // Estado y otros
   applyAmortizationException?: boolean;
-  status?: boolean;
+  debtStatus?: number;  // 0=INACTIVO, 1=ACTIVO, 2=PAGADO
   registeredBy?: string;
   registrationDateFrom?: string;
   registrationDateTo?: string;
