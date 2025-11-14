@@ -45,7 +45,7 @@ export const MY_DATE_FORMATS: MatDateFormats = {
       DatePipe,
       { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     ],
-  
+
 })
 export class PrepagosComponent  {
   cuotas: Cuota[] = [];
@@ -55,7 +55,7 @@ export class PrepagosComponent  {
   maxAllowedDate: Date | null = null;
 
   numeroCuota: number = 0;
-  
+
   private _data: { debt: DebtDetail; schedules: DebtScheduleBackend[] };
 
  @Input() set data(value: { debt: DebtDetail; schedules: DebtScheduleBackend[] }) {
@@ -67,7 +67,7 @@ export class PrepagosComponent  {
     this.inicializarFormulario(value);
   }
 
-  
+
 
   @Output() close = new EventEmitter<boolean>();
 
@@ -78,7 +78,7 @@ export class PrepagosComponent  {
     private fb: FormBuilder,
     private deudaService: DeudaService,
     private calculosService: CalculosDeudaService,
-    private modalService: NgbModal,    
+    private modalService: NgbModal,
     private dialog: MatDialog
   ) {
     this.prepaymentForm = this.createForm();
@@ -118,7 +118,7 @@ export class PrepagosComponent  {
       applicableMargin: schedule.applicableMargin || undefined,
       fee: schedule.installment || undefined,
       finalGuarantor: schedule.finalGuarantor,
-      insurance: schedule.insurance || undefined, 
+      insurance: schedule.insurance || undefined,
       provider: schedule.provider,
       acceptanceDate: schedule.acceptanceDate,
       fees: schedule.fees || undefined,
@@ -133,12 +133,12 @@ export class PrepagosComponent  {
     console.log("En PREPAGO - CRONOGRAMA", data.schedules);
     console.log("En PREPAGO - CABECERA", data.debt);
     this.obteniendLimitesdePrepago()
-    
+
     this.prepaymentForm.get('prepaymentDate')?.valueChanges.subscribe((fecha: Date) => {
       this.actualizarDatosPorFechaPrepago(fecha);
     });
 
-    
+
 
     this.prepaymentForm.get('prepaymentAmount')?.valueChanges.subscribe((valor: string) => {
       const limpio = valor.replace(/[^\d.-]/g, '');
@@ -151,14 +151,12 @@ export class PrepagosComponent  {
       }
     });
 
-   
+
     //this.minFechaPermitida = this.obtenerUltimaFechaPago();
   }
 
- 
-  private obteniendLimitesdePrepago(){
-    
 
+  private obteniendLimitesdePrepago(){
     const cuotas = this._data.schedules
       .filter(s => s.paymentDate !== undefined)
       .map(s => ({
@@ -168,13 +166,14 @@ export class PrepagosComponent  {
       .filter(({ fechaPago }) => !isNaN(fechaPago.getTime()))
       .sort((a, b) => a.fechaPago.getTime() - b.fechaPago.getTime());
 
+    // Busca la próxima cuota después de HOY
     const index = cuotas.findIndex(({ fechaPago }) => fechaPago.getTime() > this.toDay.getTime());
- 
-    const cuotaAnterior = index > 0 ? cuotas[index - 1] : null;
     const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
-    
-    this.minAllowedDate = cuotaAnterior?.fechaPago ?? null;
-    this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null;
+
+    // ✅ Fecha mínima: HOY (fecha actual)
+    // ✅ Fecha máxima: Próxima cuota por vencer
+    this.minAllowedDate = this.toDay;                        // ✅ CAMBIO: HOY en lugar de última cuota
+    this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null; // ✅ Próxima cuota
   }
 
   /** Obteniendo los datos de Fecha de Ultima Cuota y tasa de interes siguiente **/
@@ -197,7 +196,7 @@ export class PrepagosComponent  {
       console.log("Indice de fila", index)
     const cuotaAnterior = index > 0 ? cuotas[index - 1] : null;
     const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
-    
+
     this.minAllowedDate = cuotaAnterior?.fechaPago ?? null;
     this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null;
 
@@ -205,7 +204,7 @@ export class PrepagosComponent  {
 
     const saldoFinal =  cuotaAnterior?.finalBalance ?? 0;
       //console.log("SALDO FINAL",saldoFinal)
-  
+
 
       this.prepaymentForm.patchValue({
         lastPaymentDate: cuotaAnterior?.fechaPago ?? null,
@@ -217,7 +216,7 @@ export class PrepagosComponent  {
 
   /** Calculando el Interes y el monto de la Cuota **/
   private calcularInteresPorAmortizacion(monto: number): void {
-     
+
     const fechaPrepago: Date = this.prepaymentForm.get('prepaymentDate')?.value;
     const fechaUltimoPago: Date = this.prepaymentForm.get('lastPaymentDate')?.value;
 
@@ -242,14 +241,14 @@ export class PrepagosComponent  {
   private diasEntreFechas(fechaInicio: Date, fechaFin: Date): number {
     const msPorDia = 1000 * 60 * 60 * 24;
     const diff = fechaFin.getTime() - fechaInicio.getTime();
-    return Math.max(Math.floor(diff / msPorDia), 0); 
+    return Math.max(Math.floor(diff / msPorDia), 0);
   }
 
 
   insertarCuotaPrepago(): void {
     const form = this.prepaymentForm;
     if (!form.valid) return;
-    
+
     //console.log("QUE LLEGA?", new Date(form.get('prepaymentDate')?.value))
     const nuevaCuotaPrepago: DebtScheduleBackend = {
       paymentNumber: this.numeroCuota + 1,
@@ -299,9 +298,9 @@ export class PrepagosComponent  {
       console.warn('Saldo final del prepago es cero. No se recalculan cuotas posteriores.');
       return;
     }
-    
+
     console.log("fecha anterior",this._data.schedules[numeroCuotaPrepago].paymentDate)
-  
+
     //let fechaAnterior = new Date(cuotas[numeroCuotaPrepago].paymentDate as number); //.fechaPago);
     let fechaAnterior = this.parseDate(this._data.schedules[numeroCuotaPrepago - 1].paymentDate)
     console.log("fecha anterior", fechaAnterior)
@@ -317,7 +316,7 @@ export class PrepagosComponent  {
         if (saldoFinal>0){
           this._data.schedules[i].finalBalance = saldoFinal
         }
-        
+
         //console.log( "fecha anterior "+ i, fechaAnterior)
         const fechaActual = this.parseDate(this._data.schedules[i].paymentDate)
        // console.log( "fecha actual " +i, this.parseDate(this._data.schedules[i].paymentDate))
@@ -329,8 +328,8 @@ export class PrepagosComponent  {
         const interes = saldoAnterior * (dias / 360) * tasaInteres / 100;
         this._data.schedules[i].interest = this.calculosService.aplicarRedondeo(interes, roundingTypeId);
 
-        
-        
+
+
       /*if (saldoAnterior <= 0) {
         // Opcional: marcar cuota como eliminada o vacía
         cuotas[i].interestPaid =0; //.interes = 0;
@@ -341,7 +340,7 @@ export class PrepagosComponent  {
 
 
       saldoAnterior = this._data.schedules[i].finalBalance ?? 0 //cuotaActual.nominalClosing;
-    } 
+    }
   }
 
   /*@Input() data: { debt: DebtDetail; schedules: DebtScheduleRequest[] };
@@ -385,7 +384,7 @@ export class PrepagosComponent  {
   /**
    * Obtiene la última fecha de pago que ya pasó (más cercana a hoy)
    */
-  
+
   /*private obtenerUltimaFechaPago(): Date {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -403,7 +402,7 @@ export class PrepagosComponent  {
     const ultimaFechaNumber = schedulesOrdenados[0]?.paymentDate || this.data.debt.disbursementDate || 0;
     return this.numberToDate(ultimaFechaNumber);
   }*/
-  
+
 /*
   obtenerTasa() {
     const fechaPrepago: Date = new Date(this.prepaymentForm.get('prepaymentDate')!.value);
@@ -562,14 +561,14 @@ export class PrepagosComponent  {
     tasaAntesCobertura: 0,
     tasaDespuesCobertura: 0
   };
-  
+
 //jenny
   openScheduleDialog(): void {
       const formValue = this.prepaymentForm.getRawValue();
       console.log("OpenScheduleDialog", formValue)
       console.log("OpenScheduleDialog - this._data.schedules", this._data.schedules)
       const schedules = this._data.schedules.map((schedule: any) =>
-            this.mapScheduleFromBackend(schedule)          
+            this.mapScheduleFromBackend(schedule)
           );
       console.log("OpenScheduleDialog - schedules", schedules)
 
@@ -586,7 +585,7 @@ export class PrepagosComponent  {
           modo: 'editar'
         }
       });
-  
+
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           console.log('Cronograma confirmado:', result);
@@ -596,7 +595,7 @@ export class PrepagosComponent  {
         }
       });
     }
-  
+
     /* openExceptionDialog(): void {
       const dialogRef = this.dialog.open(ExcepcionComponent, {
         width: '600px',
@@ -605,13 +604,13 @@ export class PrepagosComponent  {
           numeroTotalCuotas: this.calculateTotalPeriods()
         }
       });
-  
+
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           console.log('Excepciones guardadas:', result);
           this.excepcionesGuardadas = result;
           this.prepaymentForm.patchValue({ applyAmortizationException: true });
-  
+
           if (this.validateFormBeforeGenerateSho()) {
             const formValue = this.prepareDataForCalculation();
             this.schedules = this.calculateSchedule(formValue);
@@ -620,7 +619,7 @@ export class PrepagosComponent  {
       });
     } */
 //jenny
-    
+
   formatearValorNumeric(event: any, esConComas: boolean): void {
     const input = event.target as HTMLInputElement;
     let value = input.value.replace(/[^0-9.]/g, '');

@@ -666,4 +666,153 @@ export class BonosComponent implements OnInit {
     }
   }
 
+  /**
+   * Elimina una deuda después de confirmar con el usuario
+   * @param debt Objeto de deuda a eliminar
+   */
+  eliminarDeuda(debt: DebtResponse): void {
+    Swal.fire({
+      title: '¿Está seguro?',
+      html: `
+      ¿Desea eliminar la deuda <strong>${debt.id}</strong>?<br><br>
+      <strong>Producto:</strong> ${debt.productNameName || 'N/A'}<br>
+      <strong>Subsidiaria:</strong> ${debt.subsidiaryDebtorName || 'N/A'}<br>
+      <strong>Nominal:</strong> ${debt.nominal ? debt.nominal.toLocaleString() : '0'} ${debt.currencyId}<br><br>
+      <span style="color: red;">Esta acción no se puede deshacer</span>
+    `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+
+        this.deudaService.eliminarDeuda(debt.id).subscribe({
+          next: (response: any) => {
+            console.log('✅ Deuda eliminada:', response);
+
+            Swal.fire({
+              title: 'Eliminado',
+              text: typeof response === 'string' ? response : 'Deuda eliminada correctamente',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            });
+
+            // Recargar la tabla
+            this.loadDebts();
+          },
+          error: (error: any) => {
+            console.error('❌ Error al eliminar deuda:', error);
+
+            Swal.fire({
+              title: 'Error',
+              text: error.message || 'Error al eliminar la deuda',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+            });
+
+            this.loading = false;
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Elimina las deudas que están marcadas como seleccionadas
+   */
+  eliminarDeudasSeleccionadas(): void {
+    const deudasSeleccionadas = this.dataSource.data.filter(d => d.seleccionado);
+
+    if (deudasSeleccionadas.length === 0) {
+      Swal.fire({
+        title: 'Advertencia',
+        text: 'Debe seleccionar al menos una deuda para eliminar',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Está seguro?',
+      html: `
+      ¿Desea eliminar <strong>${deudasSeleccionadas.length}</strong> deuda(s) seleccionada(s)?<br><br>
+      <span style="color: red;">Esta acción no se puede deshacer</span>
+    `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        let eliminadas = 0;
+        let errores = 0;
+        const total = deudasSeleccionadas.length;
+
+        deudasSeleccionadas.forEach((debt, index) => {
+          this.deudaService.eliminarDeuda(debt.id).subscribe({
+            next: () => {
+              eliminadas++;
+
+              // Si es la última, mostrar resultado
+              if (index === total - 1) {
+                this.mostrarResultadoEliminacionMultiple(eliminadas, errores);
+              }
+            },
+            error: () => {
+              errores++;
+
+              // Si es la última, mostrar resultado
+              if (index === total - 1) {
+                this.mostrarResultadoEliminacionMultiple(eliminadas, errores);
+              }
+            }
+          });
+        });
+      }
+    });
+  }
+
+  /**
+   * Muestra el resultado de la eliminación múltiple
+   * @param eliminadas Cantidad de deudas eliminadas exitosamente
+   * @param errores Cantidad de errores al eliminar
+   */
+  private mostrarResultadoEliminacionMultiple(eliminadas: number, errores: number): void {
+    if (errores === 0) {
+      Swal.fire({
+        title: 'Éxito',
+        text: `${eliminadas} deuda(s) eliminada(s) correctamente`,
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } else if (eliminadas === 0) {
+      Swal.fire({
+        title: 'Error',
+        text: `No se pudo eliminar ninguna deuda (${errores} errores)`,
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
+    } else {
+      Swal.fire({
+        title: 'Completado parcialmente',
+        text: `${eliminadas} eliminada(s), ${errores} con error(es)`,
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+      });
+    }
+
+    // Recargar la tabla
+    this.loadDebts();
+  }
+
 }

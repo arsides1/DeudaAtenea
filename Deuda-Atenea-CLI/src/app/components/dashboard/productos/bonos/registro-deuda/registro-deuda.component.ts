@@ -311,10 +311,20 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       structuringCost: [null],
       // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
+      financialProject: [''],
+      netPresentValueCalc: [null],
+      costAmount: [null],
+      structuringCostCurrency: [null],
+
       debtStatus: [1],
 
       registeredBy: [this.tokenService.getUserName() || '']
     });
+  }
+
+  esProductoPCM(): boolean {
+    const claseProducto = this.debtForm.get('idClaseProducto')?.value;
+    return claseProducto === 'PCM';
   }
 
   private updateValidatorsByProductClass(claseProducto: string): void {
@@ -645,6 +655,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         this.isEditMode = true;
         this.debtId = params['id'];
         this.loadDebtData(this.debtId);
+
       }
     });
   }
@@ -702,38 +713,36 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
   private mapScheduleFromBackend(schedule: any): DebtScheduleRequest {
     return {
-      seq: schedule.id,
-      paymentNumber: schedule.paymentNumber,
+      seq: schedule.seq,
       periodDate: schedule.calculationDate,
       paymentDate: schedule.paymentDate,
-      currency: this.debtForm.get('currencyId')?.value || '',
+      paymentNumber: schedule.paymentNumber,
+      currency: schedule.currency,
       nominalOpening: schedule.initialBalance,
       nominalClosing: schedule.finalBalance,
-      nominal: schedule.initialBalance,
+      nominal: schedule.nominal,
+      prepayment: schedule.prepayment || 0,
       amortizationPrinc: schedule.amortization,
       interestPaid: schedule.interest,
       rate: schedule.appliedRate,
       rateType: schedule.rateType,
-      referenceRate: schedule.referenceRate,
+      referenceRate: schedule.referenceRate || '',
       variableRateDate: schedule.variableRateDate,
       interestRate: schedule.interestRate,
       rateAdjustment: schedule.rateAdjustment,
       applicableMargin: schedule.applicableMargin,
       fee: schedule.installment,
       finalGuarantor: schedule.finalGuarantor,
-      insurance: schedule.insurance,
-      provider: schedule.provider,
+      insurance: schedule.insurance || 0,
+      provider: schedule.provider || '',
       acceptanceDate: schedule.acceptanceDate,
       fees: schedule.fees,
-      status: schedule.status,
+      status: schedule.status !== undefined ? schedule.status : 1,
       registeredBy: schedule.registeredBy,
-
-      // ========== CAMPOS CRÍTICOS PARA PREPAGOS ==========
       paymentDisplayLabel: schedule.paymentDisplayLabel,
-      paymentTypeId: schedule.paymentTypeId,
+      paymentTypeId: schedule.paymentTypeId ?? 1,
       prepaymentDescription: schedule.prepaymentDescription,
       prepaymentDate: schedule.prepaymentDate
-      // ========== FIN CAMPOS PREPAGOS ==========
     };
   }
 
@@ -762,6 +771,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       counterpartCreditorId = debt.counterpartCreditorId;
       subsidiaryCreditorId = null;
     }
+
 
     this.debtForm.patchValue({
       idClaseProducto: debt.productClassId,
@@ -811,6 +821,11 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       valuationCategory: debt.valuationCategory,
       externalReference: debt.externalReference,
       structuringCost: debt.structuringCost,
+
+      financialProject: debt.financialProject || '',
+      netPresentValueCalc: debt.netPresentValueCalc,
+      costAmount: debt.costAmount?.toString(),
+      structuringCostCurrency: debt.structuringCostCurrency,
       debtStatus: debt.debtStatus,
       registeredBy: debt.registeredBy
     });
@@ -824,6 +839,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     console.log("patchValue: ", debt)
   }
+
 
   private updateAuxiliaryDescriptions(): void {
     const formValue = this.debtForm.value;
@@ -1258,7 +1274,10 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       externalReference: formValue.externalReference || '',
       structuringCost: cleanNumeric(formValue.structuringCost),
       // ========== FIN CAMPOS ADICIONALES (TRM) ==========
-
+      financialProject: formValue.financialProject || '',
+      netPresentValueCalc: formValue.netPresentValueCalc || null,
+      costAmount: cleanNumeric(formValue.costAmount),
+      structuringCostCurrency: formValue.structuringCostCurrency || null,
 
       registeredBy: formValue.registeredBy || '',
       schedules: mappedSchedules,

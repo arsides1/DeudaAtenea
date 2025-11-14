@@ -68,6 +68,13 @@ export interface DebtRequest {
   valuationCategory: string;
   externalReference: string;
   structuringCost: number | null;
+
+  // ========== NUEVOS CAMPOS TRM (2025-11-14) ==========
+  financialProject?: string;
+  netPresentValueCalc?: string;
+  costAmount?: number | null;
+  structuringCostCurrency?: string;
+  // ========== FIN NUEVOS CAMPOS TRM ==========
   // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
   // Estado de la deuda
@@ -165,7 +172,7 @@ export interface DebtResponse extends Omit<DebtRequest, 'schedules'> {
   subsidiaryCreditorName?: string;
   counterpartCreditorName?: string;
   productNameName?: string;
-  currencyName?: string;  // ⭐ AGREGADO
+  currencyName?: string;
   loanTypeName?: string;
   periodsName?: string;
   rateClassificationName?: string;
@@ -419,13 +426,21 @@ export interface DebtSearchRequest {
   roundingTypeId?: number;
   interestStructureId?: number;
 
-  // ========== FILTROS TRM - AGREGADOS ==========
+  // ========== FILTROS TRM - EXISTENTES ==========
   subsidiaryGuarantorId?: number;
   merchant?: string;
   valuationCategory?: string;
   externalReference?: string;
   structuringCostMin?: number;
   structuringCostMax?: number;
+
+  // ========== NUEVOS FILTROS TRM (2025-11-14) ==========
+  financialProject?: string;
+  netPresentValueCalc?: string;
+  costAmountMin?: number;
+  costAmountMax?: number;
+  structuringCostCurrency?: string;
+  // ========== FIN NUEVOS FILTROS TRM ==========
   // ========== FIN FILTROS TRM ==========
 
   // Rangos de fechas (formato YYYYMMDD como string)

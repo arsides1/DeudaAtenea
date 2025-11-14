@@ -1,6 +1,6 @@
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
 import {
@@ -10,6 +10,8 @@ import {
   DebtRequest,
   DebtSearchRequest
 } from "../../models/Tesoreria/Deuda/models";
+import {map} from "leaflet";
+import {catchError} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -96,7 +98,15 @@ export class DeudaService {
       { params }
     );
   }
-
+  eliminarDeuda(debtId: string): Observable<any> {
+    const url = `${this.apiServerUrl}/Tesoreria/Deuda/eliminarDeuda/${debtId}`;
+    return this.http.delete(url, { responseType: 'text' }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Error al eliminar deuda:', error);
+        return throwError(() => new Error(error.error || 'Error al eliminar la deuda'));
+      })
+    );
+  }
   public buscarDeudasPorFechas(searchRequest: DebtSearchRequest): Observable<DebtPageResponse> {
     let params = new HttpParams();
 
@@ -119,7 +129,7 @@ export class DeudaService {
     });
 
     // El resto del request (sin fechas)
-    const { 
+    const {
       validityStartDateFrom, validityStartDateTo,
       disbursementDateFrom, disbursementDateTo,
       maturityDateFrom, maturityDateTo

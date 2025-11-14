@@ -61,7 +61,9 @@
 
                     <div class="form-item" *ngIf="mostrarCampo('subsidiaryCreditorId')">
                       <label>Nombre de acreedor*</label>
-                      <input class="redondeado" type="text" formControlName="acreedorDescripcion" [readonly]="isEditMode">
+                      <ng-select [items]="subsidiaries" bindLabel="name" bindValue="id"
+                                 formControlName="subsidiaryCreditorId" (change)="onSelectAcreedor($event)">
+                      </ng-select>
                     </div>
 
                     <div class="form-item">
@@ -300,11 +302,37 @@
                       <input class="redondeado" type="text" formControlName="externalReference">
                     </div>
 
+
+
                     <div class="form-item">
                       <label>Costo de estructuración</label>
                       <input class="redondeado" type="text" formControlName="structuringCost" (input)="formatearValorNumeric($event, true)">
                     </div>
-                    <!-- ========== FIN CAMPOS ADICIONALES (TRM) ========== -->
+                    <!-- ========== NUEVOS CAMPOS TRM (2025-11-14) ========== -->
+                    <div class="form-item">
+                      <label>Proyecto financiero</label>
+                      <input class="redondeado" type="text" formControlName="financialProject" placeholder="">
+                    </div>
+
+                    <div class="form-item" *ngIf="esProductoPCM()">
+                      <label>Cálculo ValActNeto <span class="badge badge-info">Solo PCM</span></label>
+                      <ng-select [items]="calculoValActNetoOptions" bindLabel="nombre" bindValue="codigo"
+                                 formControlName="netPresentValueCalc">
+                      </ng-select>
+                    </div>
+
+
+                    <div class="form-item">
+                      <label>Importe de costo</label>
+                      <input class="redondeado" type="text" formControlName="costAmount" (input)="formatearValorNumeric($event, true)" placeholder="0.00">
+                    </div>
+
+                    <div class="form-item">
+                      <label>Moneda de CE</label>
+                      <ng-select [items]="listCurrencies" bindLabel="description" bindValue="id"
+                                 formControlName="structuringCostCurrency">
+                      </ng-select>
+                    </div>
 
                     <div class="form-item">
                       <label>Operación (TRM)</label>
