@@ -757,12 +757,19 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     }
 
     this.debtForm.patchValue({
+      idClaseProducto: debt.productClassId,
+      idTipoProducto: debt.productTypeId,
+      nombreProducto: debt.productNameName,
       subsidiaryDebtorId: debt.subsidiaryDebtorId,
+      deudorDescripcion: debt.subsidiaryDebtorName,
       creditorType: creditorType,
       subsidiaryCreditorId: debt.subsidiaryCreditorId,
       counterpartCreditorId: debt.counterpartCreditorId,
+      acreedorDescripcion: creditorType === 'COUNTERPART'
+        ? debt.counterpartCreditorName
+        : debt.subsidiaryCreditorName,
       productNameId: debt.productNameId,
-      //loanTypeId: debt.loanTypeId,
+      fechai: formatDateForInput(debt.amortizationStartDate),
       validityStartDate: formatDateForInput(debt.validityStartDate),
       disbursementDate: formatDateForInput(debt.disbursementDate),
       interestStartDate: formatDateForInput(debt.interestStartDate),
@@ -773,6 +780,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       amortizationStartPayment: debt.amortizationStartPayment,
       periodsId: debt.periodsId,
       rateClassificationId: debt.rateClassificationId,
+      tipoe: debt.rateExpressionTypeId,
+      tipoa: debt.amortizationTypeId,
       fixedRatePercentage: debt.fixedRatePercentage,
       referenceRate: debt.referenceRate,
       rateAdjustment: debt.rateAdjustment,
@@ -790,16 +799,22 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       assignment: debt.assignment,
       internalReference: debt.internalReference,
       features: debt.characteristics,
-      subsidiaryGuarantorId: debt.subsidiaryGuarantorId, // ⭐ YA EXISTE
-      merchant: debt.merchant, // ⭐ YA EXISTE
-      valuationCategory: debt.valuationCategory, // ⭐ YA EXISTE
-      externalReference: debt.externalReference, // ⭐ YA EXISTE
-      structuringCost: debt.structuringCost, // ⭐ YA EXISTE
-      debtStatus: debt.debtStatus, // ⭐ AGREGADO
+      subsidiaryGuarantorId: debt.subsidiaryGuarantorId,
+      merchant: debt.merchant,
+      valuationCategory: debt.valuationCategory,
+      externalReference: debt.externalReference,
+      structuringCost: debt.structuringCost,
+      debtStatus: debt.debtStatus,
       registeredBy: debt.registeredBy
     });
 
-    this.updateAuxiliaryDescriptions();
+    if (debt.productClassId) {
+      const claseProductoCode = this.claseProductoMapper[debt.productClassId];
+      if (claseProductoCode) {
+        this.updateValidatorsByProductClass(claseProductoCode);
+      }
+    }
+
     console.log("patchValue: ", debt)
   }
 

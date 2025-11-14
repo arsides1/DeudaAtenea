@@ -61,9 +61,7 @@
 
                     <div class="form-item" *ngIf="mostrarCampo('subsidiaryCreditorId')">
                       <label>Nombre de acreedor*</label>
-                      <ng-select [items]="subsidiaries" bindLabel="name" bindValue="id"
-                                 formControlName="subsidiaryCreditorId" (change)="onSelectAcreedor($event)">
-                      </ng-select>
+                      <input class="redondeado" type="text" formControlName="acreedorDescripcion" [readonly]="isEditMode">
                     </div>
 
                     <div class="form-item">
