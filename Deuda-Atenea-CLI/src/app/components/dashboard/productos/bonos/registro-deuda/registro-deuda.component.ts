@@ -146,12 +146,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     { claseId: "EMI", descripcion: "Prog I - Emisión 3" }
   ];*/
 
-  loanAmortizationTypes = [
+  /* loanAmortizationTypes = [ //--> reemplazado por listLoanAmortizationTypes
     { id: '01', name: 'Bullet' },
     { id: '02', name: 'Capital constante' },
     { id: '03', name: 'Capital variable' },
     { id: '04', name: 'Cuota constante' }
-  ];
+  ]; */
 
   /*loanRateExpressionTypes = [ //--> reemplazado por listLoanRateExpressionTypes
     { id: 'TEA', name: 'TEA' },
@@ -480,7 +480,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
   onAmortizationTypeChange(value: any): void {
     console.log("Valor de Tipo AMortizacion: ",value)
-    if (value.id == '01') {
+    if (value.id === 1) {
       this.mostrarExcepcion = false;
     } else {
       this.mostrarExcepcion = true;
@@ -488,7 +488,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     const claseProducto = this.claseProductoMapper[this.debtForm.get('idClaseProducto')?.value];
 
-    if (value.id === '01') {
+    if (value.id === 1) {
       this.debtForm.get('amortizationRate')?.clearValidators();
       this.debtForm.get('amortizationStartPayment')?.clearValidators();
       this.debtForm.get('applyAmortizationException')?.setValue(false);
@@ -616,7 +616,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
         }));
 
         this.listLoanAmortizationTypes = result.loanAmortizationTypes.map((loanAmortizationType: OpcionesCombo) => ({
-          codigo: loanAmortizationType.id_combo,
+          id: loanAmortizationType.id_combo,
           name: loanAmortizationType.descripcion_combo
         }));
 
@@ -1261,7 +1261,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
 
       registeredBy: formValue.registeredBy || '',
-      schedules: mappedSchedules
+      schedules: mappedSchedules,
+      debtStatus: 1
+
     };
 
     return debtRequest;
@@ -1375,15 +1377,16 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'maturityDate',
       'currencyId',
       'nominal',
-      'basisId',
+      // 'basisId',
       'rateClassificationId',
-      'operationTrm',
-      'amortizationMethodId',
-      'roundingTypeId',
-      'rateTypeId',
-      'periodicidadIntereses',
+      // 'operationTrm',
+      // 'amortizationMethodId',
+      // 'roundingTypeId',
+      // 'rateTypeId',
+      // 'periodicidadIntereses',
       'tipoa',
       'tipoe'
+
     ];
 
     if (claseProducto !== 'PCM') {
@@ -1636,7 +1639,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
           interestStartDate: interestStartDateP,
           maturityDate: maturityDateP,
           fechai: fechaiP,
-          debtId: this.debtId
+          debtId: this.debtId,
+          debtStatus: 1
+
         },
         isEditMode: this.isEditMode,
         totalesAgregados: this.totalesAgregados,

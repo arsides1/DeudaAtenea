@@ -8,6 +8,7 @@ export interface DebtRequest {
   productClassId: string;
   productTypeId: string;
   productNameId?: number | null;
+  productName?: string;
 
   // Fechas y tipos
   amortizationStartDate?: number | null;
