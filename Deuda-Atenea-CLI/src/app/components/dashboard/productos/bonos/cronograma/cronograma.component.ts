@@ -302,32 +302,32 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   }
 
   private prepareHeaderFromForm(): void {
-    const claseProducto = this.data.debtData?.idClaseProducto;
+    const claseProducto = this.debtInfo?.idClaseProducto;
 
     let tipoAcreedor = 'Subsidiaria';
-    let nombreAcreedor = this.data.debtData?.acreedorDescripcion || '';
+    let nombreAcreedor = this.debtInfo?.acreedorDescripcion || '';
 
     // Para PCM no hay acreedor
     if (claseProducto === 'PCM') {
       nombreAcreedor = '';
     }
 
-    if (this.data.debtData?.creditorType === 'COUNTERPART') {
+    if (this.debtInfo?.creditorType === 'COUNTERPART') {
       tipoAcreedor = 'Contraparte';
     }
 
     this.headerData = {
-      sociedad: this.data.debtData?.deudorDescripcion || '',
+      sociedad: this.debtInfo?.deudorDescripcion || '',
       acreedor: nombreAcreedor,
       tipoAcreedor: tipoAcreedor,
-      tipoPrestamo: this.data.debtData?.loanTypeDescripcion || '',
-      moneda: this.data.debtData?.currencyId || this.data.debtData?.currencyDescripcion || '',
-      nominal: this.data.debtData?.nominal || 0,
+      tipoPrestamo: this.debtInfo?.loanTypeDescripcion || '',
+      moneda: this.debtInfo?.currencyId || this.debtInfo?.currencyDescripcion || '',
+      nominal: this.debtInfo?.nominal || 0,
       tasa: this.calculateTasaFromForm(),
       saldoPorPagar: this.calculateSaldoPorPagar(),
-      inicioValidez: this.data.debtData?.validityStartDate, // Solo pasar el valor
-      vencimiento: this.data.debtData?.maturityDate,
-      tipoTasa: this.data.debtData?.rateClassificationDescripcion || '',
+      inicioValidez: this.debtInfo?.validityStartDate, // Solo pasar el valor
+      vencimiento: this.debtInfo?.maturityDate,
+      tipoTasa: this.debtInfo?.rateClassificationDescripcion || '',
       // Agregar flag para controlar qué mostrar
       mostrarAcreedor: claseProducto !== 'PCM',
       esIntercompany: ['IPC', 'IPL'].includes(claseProducto)
@@ -343,10 +343,10 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   }
 
   private calculateTasaFromForm(): number {
-    if (this.data.debtData?.rateClassificationId === ClasificacionTasa.FIJA) {
-      return this.data.debtData?.fixedRatePercentage || 0;
+    if (this.debtInfo?.rateClassificationId === ClasificacionTasa.FIJA) {
+      return this.debtInfo?.fixedRatePercentage || 0;
     } else {
-      return (this.data.debtData?.rateAdjustment || 0) + (this.data.debtData?.applicableMargin || 0);
+      return (this.debtInfo?.rateAdjustment || 0) + (this.debtInfo?.applicableMargin || 0);
     }
   }
 
@@ -377,8 +377,8 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       })
       .reduce((sum, s) => sum + (s.amortizationPrinc || 0), 0);
 
-    const maturityDate = this.parseDate(this.data.debtData?.maturityDate || this.debtInfo.maturityDate);
-    const disbursementDate = this.parseDate(this.data.debtData?.disbursementDate || this.debtInfo.disbursementDate);
+    const maturityDate = this.parseDate(this.debtInfo?.maturityDate || this.debtInfo.maturityDate);
+    const disbursementDate = this.parseDate(this.debtInfo?.disbursementDate || this.debtInfo.disbursementDate);
 
     if (maturityDate && disbursementDate) {
       const plazoAnios = (maturityDate.getTime() - disbursementDate.getTime()) / (365 * 24 * 60 * 60 * 1000);
@@ -428,7 +428,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     console.log('Mapeando schedule: ', isBackendData ? 'BACKEND' : 'PREVIEW', schedule);
 
     const mappedData: any = {
-      nro_pago: schedule.paymentNumber,
+      nro_pago: schedule.paymentDisplayLabel,
       moneda: schedule.currency || this.headerData.moneda,
       saldo_inicial: isBackendData ? schedule.initialBalance : schedule.nominalOpening,
       saldo_final: isBackendData ? schedule.finalBalance : schedule.nominalClosing,
@@ -666,22 +666,22 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       return isNaN(parsed) ? null : parsed;
     };
 
-    const creditorType = this.data.debtData?.creditorType || '';
+    const creditorType = this.debtInfo?.creditorType || '';
     let subsidiaryCreditorId = null;
     let counterpartCreditorId = null;
 
     if (creditorType === 'SUBSIDIARY') {
-      subsidiaryCreditorId = this.data.debtData?.subsidiaryCreditorId;
+      subsidiaryCreditorId = this.debtInfo?.subsidiaryCreditorId;
     } else if (creditorType === 'COUNTERPART') {
-      counterpartCreditorId = this.data.debtData?.counterpartCreditorId;
+      counterpartCreditorId = this.debtInfo?.counterpartCreditorId;
     }
 
     // Mapear excepciones si existen
-    const amortizationExceptions: AmortizationExceptionRequest[] = this.data.debtData?.excepciones?.map((exc: any) => ({
+    const amortizationExceptions: AmortizationExceptionRequest[] = this.debtInfo?.excepciones?.map((exc: any) => ({
       cuotaExc: exc.quotaNumber ?? null,
       amortizationRate: exc.rate ?? null,
       resultado: exc.result ?? null,
-      registeredBy: this.data.debtData?.registeredBy || ''
+      registeredBy: this.debtInfo?.registeredBy || ''
     })) || [];
 
     console.log('imprimiendo this.schedules antes de guardar: ', this.schedules);
@@ -707,21 +707,23 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       acceptanceDate: schedule.acceptanceDate ?? null,
       fees: schedule.fees ?? null,
       insurance: schedule.insurance ?? null,
-      registeredBy: schedule.registeredBy ?? this.data.debtData?.registeredBy ?? '',
-      paymentDisplayLabel: schedule.paymentDisplayLabel ?? null
+      registeredBy: schedule.registeredBy ?? this.debtInfo?.registeredBy ?? '',
+      paymentDisplayLabel: schedule.paymentDisplayLabel ?? null,
+      paymentTypeId: schedule.paymentTypeId ?? undefined,
+      status: 1
     }));
 
     //console.log("PREPAREFORMDATA",formatDateToInt(formValue.disbursementDate))
-    console.log("FECHA DE DESEMBOLSO",formatDateToInt(this.data.debtData?.disbursementDate))
+    console.log("FECHA DE DESEMBOLSO",formatDateToInt(this.debtInfo?.disbursementDate))
 
     const debtRequest: DebtRequest = {
       // Campos de producto
-      productClassId: this.data.debtData?.idClaseProducto || '',
-      productTypeId: this.data.debtData?.idTipoProducto || '',
-      //productName: this.data.debtData?.nombreProducto || '',
+      productClassId: this.debtInfo?.idClaseProducto || this.debtInfo?.productClassId || '',
+      productTypeId: this.debtInfo?.idTipoProducto || this.debtInfo?.productTypeId || '',
+      productName: this.debtInfo?.nombreProducto || this.debtInfo?.productNameName || '',
 
       // Entidades principales
-      subsidiaryDebtorId: this.data.debtData?.subsidiaryDebtorId ?? null,
+      subsidiaryDebtorId: this.debtInfo?.subsidiaryDebtorId ?? null,
       creditorType: creditorType,
       subsidiaryCreditorId: subsidiaryCreditorId,
       counterpartCreditorId: counterpartCreditorId,
@@ -729,60 +731,61 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
 
 
       // Información del préstamo
-      loanTypeId: this.data.debtData?.loanTypeId ?? null,
-      validityStartDate: formatDateToInt(this.data.debtData?.validityStartDate),
-      disbursementDate: formatDateToInt(this.data.debtData?.disbursementDate),
-      interestStartDate: formatDateToInt(this.data.debtData?.interestStartDate),
-      maturityDate: formatDateToInt(this.data.debtData?.maturityDate),
-      amortizationStartDate: formatDateToInt(this.data.debtData?.fechai),
+      loanTypeId: this.debtInfo?.loanTypeId ?? null,
+      validityStartDate: formatDateToInt(this.debtInfo?.validityStartDate),
+      disbursementDate: formatDateToInt(this.debtInfo?.disbursementDate),
+      interestStartDate: formatDateToInt(this.debtInfo?.interestStartDate),
+      maturityDate: formatDateToInt(this.debtInfo?.maturityDate),
+      amortizationStartDate: formatDateToInt(this.debtInfo?.fechai) ?? formatDateToInt(this.debtInfo?.amortizationStartDate),
 
       // Información financiera
-      currencyId: this.data.debtData?.currencyId || '',
-      nominal: cleanNumeric(this.data.debtData?.nominal),
-      amortizationRate: cleanNumeric(this.data.debtData?.amortizationRate),
-      amortizationStartPayment: this.data.debtData?.amortizationStartPayment ?? null,
-      periodsId: this.data.debtData?.periodsId ?? null,
+      currencyId: this.debtInfo?.currencyId || '',
+      nominal: cleanNumeric(this.debtInfo?.nominal),
+      amortizationRate: cleanNumeric(this.debtInfo?.amortizationRate),
+      amortizationStartPayment: this.debtInfo?.amortizationStartPayment ?? null,
+      periodsId: this.debtInfo?.periodsId ?? null,
 
       // Información de tasas
-      rateClassificationId: this.data.debtData?.rateClassificationId ?? null,
-      fixedRatePercentage: cleanNumeric(this.data.debtData?.fixedRatePercentage),
-      referenceRate: this.data.debtData?.referenceRate || '',
-      rateAdjustment: cleanNumeric(this.data.debtData?.rateAdjustment),
-      applicableMargin: cleanNumeric(this.data.debtData?.applicableMargin),
-      others: cleanNumeric(this.data.debtData?.otherRateParams),
+      rateClassificationId: this.debtInfo?.rateClassificationId ?? null,
+      fixedRatePercentage: cleanNumeric(this.debtInfo?.fixedRatePercentage),
+      referenceRate: this.debtInfo?.referenceRate || '',
+      rateAdjustment: cleanNumeric(this.debtInfo?.rateAdjustment),
+      applicableMargin: cleanNumeric(this.debtInfo?.applicableMargin),
+      others: cleanNumeric(this.debtInfo?.otherRateParams),
 
       // Excepciones
-      applyAmortizationException: this.data.debtData?.applyAmortizationException || false,
+      applyAmortizationException: this.debtInfo?.applyAmortizationException || false,
       amortizationExceptions: amortizationExceptions,
 
       // Configuración adicional
-      operationTrm: cleanNumeric(this.data.debtData?.operationTrm),
-      basisId: this.data.debtData?.basisId ?? null,
-      rateTypeId: this.data.debtData?.rateTypeId || '',
-      rateExpressionTypeId: this.data.debtData?.tipoe || '',
-      amortizationMethodId: this.data.debtData?.amortizationMethodId ?? null,
-      amortizationTypeId: this.data.debtData?.tipoa || '',
-      roundingTypeId: this.data.debtData?.roundingTypeId ?? null,
-      interestStructureId: this.data.debtData?.periodicidadIntereses ?? null,
+      operationTrm: cleanNumeric(this.debtInfo?.operationTrm),
+      basisId: this.debtInfo?.basisId ?? null,
+      rateTypeId: this.debtInfo?.rateTypeId || '',
+      rateExpressionTypeId: this.debtInfo?.tipoe || this.debtInfo?.rateExpressionTypeId || '',
+      amortizationMethodId: this.debtInfo?.amortizationMethodId ?? null,
+      amortizationTypeId: this.debtInfo?.tipoa || this.debtInfo?.amortizationTypeId || '',
+      roundingTypeId: this.debtInfo?.roundingTypeId ?? null,
+      interestStructureId: this.debtInfo?.periodicidadIntereses ?? null,
 
       // Campos descriptivos
-      portfolio: this.data.debtData?.portfolio || '',
-      project: this.data.debtData?.project || '',
-      assignment: this.data.debtData?.assignment || '',
-      internalReference: this.data.debtData?.internalReference || '',
-      characteristics: this.data.debtData?.features || '',
+      portfolio: this.debtInfo?.portfolio || '',
+      project: this.debtInfo?.project || '',
+      assignment: this.debtInfo?.assignment || '',
+      internalReference: this.debtInfo?.internalReference || '',
+      characteristics: this.debtInfo?.features || '',
 
       // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
-      subsidiaryGuarantorId: this.data.debtData?.subsidiaryGuarantorId ?? null,
-      merchant: this.data.debtData?.merchant || '',
-      valuationCategory: this.data.debtData?.valuationCategory || '',
-      externalReference: this.data.debtData?.externalReference || '',
-      structuringCost: cleanNumeric(this.data.debtData?.structuringCost),
+      subsidiaryGuarantorId: this.debtInfo?.subsidiaryGuarantorId ?? null,
+      merchant: this.debtInfo?.merchant || '',
+      valuationCategory: this.debtInfo?.valuationCategory || '',
+      externalReference: this.debtInfo?.externalReference || '',
+      structuringCost: cleanNumeric(this.debtInfo?.structuringCost),
       // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
 
-      registeredBy: this.data.debtData?.registeredBy || '',
-      schedules: mappedSchedules
+      registeredBy: this.debtInfo?.registeredBy || '',
+      schedules: mappedSchedules,
+      debtStatus: 1
     };
 
     return debtRequest;

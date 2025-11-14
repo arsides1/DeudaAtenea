@@ -119,7 +119,9 @@ export class PrepagosComponent  {
       acceptanceDate: schedule.acceptanceDate,
       fees: schedule.fees || undefined,
       //status: schedule.status || undefined,
-      registeredBy: schedule.registeredBy
+      registeredBy: schedule.registeredBy,
+      paymentDisplayLabel: schedule.paymentDisplayLabel || undefined,
+      paymentTypeId: schedule.paymentTypeId || undefined
     };
   }
 
@@ -240,7 +242,8 @@ export class PrepagosComponent  {
       fees: null,
       insurance: null,
       registeredBy: this._data.debt.registeredBy,
-      paymentDisplayLabel: 'Prepago'
+      paymentDisplayLabel: 'Prepago',
+      paymentTypeId: 2
     }
 
     this._data.schedules.splice(this.numeroCuota , 0, nuevaCuotaPrepago);
