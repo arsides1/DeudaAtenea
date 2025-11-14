@@ -256,7 +256,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
       idClaseProducto: [this.initialProductClassId], // ["EMI"],
       idTipoProducto: [""],
-      productType:[""],
+      nombreProducto:[""],
       productNameId: [""],
       fechaaceptacion: [''],
 
@@ -266,7 +266,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       tipoa: [''],
       tipoe: [''],
 
-      loanTypeId: [null],
+      //loanTypeId: [null],
       validityStartDate: [null],
       disbursementDate: [null], //--> Fecha de desembolso
       interestStartDate: [null], //--> Fecha de inicio de pago de intereses
@@ -323,9 +323,10 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     // Validadores base que siempre aplican (solo campos antes de "Campos Adicionales")
     this.debtForm.get('idClaseProducto')?.setValidators([Validators.required]);
-    //this.debtForm.get('idTipoProducto')?.setValidators([Validators.required]);
+    this.debtForm.get('idTipoProducto')?.setValidators([Validators.required]);
+    this.debtForm.get('nombreProducto')?.setValidators([Validators.required]);
     this.debtForm.get('subsidiaryDebtorId')?.setValidators([Validators.required]);
-    this.debtForm.get('loanTypeId')?.setValidators([Validators.required]);
+    //this.debtForm.get('loanTypeId')?.setValidators([Validators.required]);
     this.debtForm.get('validityStartDate')?.setValidators([Validators.required]);
     this.debtForm.get('maturityDate')?.setValidators([Validators.required]);
     this.debtForm.get('currencyId')?.setValidators([Validators.required]);
@@ -383,7 +384,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   private clearAllValidators(): void {
     const allFields = [
       'subsidiaryDebtorId', 'subsidiaryCreditorId', 'counterpartCreditorId',
-      'loanTypeId', 'validityStartDate', 'disbursementDate', 'interestStartDate',
+      'validityStartDate', 'disbursementDate', 'interestStartDate',
       'maturityDate', 'currencyId', 'nominal', 'amortizationRate',
       'amortizationStartPayment', 'periodsId', 'rateClassificationId',
       'fixedRatePercentage', 'referenceRate', 'rateAdjustment', 'applicableMargin',
@@ -391,7 +392,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'rateTypeId', 'amortizationMethodId', 'roundingTypeId', 'periodicidadIntereses',
       'portfolio', 'project', 'assignment', 'internalReference', 'features',
       'fechai', 'fechaaceptacion', 'precio', 'tipoa', 'tipoe',
-      'idClaseProducto', 'idTipoProducto'
+      'idClaseProducto', 'idTipoProducto', 'nombreProducto'
     ];
 
     allFields.forEach(field => {
@@ -761,7 +762,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       subsidiaryCreditorId: debt.subsidiaryCreditorId,
       counterpartCreditorId: debt.counterpartCreditorId,
       productNameId: debt.productNameId,
-      loanTypeId: debt.loanTypeId,
+      //loanTypeId: debt.loanTypeId,
       validityStartDate: formatDateForInput(debt.validityStartDate),
       disbursementDate: formatDateForInput(debt.disbursementDate),
       interestStartDate: formatDateForInput(debt.interestStartDate),
@@ -1162,6 +1163,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       productTypeId: formValue.idTipoProducto || '',
       productNameId: formValue.productNameId, // ⭐ AGREGADO
 
+
       // Entidades principales
       subsidiaryDebtorId: formValue.subsidiaryDebtorId,
       creditorType: creditorType,
@@ -1170,7 +1172,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
 
       // Información del préstamo
-      loanTypeId: formValue.loanTypeId,
+      //loanTypeId: formValue.loanTypeId,
       validityStartDate: formatDateToNumber(formValue.validityStartDate),
       disbursementDate: formatDateToNumber(formValue.disbursementDate),
       interestStartDate: formatDateToNumber(formValue.interestStartDate),
@@ -1327,9 +1329,10 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
     let requiredFields = [
       'idClaseProducto',
-      // 'idTipoProducto',
+      'idTipoProducto',
+      'nombreProducto',
       'subsidiaryDebtorId',
-      'loanTypeId',
+      //'loanTypeId',
       'validityStartDate',
       'maturityDate',
       'currencyId',
@@ -1438,8 +1441,9 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     let requiredFields = [
       'idClaseProducto',
       'idTipoProducto',
+      'nombreProducto',
       'subsidiaryDebtorId',
-      'loanTypeId',
+      //'loanTypeId',
       'validityStartDate',
       'maturityDate',
       'currencyId',
@@ -1490,7 +1494,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
   private getFieldLabel(field: string): string {
     const labels: { [key: string]: string } = {
       'subsidiaryDebtorId': 'Sociedad Deudora',
-      'loanTypeId': 'Tipo de Préstamo',
+      //'loanTypeId': 'Tipo de Préstamo',
       'disbursementDate': 'Fecha de Desembolso',
       'maturityDate': 'Fecha de Vencimiento',
       'currencyId': 'Moneda',
@@ -1508,6 +1512,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'interestStartDate': 'Fecha Inicio Intereses',
       'idClaseProducto': 'Clase de Producto',
       'idTipoProducto': 'Tipo de Producto',
+      'nombreProducto': 'Nombre Producto',
       'fechai': 'Fecha de Inicio Amortización',
       'fechaaceptacion': 'Fecha de Aceptación',
       'precio': 'Precio',

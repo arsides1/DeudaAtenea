@@ -718,6 +718,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       // Campos de producto
       productClassId: this.data.debtData?.idClaseProducto || '',
       productTypeId: this.data.debtData?.idTipoProducto || '',
+      //productName: this.data.debtData?.nombreProducto || '',
 
       // Entidades principales
       subsidiaryDebtorId: this.data.debtData?.subsidiaryDebtorId ?? null,

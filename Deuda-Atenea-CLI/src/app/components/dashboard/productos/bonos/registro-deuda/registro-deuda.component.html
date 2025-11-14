@@ -38,13 +38,13 @@
                     <div class="form-item">
                       <label>Tipo de Préstamo*</label>
                       <ng-select [items]="listLoanTypes" bindLabel="name" bindValue="id"
-                                 formControlName="loanTypeId" (change)="onSelectLoanType($event)">
+                                 formControlName="idTipoProducto" (change)="onSelectLoanType($event)">
                       </ng-select>
                     </div>
 
                     <div class="form-item">
                       <label>Nombre de Préstamo*</label>
-                      <input class="redondeado" type="text" formControlName="productType" >
+                      <input class="redondeado" type="text" formControlName="nombreProducto" >
                     </div>
                   </div>
 
