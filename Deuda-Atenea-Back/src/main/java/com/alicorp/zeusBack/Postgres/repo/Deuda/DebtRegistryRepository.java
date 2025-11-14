@@ -29,6 +29,8 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             "LEFT JOIN FETCH d.amortizationMethod " +
             "LEFT JOIN FETCH d.roundingType " +
             "LEFT JOIN FETCH d.interestStructure " +
+            "LEFT JOIN FETCH d.productClass " +
+            "LEFT JOIN FETCH d.productType " +
             "WHERE d.id = :id")
     Optional<DebtRegistry> findByIdWithAllRelations(@Param("id") String id);
 
@@ -45,6 +47,8 @@ public interface DebtRegistryRepository extends JpaRepository<DebtRegistry, Stri
             "LEFT JOIN FETCH d.basis " +
             "LEFT JOIN FETCH d.rateType " +
             "LEFT JOIN FETCH d.amortizationMethod " +
+            "LEFT JOIN FETCH d.productClass " +
+            "LEFT JOIN FETCH d.productType " +
             "WHERE d.debtStatus = 1",
             countQuery = "SELECT COUNT(d) FROM DebtRegistry d WHERE d.debtStatus = 1")
     Page<DebtRegistry> findByStatusTrueWithRelations(Pageable pageable);
