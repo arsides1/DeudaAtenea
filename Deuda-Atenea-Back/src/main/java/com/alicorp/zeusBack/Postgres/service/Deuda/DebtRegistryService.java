@@ -223,12 +223,38 @@ public class DebtRegistryService {
         entity.setInternalReference(request.getInternalReference());
         entity.setCharacteristics(request.getCharacteristics());
 
-        // ✅ CAMPOS TRM AGREGADOS (NUEVO)
+        // ✅ CAMPOS TRM EXISTENTES
         entity.setSubsidiaryGuarantorId(request.getSubsidiaryGuarantorId());
         entity.setMerchant(request.getMerchant());
         entity.setValuationCategory(request.getValuationCategory());
         entity.setExternalReference(request.getExternalReference());
         entity.setStructuringCost(request.getStructuringCost());
+
+        // ========== ⭐ AGREGAR ESTOS 4 CAMPOS TRM NUEVOS (2025-11-14) ==========
+
+        // 1. Proyecto financiero - Default "PLANIFICADO"
+        if (request.getFinancialProject() != null && !request.getFinancialProject().isEmpty()) {
+            entity.setFinancialProject(request.getFinancialProject());
+        } else {
+            entity.setFinancialProject("PLANIFICADO");
+        }
+
+        // 2. Cálculo ValActNeto - Solo para PCM
+        if (request.getNetPresentValueCalc() != null && !request.getNetPresentValueCalc().isEmpty()) {
+            entity.setNetPresentValueCalc(request.getNetPresentValueCalc());
+        }
+
+        // 3. Importe de costo - Opcional
+        if (request.getCostAmount() != null) {
+            entity.setCostAmount(request.getCostAmount());
+        }
+
+        // 4. Moneda de CE - Opcional
+        if (request.getStructuringCostCurrency() != null && !request.getStructuringCostCurrency().isEmpty()) {
+            entity.setStructuringCostCurrency(request.getStructuringCostCurrency());
+        }
+
+        // ========== FIN CAMPOS TRM NUEVOS ==========
 
         // ESTADO DE LA DEUDA
         if (request.getDebtStatus() != null) {
@@ -436,6 +462,12 @@ public class DebtRegistryService {
         dto.setValuationCategory(debt.getValuationCategory());
         dto.setExternalReference(debt.getExternalReference());
         dto.setStructuringCost(debt.getStructuringCost());
+
+        dto.setFinancialProject(debt.getFinancialProject());
+        dto.setNetPresentValueCalc(debt.getNetPresentValueCalc());
+        dto.setCostAmount(debt.getCostAmount());
+        dto.setStructuringCostCurrency(debt.getStructuringCostCurrency());
+
         dto.setDebtStatus(debt.getDebtStatus());
         dto.setRegisteredBy(debt.getRegisteredBy());
         dto.setRegistrationDate(debt.getRegistrationDate());

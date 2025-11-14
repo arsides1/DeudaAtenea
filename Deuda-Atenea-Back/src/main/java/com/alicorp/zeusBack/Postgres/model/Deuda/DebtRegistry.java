@@ -151,15 +151,23 @@ public class DebtRegistry {
 
     @Column(name = "t532_structuring_cost", precision = 18, scale = 2)
     private BigDecimal structuringCost;
+
+    // ========== NUEVOS CAMPOS TRM (2025-11-14) ==========
+    @Column(name = "t532_financial_project", length = 100)
+    private String financialProject;
+
+    @Column(name = "t532_net_present_value_calc", length = 20)
+    private String netPresentValueCalc;
+
+    @Column(name = "t532_cost_amount", precision = 18, scale = 2)
+    private BigDecimal costAmount;
+
+    @Column(name = "t532_structuring_cost_currency", length = 10)
+    private String structuringCostCurrency;
+    // ========== FIN NUEVOS CAMPOS TRM ==========
     // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
     // ========== ESTADO DE LA DEUDA ==========
-    /**
-     * Estado de la deuda:
-     * 0 = INACTIVO (Eliminado/Soft delete)
-     * 1 = ACTIVO (Deuda vigente)
-     * 2 = PAGADO (Completamente liquidado)
-     */
     @Column(name = "t532_debt_status")
     private Integer debtStatus;
     // ========================================
@@ -240,6 +248,10 @@ public class DebtRegistry {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "t532_id_subsidiary_guarantor", insertable = false, updatable = false)
     private Subsidiaria subsidiaryGuarantor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "t532_structuring_cost_currency", insertable = false, updatable = false)
+    private Moneda structuringCostCurrencyEntity;
 
     @OneToMany(mappedBy = "debtRegistry", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference

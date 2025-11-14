@@ -16,18 +16,15 @@ public class DebtRegistryRequest {
 
     private String id;
 
-    // SOLO ESTOS DOS CAMPOS SON OBLIGATORIOS
     @NotBlank(message = "La clase de producto es obligatoria")
     private Integer productClassId;
 
     @NotBlank(message = "El tipo de producto es obligatorio")
     private Integer productTypeId;
 
-    // CAMPOS DE NOMBRE DE PRODUCTO
-    private Integer productNameId;  // ID si ya existe
-    private String productName;     // Nombre/descripción del producto (para crear nuevo si no existe)
+    private Integer productNameId;
+    private String productName;
 
-    // TODOS LOS DEMÁS CAMPOS SIN VALIDACIONES
     private Integer amortizationStartDate;
     private Integer rateExpressionTypeId;
     private Integer amortizationTypeId;
@@ -64,24 +61,21 @@ public class DebtRegistryRequest {
     private String internalReference;
     private String characteristics;
 
-    // ========== CAMPOS ADICIONALES (TRM) - NUEVOS ==========
+    // ========== CAMPOS ADICIONALES (TRM) ==========
     private Integer subsidiaryGuarantorId;
     private String merchant;
     private String valuationCategory;
     private String externalReference;
     private BigDecimal structuringCost;
-    // ========== FIN CAMPOS ADICIONALES (TRM) ==========
 
-    /**
-     * Estado de la deuda:
-     * 0 = INACTIVO (Eliminado/Soft delete)
-     * 1 = ACTIVO (Deuda vigente)
-     * 2 = PAGADO (Completamente liquidado)
-     *
-     * Usado para UPDATE - permite cambiar el estado de la deuda
-     */
+    // ========== NUEVOS CAMPOS TRM (2025-11-14) ==========
+    private String financialProject;
+    private String netPresentValueCalc;
+    private BigDecimal costAmount;
+    private String structuringCostCurrency;
+    // ========== FIN NUEVOS CAMPOS TRM ==========
+
     private Integer debtStatus;
-
     private String registeredBy;
     private List<DebtScheduleRequest> schedules;
 }

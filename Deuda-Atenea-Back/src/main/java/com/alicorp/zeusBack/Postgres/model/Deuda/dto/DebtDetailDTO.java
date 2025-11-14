@@ -62,7 +62,12 @@ public class DebtDetailDTO {
     private String valuationCategory;
     private String externalReference;
     private BigDecimal structuringCost;
-
+    // ========== NUEVOS CAMPOS TRM (2025-11-14) ==========
+    private String financialProject;
+    private String netPresentValueCalc;
+    private BigDecimal costAmount;
+    private String structuringCostCurrency;
+    // ========== FIN NUEVOS CAMPOS TRM ==========
     private Integer debtStatus;
     private String registeredBy;
     private LocalDateTime registrationDate;
