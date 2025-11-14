@@ -707,8 +707,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       periodDate: schedule.calculationDate,
       paymentDate: schedule.paymentDate,
       currency: this.debtForm.get('currencyId')?.value || '',
-      /*nominalOpening: schedule.initialBalance,
-      nominalClosing: schedule.finalBalance,*/
+      nominalOpening: schedule.initialBalance,
+      nominalClosing: schedule.finalBalance,
       nominal: schedule.initialBalance,
       amortizationPrinc: schedule.amortization,
       interestPaid: schedule.interest,
@@ -726,7 +726,14 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       acceptanceDate: schedule.acceptanceDate,
       fees: schedule.fees,
       status: schedule.status,
-      registeredBy: schedule.registeredBy
+      registeredBy: schedule.registeredBy,
+
+      // ========== CAMPOS CRÍTICOS PARA PREPAGOS ==========
+      paymentDisplayLabel: schedule.paymentDisplayLabel,
+      paymentTypeId: schedule.paymentTypeId,
+      prepaymentDescription: schedule.prepaymentDescription,
+      prepaymentDate: schedule.prepaymentDate
+      // ========== FIN CAMPOS PREPAGOS ==========
     };
   }
 
@@ -847,7 +854,23 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     this.totalesAgregados = this.calcularTotalesAgregados();
     this.openScheduleDialog();
   }
+  viewExistingSchedule(): void {
+    if (!this.schedules || this.schedules.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin cronograma',
+        text: 'No hay cronograma disponible para mostrar'
+      });
+      return;
+    }
 
+    console.log('📊 [VIEW] Mostrando cronograma existente sin recalcular');
+    console.log('📊 [VIEW] Total schedules:', this.schedules.length);
+    console.log('📊 [VIEW] Schedules completos:', this.schedules);
+
+    this.totalesAgregados = this.calcularTotalesAgregados();
+    this.openScheduleDialog();
+  }
   private calculateSchedule(deudaData: any): DebtScheduleRequest[] {
     // Validación inicial
     let nominal = this.extractNumericValue(deudaData.nominal);
