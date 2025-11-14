@@ -376,7 +376,7 @@
                   <button class="btn btn-secondary btn-rojo" type="button" (click)="clearForm()">
                     Limpiar
                   </button>
-                  <button class="btn btn-green" style="height: 100%;" type="submit" (click)="generateSchedule()">
+                  <button class="btn btn-green" style="height: 100%;" type="submit" (click)="isEditMode ? viewExistingSchedule() : generateSchedule()">
                     {{ modo == 'editar' ? 'Editar' : 'Registrar' }} Deuda
                   </button>
                 </div>

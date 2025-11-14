@@ -28,7 +28,9 @@
       <div class="form-item">
         <label>Fecha de prepago*</label>
         <mat-form-field appearance="outline">
-          <input matInput [matDatepicker]="pickerPrepago" formControlName="prepaymentDate" [min]="minFechaPermitida" >
+          <input matInput [matDatepicker]="pickerPrepago" formControlName="prepaymentDate" 
+            [min]="minAllowedDate"
+            [max]="maxAllowedDate">
           <mat-datepicker-toggle matSuffix [for]="pickerPrepago"></mat-datepicker-toggle>
           <mat-datepicker #pickerPrepago></mat-datepicker>
         </mat-form-field>

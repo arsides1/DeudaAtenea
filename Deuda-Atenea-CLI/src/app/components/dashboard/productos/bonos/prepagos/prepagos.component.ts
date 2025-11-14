@@ -50,6 +50,10 @@ export const MY_DATE_FORMATS: MatDateFormats = {
 export class PrepagosComponent  {
   cuotas: Cuota[] = [];
 
+  toDay = new Date();
+  minAllowedDate: Date | null = null;
+  maxAllowedDate: Date | null = null;
+
   numeroCuota: number = 0;
   
   private _data: { debt: DebtDetail; schedules: DebtScheduleBackend[] };
@@ -128,10 +132,13 @@ export class PrepagosComponent  {
   private inicializarFormulario(data: { debt: DebtDetail; schedules: DebtScheduleBackend[] }): void {
     console.log("En PREPAGO - CRONOGRAMA", data.schedules);
     console.log("En PREPAGO - CABECERA", data.debt);
-
+    this.obteniendLimitesdePrepago()
+    
     this.prepaymentForm.get('prepaymentDate')?.valueChanges.subscribe((fecha: Date) => {
       this.actualizarDatosPorFechaPrepago(fecha);
     });
+
+    
 
     this.prepaymentForm.get('prepaymentAmount')?.valueChanges.subscribe((valor: string) => {
       const limpio = valor.replace(/[^\d.-]/g, '');
@@ -148,6 +155,27 @@ export class PrepagosComponent  {
     //this.minFechaPermitida = this.obtenerUltimaFechaPago();
   }
 
+ 
+  private obteniendLimitesdePrepago(){
+    
+
+    const cuotas = this._data.schedules
+      .filter(s => s.paymentDate !== undefined)
+      .map(s => ({
+        ...s,
+        fechaPago: this.numberToDate(s.paymentDate!)
+      }))
+      .filter(({ fechaPago }) => !isNaN(fechaPago.getTime()))
+      .sort((a, b) => a.fechaPago.getTime() - b.fechaPago.getTime());
+
+    const index = cuotas.findIndex(({ fechaPago }) => fechaPago.getTime() > this.toDay.getTime());
+ 
+    const cuotaAnterior = index > 0 ? cuotas[index - 1] : null;
+    const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
+    
+    this.minAllowedDate = cuotaAnterior?.fechaPago ?? null;
+    this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null;
+  }
 
   /** Obteniendo los datos de Fecha de Ultima Cuota y tasa de interes siguiente **/
   private actualizarDatosPorFechaPrepago(fechaPrepago: Date): void {
@@ -170,6 +198,9 @@ export class PrepagosComponent  {
     const cuotaAnterior = index > 0 ? cuotas[index - 1] : null;
     const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
     
+    this.minAllowedDate = cuotaAnterior?.fechaPago ?? null;
+    this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null;
+
     this.numeroCuota = cuotaAnterior ? index : 0;
 
     const saldoFinal =  cuotaAnterior?.finalBalance ?? 0;

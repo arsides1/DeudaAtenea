@@ -96,7 +96,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     'term_sofr_adj', //--> ajuste de tasa
     'applicable_margin', //--> margen aplicable
     'cuota',
-        
+
     //'garante_final',
     'seguros'
   ];
@@ -216,7 +216,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.isPreview = this.data?.isPreview || false;
     this.isEditMode = this.data?.modo === 'editar';
-    
+
 
     if (this.data?.totalesAgregados) {
       this.totalesAgregados = this.data.totalesAgregados;
@@ -240,12 +240,12 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       } else {
         this.prepareHeaderFromForm();
       }
-      
+
       this.prepareSimpleData();
     }
     console.log('this.data---:', this.data);
     console.log('this.debtId: ', this.debtId);
-    
+
     if (!this.data?.totalesAgregados || Object.keys(this.data.totalesAgregados).length === 0) {
       this.calculateTotals();
     }
@@ -438,7 +438,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       cuota: isBackendData ? schedule.installment : schedule.fee,
       nominal: schedule.nominal || this.headerData.nominal,
       applicable_margin: isBackendData ? schedule.applicableMargin : schedule.applicable_margin,
-      paymentDisplayLabel:  isBackendData ? schedule.paymentDisplayLabel : schedule.paymentDisplayLabel
+      paymentDisplayLabel: schedule.paymentDisplayLabel || schedule.paymentNumber?.toString() || ''
     };
 
     const fechaCalculo = isBackendData ? schedule.calculationDate : schedule.periodDate;
