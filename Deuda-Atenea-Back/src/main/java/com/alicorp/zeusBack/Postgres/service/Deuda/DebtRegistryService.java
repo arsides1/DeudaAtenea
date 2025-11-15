@@ -320,6 +320,7 @@ public class DebtRegistryService {
             }
             schedule.setPrepaymentDescription(scheduleReq.getPrepaymentDescription());
             schedule.setPrepaymentDate(scheduleReq.getPrepaymentDate());
+            schedule.setPaymentDisplayLabel(scheduleReq.getPaymentDisplayLabel());
 
             // Estado de la cuota
             if (scheduleReq.getStatus() != null) {

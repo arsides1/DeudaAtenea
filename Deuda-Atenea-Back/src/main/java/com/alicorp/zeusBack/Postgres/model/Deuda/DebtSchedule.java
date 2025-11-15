@@ -122,9 +122,8 @@ public class DebtSchedule {
     @Column(name = "t533_prepayment_date")
     private Integer prepaymentDate;
 
-    // =====================================================
-    // RELACIÓN EXISTENTE
-    // =====================================================
+    @Column(name = "t533_payment_display_label", length = 20)
+    private String paymentDisplayLabel;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -139,23 +138,4 @@ public class DebtSchedule {
         }
     }
 
-    // =====================================================
-    // MÉTODO PARA MOSTRAR EN FRONTEND
-    // =====================================================
-
-    /**
-     * Campo calculado para mostrar en la columna "Nro. Pago"
-     * - Si es NORMAL: retorna el número (ej: "0", "1", "2")
-     * - Si es PREPAGO: retorna "Prepago"
-     */
-    @Transient
-    @JsonProperty("paymentDisplayLabel")
-    public String getPaymentDisplayLabel() {
-        if (paymentType != null &&
-                ("PREPAGO_PARCIAL".equals(paymentType.getCode()) ||
-                        "PREPAGO_TOTAL".equals(paymentType.getCode()))) {
-            return "Prepago";
-        }
-        return String.valueOf(paymentNumber);
-    }
 }

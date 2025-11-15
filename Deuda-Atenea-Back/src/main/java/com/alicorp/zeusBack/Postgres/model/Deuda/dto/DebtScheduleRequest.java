@@ -77,4 +77,5 @@ public class DebtScheduleRequest {
      * Solo aplica cuando paymentTypeId es 2 o 3
      */
     private Integer prepaymentDate;
+    private String paymentDisplayLabel;
 }
