@@ -710,7 +710,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       registeredBy: schedule.registeredBy ?? this.debtInfo?.registeredBy ?? '',
       paymentDisplayLabel: schedule.paymentDisplayLabel ?? null,
       paymentTypeId: schedule.paymentTypeId ?? undefined,
-      status: 1
+      status: schedule.status
     }));
 
     //console.log("PREPAREFORMDATA",formatDateToInt(formValue.disbursementDate))
@@ -785,7 +785,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
 
       registeredBy: this.debtInfo?.registeredBy || '',
       schedules: mappedSchedules,
-      debtStatus: 1
+      debtStatus: this.debtInfo?.debtStatus
     };
 
     return debtRequest;

@@ -1571,8 +1571,8 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       'validityStartDate': 'Fecha Inicio Validez',
       'interestStartDate': 'Fecha Inicio Intereses',
       'idClaseProducto': 'Clase de Producto',
-      'idTipoProducto': 'Tipo de Producto',
-      'nombreProducto': 'Nombre Producto',
+      'idTipoProducto': 'Tipo de Préstamo',
+      'nombreProducto': 'Nombre Préstamo',
       'fechai': 'Fecha de Inicio Amortización',
       'fechaaceptacion': 'Fecha de Aceptación',
       'precio': 'Precio',
@@ -2008,7 +2008,7 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     this.modalService.dismissAll();
   }
 
-  private claseProductoMapper: Record<number, string> = {
+  public claseProductoMapper: Record<number, string> = {
     1: 'PBC',
     2: 'PBL',
     3: 'IPC',

@@ -52,7 +52,7 @@
 
       <div class="form-item">
         <label>Amortización*</label>
-        <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValorNumeric($event, false)" (blur)="formatearValorNumeric($event, true)">
       </div>
 
       <!-- Columna derecha -->

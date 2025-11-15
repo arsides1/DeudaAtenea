@@ -55,6 +55,7 @@ export class PrepagosComponent  {
   maxAllowedDate: Date | null = null;
 
   numeroCuota: number = 0;
+  paymentTypeId: number = 0;
 
   private _data: { debt: DebtDetail; schedules: DebtScheduleBackend[] };
 
@@ -122,7 +123,7 @@ export class PrepagosComponent  {
       provider: schedule.provider,
       acceptanceDate: schedule.acceptanceDate,
       fees: schedule.fees || undefined,
-      //status: schedule.status || undefined,
+      status: schedule.status || 0,
       registeredBy: schedule.registeredBy,
       paymentDisplayLabel: schedule.paymentDisplayLabel || undefined,
       paymentTypeId: schedule.paymentTypeId || undefined
@@ -249,6 +250,8 @@ export class PrepagosComponent  {
     const form = this.prepaymentForm;
     if (!form.valid) return;
 
+    this.ObtenerPrepagoParcialTotal();
+
     //console.log("QUE LLEGA?", new Date(form.get('prepaymentDate')?.value))
     const nuevaCuotaPrepago: DebtScheduleBackend = {
       paymentNumber: this.numeroCuota + 1,
@@ -273,14 +276,30 @@ export class PrepagosComponent  {
       insurance: null,
       registeredBy: this._data.debt.registeredBy,
       paymentDisplayLabel: 'Prepago',
-      paymentTypeId: 2
+      status: 1,
+      paymentTypeId: this.paymentTypeId
     }
+
+    this.recalcularCuotasPosteriores()
+    console.log('Cuota de prepago insertada en posición', this.numeroCuota );
 
     this._data.schedules.splice(this.numeroCuota , 0, nuevaCuotaPrepago);
     console.log("Nuevo Cronograma", this._data.schedules)
     //this.dataSource.data = [...this._data.schedules];
-    this.recalcularCuotasPosteriores()
-    console.log('Cuota de prepago insertada en posición', this.numeroCuota );
+    
+  }
+
+  private ObtenerPrepagoParcialTotal(): void {
+    let roundingTypeId = this._data.debt.roundingTypeId ?? 0;
+    const saldo = this.calculosService.aplicarRedondeo(
+      this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
+
+    // PREPAGO_TOTAL --- PREPAGO_PARCIAL
+    if (saldo <= 0) {          
+      this.paymentTypeId = 3
+    } else {
+      this.paymentTypeId = 2
+    }
   }
 
   private recalcularCuotasPosteriores(): void {
@@ -294,10 +313,13 @@ export class PrepagosComponent  {
     let saldoAnterior = this.calculosService.aplicarRedondeo(
       this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
 
-    if (saldoAnterior <= 0) {
-      console.warn('Saldo final del prepago es cero. No se recalculan cuotas posteriores.');
-      return;
-    }
+    let saldo = this.calculosService.aplicarRedondeo(
+      this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
+
+    // if (saldoAnterior <= 0) {
+    //   console.warn('Saldo final del prepago es cero. No se recalculan cuotas posteriores.');
+    //   return;
+    // }
 
     console.log("fecha anterior",this._data.schedules[numeroCuotaPrepago].paymentDate)
 
@@ -305,17 +327,22 @@ export class PrepagosComponent  {
     let fechaAnterior = this.parseDate(this._data.schedules[numeroCuotaPrepago - 1].paymentDate)
     console.log("fecha anterior", fechaAnterior)
     console.log("la fila de inicio", numeroCuotaPrepago)
-    for (let i = numeroCuotaPrepago + 1; i < this._data.schedules.length; i++) {
-        console.log("index ", i)
+    for (let i = numeroCuotaPrepago; i < this._data.schedules.length; i++) {
+        
         this._data.schedules[i].initialBalance = this.calculosService.aplicarRedondeo(saldoAnterior, roundingTypeId)
         const saldoInicial = this._data.schedules[i].initialBalance ?? 0;
         const amortizacion = this._data.schedules[i].amortization ?? 0;
         const saldoFinal= this.calculosService.aplicarRedondeo(saldoInicial - amortizacion, roundingTypeId)
-        this._data.schedules[i].paymentNumber = i + 1;
-
-        if (saldoFinal>0){
+        this._data.schedules[i].paymentNumber = i + 2;
+        console.log("saldoAnterior "+i, saldo.toString())
+        if (saldoFinal > 0){
           this._data.schedules[i].finalBalance = saldoFinal
+        } 
+
+        if (saldo <= 0) {
+          this._data.schedules[i].status = 0
         }
+       console.log("status", this._data.schedules[i])
 
         //console.log( "fecha anterior "+ i, fechaAnterior)
         const fechaActual = this.parseDate(this._data.schedules[i].paymentDate)
