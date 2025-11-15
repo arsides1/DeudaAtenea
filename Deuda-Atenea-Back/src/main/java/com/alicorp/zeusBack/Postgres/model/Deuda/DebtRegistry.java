@@ -6,7 +6,7 @@ import com.alicorp.zeusBack.Postgres.model.Tesoreria.Subsidiaria;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;

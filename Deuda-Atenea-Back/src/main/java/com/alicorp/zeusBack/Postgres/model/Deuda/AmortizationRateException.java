@@ -1,7 +1,7 @@
 package com.alicorp.zeusBack.Postgres.model.Deuda;
 
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;

@@ -1,7 +1,7 @@
 package com.alicorp.zeusBack.Postgres.model.Tesoreria;
 
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor

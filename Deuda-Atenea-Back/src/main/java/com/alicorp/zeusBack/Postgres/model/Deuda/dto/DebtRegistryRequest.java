@@ -3,9 +3,9 @@ package com.alicorp.zeusBack.Postgres.model.Deuda.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import javax.validation.constraints.NotNull;
+
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+
 import java.math.BigDecimal;
 import java.util.List;
 

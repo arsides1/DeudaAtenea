@@ -1,7 +1,7 @@
 package com.alicorp.zeusBack.Postgres.model.Deuda;
 
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "t545_interest_structure")
