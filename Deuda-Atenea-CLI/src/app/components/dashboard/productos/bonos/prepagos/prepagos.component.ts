@@ -56,6 +56,9 @@ export class PrepagosComponent  {
 
   numeroCuota: number = 0;
   paymentTypeId: number = 0;
+  interesFormateado: string = '';
+  saldoFinalFormateado: string = '';
+  amortizacionFormateada: string = '';
 
   private _data: { debt: DebtDetail; schedules: DebtScheduleBackend[] };
 
@@ -139,21 +142,10 @@ export class PrepagosComponent  {
       this.actualizarDatosPorFechaPrepago(fecha);
     });
 
-
-
-    this.prepaymentForm.get('prepaymentAmount')?.valueChanges.subscribe((valor: string) => {
-      const limpio = valor.replace(/[^\d.-]/g, '');
-      const monto = parseFloat(limpio);
-      if (!isNaN(monto) && monto > 0) {
-
-        this.calcularInteresPorAmortizacion(monto);
-      } else {
-        this.prepaymentForm.patchValue({ prepaymentInterest: null });
-      }
+    // ✅ FIX: Simplificado - ya no parsea manualmente
+    this.prepaymentForm.get('prepaymentAmount')?.valueChanges.subscribe(() => {
+      this.recalcularTodosSiEsPosible();  // 👈 SOLO ESTA LÍNEA
     });
-
-
-    //this.minFechaPermitida = this.obtenerUltimaFechaPago();
   }
 
 
@@ -179,12 +171,13 @@ export class PrepagosComponent  {
 
   /** Obteniendo los datos de Fecha de Ultima Cuota y tasa de interes siguiente **/
   private actualizarDatosPorFechaPrepago(fechaPrepago: Date): void {
-    //console.log("el parametro de fecha",fechaPrepago)
     if (!fechaPrepago || !this._data?.schedules) return;
 
     const prepagoTime = fechaPrepago.getTime();
 
-    const cuotas = this._data.schedules
+    // ✅ FIX: Crear array temporal con índices del array original
+    const cuotasConIndice = this._data.schedules
+      .map((s, originalIndex) => ({ ...s, originalIndex }))
       .filter(s => s.paymentDate !== undefined)
       .map(s => ({
         ...s,
@@ -193,51 +186,134 @@ export class PrepagosComponent  {
       .filter(({ fechaPago }) => !isNaN(fechaPago.getTime()))
       .sort((a, b) => a.fechaPago.getTime() - b.fechaPago.getTime());
 
-    const index = cuotas.findIndex(({ fechaPago }) => fechaPago.getTime() > prepagoTime);
-      console.log("Indice de fila", index)
-    const cuotaAnterior = index > 0 ? cuotas[index - 1] : null;
-    const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
+    // Si no hay cuotas, salir
+    if (cuotasConIndice.length === 0) {
+      console.warn('No hay cuotas en el cronograma');
+      return;
+    }
+
+    const index = cuotasConIndice.findIndex(({ fechaPago }) => fechaPago.getTime() > prepagoTime);
+    console.log("Índice en array filtrado:", index);
+
+    let cuotaAnterior: any = null;
+    let cuotaSiguiente: any = null;
+
+    // ✅ FIX: Manejar el caso cuando la fecha está DESPUÉS de todas las cuotas
+    if (index === -1) {
+      // Fecha de prepago es DESPUÉS de todas las cuotas
+      // → Tomar la ÚLTIMA cuota como anterior
+      cuotaAnterior = cuotasConIndice[cuotasConIndice.length - 1];
+      cuotaSiguiente = null;  // No hay cuota siguiente
+      console.log("Prepago después de todas las cuotas. Usando última cuota como anterior.");
+    } else if (index === 0) {
+      // Fecha de prepago es ANTES de la primera cuota
+      cuotaAnterior = null;
+      cuotaSiguiente = cuotasConIndice[0];
+      console.log("Prepago antes de la primera cuota.");
+    } else {
+      // Caso normal: prepago entre dos cuotas
+      cuotaAnterior = cuotasConIndice[index - 1];
+      cuotaSiguiente = cuotasConIndice[index];
+    }
 
     this.minAllowedDate = cuotaAnterior?.fechaPago ?? null;
     this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null;
 
-    this.numeroCuota = cuotaAnterior ? index : 0;
+    // ✅ FIX: Usar el índice ORIGINAL del array, no el del filtrado
+    this.numeroCuota = cuotaAnterior ? cuotaAnterior.originalIndex + 1 : 0;
 
-    const saldoFinal =  cuotaAnterior?.finalBalance ?? 0;
-      //console.log("SALDO FINAL",saldoFinal)
+    console.log("Índice ORIGINAL donde se insertará:", this.numeroCuota);
+    console.log("Cuota anterior:", cuotaAnterior);
+    console.log("Cuota siguiente:", cuotaSiguiente);
 
-
-      this.prepaymentForm.patchValue({
-        lastPaymentDate: cuotaAnterior?.fechaPago ?? null,
-        nextInterestRate: cuotaSiguiente?.interestRate ?? null,
-        nominalOpening: cuotaAnterior?.finalBalance ?? null
-      });
-    //}
-  }
-
-  /** Calculando el Interes y el monto de la Cuota **/
-  private calcularInteresPorAmortizacion(monto: number): void {
-
-    const fechaPrepago: Date = this.prepaymentForm.get('prepaymentDate')?.value;
-    const fechaUltimoPago: Date = this.prepaymentForm.get('lastPaymentDate')?.value;
-
-    //console.log("fechaPrepago",fechaPrepago)
-    //console.log("fechaUltimoPago",fechaUltimoPago)
-    const tasaInteres: number = this.prepaymentForm.get('nextInterestRate')?.value;
-    const saldoInicial: number = this.prepaymentForm.get('nominalOpening')?.value;
-    const roundingTypeId =  this._data.debt.roundingTypeId ?? 0;
-
-    if (!monto || !fechaPrepago || !fechaUltimoPago || !tasaInteres) return;
-    const dias = this.diasEntreFechas(fechaUltimoPago, fechaPrepago);
-    const interes = monto * (dias / 360) * tasaInteres;
-    console.log("dias", dias);
+    // ✅ FIX: Si no hay cuota siguiente, usar la tasa de la cuota anterior
+    const tasaAplicable = cuotaSiguiente?.interestRate ?? cuotaAnterior?.interestRate ?? null;
 
     this.prepaymentForm.patchValue({
-      prepaymentInterest: this.calculosService.aplicarRedondeo(interes,roundingTypeId),
-      prepaidInstallmentAmount: this.calculosService.aplicarRedondeo(monto + interes,roundingTypeId),
-      nominalClosing: this.calculosService.aplicarRedondeo(saldoInicial - monto, roundingTypeId )
+      lastPaymentDate: cuotaAnterior?.fechaPago ?? null,
+      nextInterestRate: tasaAplicable,  // ✅ CAMBIO: Usar tasa de cuota anterior si no hay siguiente
+      nominalOpening: cuotaAnterior?.finalBalance ?? null
+    }, { emitEvent: false });
+
+    // ✅ NUEVO: Recalcular inmediatamente si ya hay un monto ingresado
+    const montoActual = this.prepaymentForm.get('prepaymentAmount')?.value;
+    if (montoActual && montoActual > 0) {
+      this.recalcularTodosSiEsPosible();
+    }
+  }
+
+  /**
+   * ✅ FÓRMULA CORRECTA SEGÚN EXCEL DE ALICORP
+   *
+   * Interés = Amortización × Tasa_Siguiente × (Días / 360)
+   *
+   * Donde:
+   * - Amortización: Monto del prepago
+   * - Tasa_Siguiente: Tasa de la SIGUIENTE cuota (no la anterior)
+   * - Días: Diferencia entre Fecha_Prepago y Fecha_Pago_Anterior
+   */
+  private calcularInteresPorAmortizacion(monto: number): void {
+    const fechaPrepago: Date = this.prepaymentForm.get('prepaymentDate')?.value;
+    const fechaUltimoPago: Date = this.prepaymentForm.get('lastPaymentDate')?.value;
+    const tasaSiguiente: number = this.prepaymentForm.get('nextInterestRate')?.value;
+    const saldoInicial: number = this.prepaymentForm.get('nominalOpening')?.value;
+    const roundingTypeId = this._data.debt.roundingTypeId ?? 0;
+
+    if (!monto || !fechaPrepago || !fechaUltimoPago || !tasaSiguiente || !saldoInicial) {
+      console.warn('Faltan datos para calcular interés:', {
+        monto, fechaPrepago, fechaUltimoPago, tasaSiguiente, saldoInicial
+      });
+      return;
+    }
+
+    const dias = this.diasEntreFechas(fechaUltimoPago, fechaPrepago);
+    const interes = monto * tasaSiguiente * (dias / 360);
+
+    console.log("=".repeat(60));
+    console.log("📐 CÁLCULO DE INTERÉS:");
+    console.log(`Amortización: ${monto.toLocaleString('en-US')}`);
+    console.log(`Tasa Siguiente: ${(tasaSiguiente * 100).toFixed(4)}%`);
+    console.log(`Días: ${dias}`);
+    console.log(`Interés = ${interes.toLocaleString('en-US', { minimumFractionDigits: 2 })}`);
+    console.log("=".repeat(60));
+
+    // Calcular valores redondeados
+    const interesRedondeado = this.calculosService.aplicarRedondeo(interes, roundingTypeId);
+    const cuotaRedondeada = this.calculosService.aplicarRedondeo(monto + interes, roundingTypeId);
+    const saldoFinalRedondeado = this.calculosService.aplicarRedondeo(saldoInicial - monto, roundingTypeId);
+
+    // Actualizar valores en el formulario
+    this.prepaymentForm.patchValue({
+      prepaymentInterest: interesRedondeado,
+      prepaidInstallmentAmount: cuotaRedondeada,
+      nominalClosing: saldoFinalRedondeado
+    }, { emitEvent: false });
+
+    // ✅ NUEVO: Formatear valores para mostrar con separadores de miles
+    this.interesFormateado = interesRedondeado.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    this.saldoFinalFormateado = saldoFinalRedondeado.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
   }
+
+  private recalcularTodosSiEsPosible(): void {
+    const monto = parseFloat(this.prepaymentForm.get('prepaymentAmount')?.value);
+    if (!isNaN(monto) && monto > 0) {
+      this.calcularInteresPorAmortizacion(monto);
+    } else {
+      this.prepaymentForm.patchValue({
+        prepaymentInterest: null,
+        prepaidInstallmentAmount: null,
+        nominalClosing: null
+      });
+    }
+  }
+
 
   private diasEntreFechas(fechaInicio: Date, fechaFin: Date): number {
     const msPorDia = 1000 * 60 * 60 * 24;
@@ -280,13 +356,13 @@ export class PrepagosComponent  {
       paymentTypeId: this.paymentTypeId
     }
 
-    this.recalcularCuotasPosteriores()
     console.log('Cuota de prepago insertada en posición', this.numeroCuota );
 
     this._data.schedules.splice(this.numeroCuota , 0, nuevaCuotaPrepago);
     console.log("Nuevo Cronograma", this._data.schedules)
+    this.recalcularCuotasPosteriores()
     //this.dataSource.data = [...this._data.schedules];
-    
+
   }
 
   private ObtenerPrepagoParcialTotal(): void {
@@ -295,7 +371,7 @@ export class PrepagosComponent  {
       this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
 
     // PREPAGO_TOTAL --- PREPAGO_PARCIAL
-    if (saldo <= 0) {          
+    if (saldo <= 0) {
       this.paymentTypeId = 3
     } else {
       this.paymentTypeId = 2
@@ -322,13 +398,16 @@ export class PrepagosComponent  {
     // }
 
     console.log("fecha anterior",this._data.schedules[numeroCuotaPrepago].paymentDate)
-
+    if (numeroCuotaPrepago <= 0) {
+      console.warn('No hay cuota anterior al prepago. No se puede recalcular.');
+      return;
+    }
     //let fechaAnterior = new Date(cuotas[numeroCuotaPrepago].paymentDate as number); //.fechaPago);
     let fechaAnterior = this.parseDate(this._data.schedules[numeroCuotaPrepago - 1].paymentDate)
     console.log("fecha anterior", fechaAnterior)
     console.log("la fila de inicio", numeroCuotaPrepago)
     for (let i = numeroCuotaPrepago; i < this._data.schedules.length; i++) {
-        
+
         this._data.schedules[i].initialBalance = this.calculosService.aplicarRedondeo(saldoAnterior, roundingTypeId)
         const saldoInicial = this._data.schedules[i].initialBalance ?? 0;
         const amortizacion = this._data.schedules[i].amortization ?? 0;
@@ -337,7 +416,7 @@ export class PrepagosComponent  {
         console.log("saldoAnterior "+i, saldo.toString())
         if (saldoFinal > 0){
           this._data.schedules[i].finalBalance = saldoFinal
-        } 
+        }
 
         if (saldo <= 0) {
           this._data.schedules[i].status = 0
@@ -656,6 +735,10 @@ export class PrepagosComponent  {
       const fieldName = input.getAttribute('formControlName');
       if (fieldName) {
         this.prepaymentForm.get(fieldName)?.setValue(null);
+        // Limpiar la propiedad formateada si es amortización
+        if (fieldName === 'prepaymentAmount') {
+          this.amortizacionFormateada = '';
+        }
       }
       return;
     }
@@ -670,7 +753,9 @@ export class PrepagosComponent  {
     if (fieldName) {
       const numericValue = parseFloat(value);
       if (!isNaN(numericValue)) {
-        this.prepaymentForm.get(fieldName)?.setValue(numericValue, { emitEvent: false });
+        // Solo emitir evento si es prepaymentAmount para disparar recálculo
+        const shouldEmit = fieldName === 'prepaymentAmount';
+        this.prepaymentForm.get(fieldName)?.setValue(numericValue, { emitEvent: shouldEmit });
 
         if (esConComas) {
           const formatted = numericValue.toLocaleString('en-US', {
@@ -678,11 +763,15 @@ export class PrepagosComponent  {
             maximumFractionDigits: parts[1]?.length || 0
           });
           input.value = formatted;
+
+          // ✅ NUEVO: Actualizar propiedad formateada si es amortización
+          if (fieldName === 'prepaymentAmount') {
+            this.amortizacionFormateada = formatted;
+          }
         } else {
           input.value = value;
         }
       }
     }
   }
-
 }

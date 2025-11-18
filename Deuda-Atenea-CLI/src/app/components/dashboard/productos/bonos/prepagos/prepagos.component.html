@@ -28,7 +28,7 @@
       <div class="form-item">
         <label>Fecha de prepago*</label>
         <mat-form-field appearance="outline">
-          <input matInput [matDatepicker]="pickerPrepago" formControlName="prepaymentDate" 
+          <input matInput [matDatepicker]="pickerPrepago" formControlName="prepaymentDate"
             [min]="minAllowedDate"
             [max]="maxAllowedDate">
           <mat-datepicker-toggle matSuffix [for]="pickerPrepago"></mat-datepicker-toggle>
@@ -52,7 +52,7 @@
 
       <div class="form-item">
         <label>Amortización*</label>
-        <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValorNumeric($event, false)" (blur)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" formControlName="prepaymentAmount" (input)="formatearValorNumeric($event, true)" (blur)="formatearValorNumeric($event, true)">
       </div>
 
       <!-- Columna derecha -->
@@ -63,17 +63,17 @@
 
       <div class="form-item">
         <label>Interés</label>
-        <input class="redondeado" type="text" formControlName="prepaymentInterest" disabled="true" (input)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" [value]="interesFormateado" disabled readonly>
       </div>
 
       <div class="form-item" *ngIf="false">
         <label>Cuota*</label>
-        <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" disabled="true" (input)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" formControlName="prepaidInstallmentAmount" disabled="true">
       </div>
 
       <div class="form-item">
         <label>Saldo Final</label>
-        <input class="redondeado" type="text" formControlName="nominalClosing" disabled="true" (input)="formatearValorNumeric($event, true)">
+        <input class="redondeado" type="text" [value]="saldoFinalFormateado" disabled readonly>
       </div>
     </form>
   </div>

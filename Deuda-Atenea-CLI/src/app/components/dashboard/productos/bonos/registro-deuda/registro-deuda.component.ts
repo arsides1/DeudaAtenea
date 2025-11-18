@@ -1202,11 +1202,28 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       interest: schedule.interestPaid ?? 0,
       interestRate: schedule.interestRate ?? schedule.rate ?? 0,
       variableRateDate: schedule.variableRateDate || null,
-      appliedRate: schedule.rate ?? 0,
+      appliedRate: schedule.appliedRate ?? schedule.rate ?? 0,
       rateAdjustment: schedule.rateAdjustment ?? 0,
       applicableMargin: schedule.applicableMargin ?? 0,
       installment: schedule.fee ?? 0,
       finalGuarantor: String(schedule.finalGuarantor ?? ''),
+
+      // ========== CAMPOS ADICIONALES DE TASA VARIABLE ==========
+      rateType: schedule.rateType || '',
+      referenceRate: schedule.referenceRate || '',
+      provider: schedule.provider || '',
+      acceptanceDate: schedule.acceptanceDate || null,
+      fees: schedule.fees || null,
+      insurance: schedule.insurance || null,
+
+      // ========== CAMPOS DE PREPAGO ==========
+      paymentTypeId: schedule.paymentTypeId ?? 1,  // 1=Normal, 2=Prepago Parcial, 3=Prepago Total
+      prepaymentDescription: schedule.prepaymentDescription || null,
+      prepaymentDate: schedule.prepaymentDate || null,
+      paymentDisplayLabel: schedule.paymentDisplayLabel || schedule.paymentNumber?.toString() || '',
+
+      // ========== CAMPOS DE AUDITORÍA ==========
+      status: schedule.status ?? 1,
       registeredBy: schedule.registeredBy ?? formValue.registeredBy ?? ''
     }));
 

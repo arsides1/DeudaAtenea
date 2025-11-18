@@ -101,6 +101,7 @@ export interface DebtScheduleRequest {
   amortizationPrinc?: number;
   interestPaid?: number;
   rate?: number;
+  appliedRate?: number;  // ✅ AGREGAR ESTE CAMPO
   rateType?: string;
   referenceRate?: string;
   variableRateDate?: number | null;
