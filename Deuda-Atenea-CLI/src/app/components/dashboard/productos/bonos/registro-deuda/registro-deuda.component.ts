@@ -66,7 +66,7 @@ export const MY_DATE_FORMATS: MatDateFormats = {
 export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
   @Input() modo: 'registrar' | 'editar' = 'registrar';
-  @Output() close = new EventEmitter<boolean>();
+  @Output() close = new EventEmitter<any>();
   @Input() visible: boolean = false;
   @Input() objForm: any;
   @Input() objIntercompany: any;
@@ -480,12 +480,22 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       .subscribe(value => {
         if (value) this.exchangeRate = value;
       });
+
+    this.debtForm.get('interestStartDate')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.consultarTasaSofrInicial();
+      });
   }
 
   onRateClassificationChange(value: number | string): void {
     const numValue = typeof value === 'string' ? parseInt(value, 10) : value;
     this.showVariableRateFields = (numValue === ClasificacionTasa.VARIABLE || numValue === 2);
     this.updateRateValidators(numValue);
+
+    if (this.showVariableRateFields) {
+      this.consultarTasaSofrInicial();
+    }
   }
 
   onAmortizationTypeChange(value: any): void {
@@ -1179,7 +1189,12 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
       }
       return parseFloat(value) || null;
     };
-
+    const cleanId = (value: any): any => {
+      if (value === '' || value === undefined || value === null) {
+        return null;
+      }
+      return value;
+    };
     let subsidiaryCreditorId = null;
     let counterpartCreditorId = null;
     const creditorType = formValue.creditorType;
@@ -1271,13 +1286,13 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
 
       // Configuración adicional
       operationTrm: cleanNumeric(formValue.operationTrm),
-      basisId: formValue.basisId,
-      rateTypeId: formValue.rateTypeId || '',
-      rateExpressionTypeId: formValue.tipoe || '',
-      amortizationMethodId: formValue.amortizationMethodId,
-      amortizationTypeId: formValue.tipoa || '',
-      roundingTypeId: formValue.roundingTypeId,
-      interestStructureId: formValue.periodicidadIntereses || null,
+      basisId: cleanId(formValue.basisId),
+      rateTypeId: cleanId(formValue.rateTypeId),
+      rateExpressionTypeId: cleanId(formValue.tipoe),
+      amortizationMethodId: cleanId(formValue.amortizationMethodId),
+      amortizationTypeId: cleanId(formValue.tipoa),
+      roundingTypeId: cleanId(formValue.roundingTypeId),
+      interestStructureId: cleanId(formValue.periodicidadIntereses),
       portfolio: formValue.portfolio || '',
       project: formValue.project || '',
       assignment: formValue.assignment || '',
@@ -1689,6 +1704,15 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Cronograma confirmado:', result);
+
+        // Si se guardó exitosamente, cerrar el modal de registro
+        if (result.action === 'saved') {
+          this.close.emit({ action: 'saved', debtId: result.debtId });
+          this.modalService.dismissAll();
+          return;
+        }
+
+        // Si solo se cerró el cronograma sin guardar, mantener los schedules
         if (result.schedules) {
           this.schedules = result.schedules;
         }
@@ -2132,6 +2156,54 @@ export class RegistroDeudaComponent implements OnInit, OnDestroy {
     // ✅ Actualizar el control del formulario
     this.debtForm.patchValue({ fechai: fecha });
 
+  }
+
+  async consultarTasaSofrInicial(): Promise<void> {
+    if (this.debtForm.get('rateClassificationId')?.value !== 2) {
+      return;
+    }
+
+    let fecha = this.debtForm.get('interestStartDate')?.value;
+
+    if (!fecha) {
+      return;
+    }
+
+    try {
+      const fechaInt = this.convertDateToInt(fecha);
+
+      if (fechaInt === 0) return;
+
+      const response = await this.deudaService.getTasaSofr(fechaInt).toPromise();
+
+      if (response && response.sofrRate !== null) {
+        this.debtForm.get('referenceRate')?.setValue(response.sofrRate);
+      }
+    } catch (error) {
+      console.warn('No se pudo obtener tasa SOFR');
+    }
+  }
+
+  private convertDateToInt(fecha: any): number {
+    if (!fecha) return 0;
+
+    let date: Date;
+
+    if (fecha._isAMomentObject) {
+      date = fecha.toDate();
+    } else if (fecha instanceof Date) {
+      date = fecha;
+    } else {
+      date = new Date(fecha);
+    }
+
+    if (isNaN(date.getTime())) return 0;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return parseInt(`${year}${month}${day}`);
   }
 
 }

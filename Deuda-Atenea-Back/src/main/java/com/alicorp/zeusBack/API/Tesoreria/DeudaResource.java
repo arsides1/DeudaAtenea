@@ -3,6 +3,7 @@ package com.alicorp.zeusBack.API.Tesoreria;
 import com.alicorp.zeusBack.Postgres.model.Deuda.DebtRegistry;
 import com.alicorp.zeusBack.Postgres.model.Deuda.dto.*;
 import com.alicorp.zeusBack.Postgres.service.Deuda.DebtRegistryService;
+import com.alicorp.zeusBack.Postgres.service.Deuda.VariableRateService;
 import com.alicorp.zeusBack.Postgres.service.Tesoreria.DeudaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +25,7 @@ import java.util.Map;
 public class DeudaResource {
     private final DeudaService deudaService;
     private final DebtRegistryService debtRegistryService;
-
+    private final VariableRateService variableRateService;
     /**
      * Registrar nueva deuda - Solo guarda lo que viene del frontend
      */
@@ -204,6 +206,30 @@ public class DeudaResource {
             return ResponseEntity.ok("Deuda eliminada correctamente");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/tasa-sofr")
+    public ResponseEntity<?> getSofrRate(@RequestParam Integer fecha) {
+        try {
+            BigDecimal rate = variableRateService.getSofrRate(fecha);
+
+            if (rate == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "error", "No se encontró tasa SOFR",
+                                "fecha", fecha
+                        ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "fecha", fecha,
+                    "sofrRate", rate
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 

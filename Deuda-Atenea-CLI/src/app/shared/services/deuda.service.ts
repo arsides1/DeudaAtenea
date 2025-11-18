@@ -98,6 +98,11 @@ export class DeudaService {
       { params }
     );
   }
+  public getTasaSofr(fecha: number): Observable<any> {
+    return this.http.get<any>(`${this.apiServerUrl}/Tesoreria/Deuda/tasa-sofr`, {
+      params: { fecha: fecha.toString() }
+    });
+  }
   eliminarDeuda(debtId: string): Observable<any> {
     const url = `${this.apiServerUrl}/Tesoreria/Deuda/eliminarDeuda/${debtId}`;
     return this.http.delete(url, { responseType: 'text' }).pipe(

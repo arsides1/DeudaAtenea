@@ -96,7 +96,7 @@
                     <div class="form-item">
                       <label>Fecha de vencimiento*</label>
                       <mat-form-field appearance="outline">
-                        <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate" >
+                        <input matInput [matDatepicker]="pickerVencimiento" formControlName="maturityDate" readonly >
                         <mat-datepicker-toggle matSuffix [for]="pickerVencimiento"></mat-datepicker-toggle>
                         <mat-datepicker #pickerVencimiento></mat-datepicker>
                       </mat-form-field>
@@ -231,7 +231,7 @@
                     <!-- Tasa variable -->
                     <div class="form-item" *ngIf="mostrarCampo('referenceRate')">
                       <label>Tasa de Referencia*</label>
-                      <input class="redondeado" type="text" formControlName="referenceRate">
+                      <input class="redondeado" type="text" formControlName="referenceRate" readonly>
                     </div>
 
                     <div class="form-item" *ngIf="mostrarCampo('rateAdjustment')">

@@ -264,6 +264,9 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       this.displayedColumns = [...this.displayedColumn];
       console.log('Usando columnas por defecto');
     }
+    setTimeout(() => {
+      this.cargarTasasSofr();
+    }, 500);
   }
 
   ngAfterViewInit() {
@@ -618,18 +621,13 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
           };
 
           if (this.dialogRef) {
-            // Si se abrió con MatDialog
             this.dialogRef.close(result);
           } else if (this.activeModal) {
-            // Si se abrió con NgbModal
             this.activeModal.close(result);
           } else {
-            // Si se usa como componente hijo
             this.close.emit(result);
             this.modalService.dismissAll();
           }
-
-          this.router.navigate(['/Registro']);
         });
       },
       error: (error) => {
@@ -760,7 +758,7 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
       // Configuración adicional
       operationTrm: cleanNumeric(this.debtInfo?.operationTrm),
       basisId: this.debtInfo?.basisId ?? null,
-      rateTypeId: this.debtInfo?.rateTypeId || '',
+      rateTypeId: this.debtInfo?.rateTypeId || null,
       rateExpressionTypeId: this.debtInfo?.tipoe || this.debtInfo?.rateExpressionTypeId || '',
       amortizationMethodId: this.debtInfo?.amortizationMethodId ?? null,
       amortizationTypeId: this.debtInfo?.tipoa || this.debtInfo?.amortizationTypeId || '',
@@ -986,7 +984,88 @@ export class CronogramaComponent implements OnInit, AfterViewInit {
     11: 'EMI'
   };
 
-  adicionarPrepago(){
+  async cargarTasasSofr(): Promise<void> {
+    if (this.debtInfo?.rateClassificationId !== 2 &&
+      this.debtInfo?.rateClassificationId !== ClasificacionTasa.VARIABLE) {
+      return;
+    }
 
+    const schedules = this.dataSource.data;
+    const hoy = new Date();
+
+    let ultimaTasaConocida: number = 0;
+
+    for (let i = 0; i < schedules.length; i++) {
+      const schedule = schedules[i];
+
+      if (!schedule.fecha_tasa_variable || schedule.nro_pago === 0) {
+        continue;
+      }
+
+      const fechaTasa = this.parseFechaToDate(schedule.fecha_tasa_variable);
+
+      if (fechaTasa <= hoy) {
+        try {
+          const fechaInt = this.convertDateToInt(schedule.fecha_tasa_variable);
+          const response = await this.deudaService.getTasaSofr(fechaInt).toPromise();
+
+          if (response && response.sofrRate !== null && response.sofrRate !== undefined) {
+            schedule.tasa = response.sofrRate;
+            ultimaTasaConocida = response.sofrRate;
+          } else {
+            schedule.tasa = ultimaTasaConocida;
+          }
+        } catch (error) {
+          console.warn(`No se encontró tasa para fecha ${schedule.fecha_tasa_variable}`);
+          schedule.tasa = ultimaTasaConocida;
+        }
+      } else {
+        schedule.tasa = ultimaTasaConocida;
+      }
+
+      const tasaSofr = schedule.tasa || 0;
+      const ajuste = schedule.term_sofr_adj || this.debtInfo?.rateAdjustment || 0;
+      const margen = schedule.applicable_margin || this.debtInfo?.applicableMargin || 0;
+
+      schedule.tasa_interes = tasaSofr + ajuste + margen;
+    }
+
+    this.dataSource.data = [...schedules];
+  }
+
+  private parseFechaToDate(fecha: any): Date {
+    if (!fecha) return new Date(0);
+
+    if (fecha instanceof Date) {
+      return fecha;
+    }
+
+    if (fecha._isAMomentObject) {
+      return fecha.toDate();
+    }
+
+    if (typeof fecha === 'string') {
+      const parts = fecha.split('/');
+      if (parts.length === 3) {
+        return new Date(+parts[2], +parts[1] - 1, +parts[0]);
+      }
+      return new Date(fecha);
+    }
+
+    return new Date(fecha);
+  }
+
+  private convertDateToInt(fecha: any): number {
+    const date = this.parseFechaToDate(fecha);
+
+    if (isNaN(date.getTime())) {
+      return 0;
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return parseInt(`${year}${month}${day}`);
   }
 }
