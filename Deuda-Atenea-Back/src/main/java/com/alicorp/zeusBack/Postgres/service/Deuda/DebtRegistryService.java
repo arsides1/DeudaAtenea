@@ -6,6 +6,7 @@ import com.alicorp.zeusBack.Postgres.repo.Deuda.DebtRegistryRepository;
 import com.alicorp.zeusBack.Postgres.repo.Deuda.AmortizationRateExceptionRepository;
 import com.alicorp.zeusBack.Postgres.repo.Deuda.DebtScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DebtRegistryService {
@@ -130,8 +131,47 @@ public class DebtRegistryService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        return debtRegistryRepository.findByStatusTrueWithRelations(pageable)
-                .map(this::convertToSummaryDTO);
+        Page<DebtRegistry> debtsPage = debtRegistryRepository.findByStatusTrueWithRelations(pageable);
+
+        // ✅ Actualizar estado de deudas vencidas y filtrar solo las que siguen activas
+        List<DebtSummaryDTO> filteredDebts = debtsPage.getContent().stream()
+                .filter(debt -> !actualizarEstadoDeudaVencida(debt))  // Filtra las que NO fueron marcadas como PAGADO
+                .map(this::convertToSummaryDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(filteredDebts, pageable, filteredDebts.size());
+    }
+
+    private boolean actualizarEstadoDeudaVencida(DebtRegistry debt) {
+        // Si ya está PAGADO o INACTIVO, no hacer nada
+        if (debt.getDebtStatus() != 1) {
+            return debt.getDebtStatus() == 2;  // Retorna true si ya estaba PAGADO
+        }
+
+        LocalDate today = LocalDate.now();
+        int todayInt = Integer.parseInt(today.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+
+        List<DebtSchedule> schedules = debtScheduleRepository.findByDebtRegistryIdOrderByPaymentNumberAsc(debt.getId());
+
+        // Si no tiene cronograma, mantener activa
+        if (schedules == null || schedules.isEmpty()) {
+            return false;
+        }
+
+        // Verificar si TODAS las cuotas normales ya vencieron
+        boolean todasVencidas = schedules.stream()
+                .filter(s -> s.getPaymentTypeId() == null || s.getPaymentTypeId() == 1)  // Solo cuotas normales
+                .allMatch(s -> s.getPaymentDate() != null && s.getPaymentDate() < todayInt);
+
+        // Si todas vencieron, actualizar estado a PAGADO (2)
+        if (todasVencidas) {
+            debt.setDebtStatus(2);  // 2 = PAGADO
+            debtRegistryRepository.save(debt);
+            log.info("Deuda {} actualizada a estado PAGADO - todas las cuotas vencieron", debt.getId());
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -145,15 +185,21 @@ public class DebtRegistryService {
         if (debtOpt.isPresent()) {
             DebtRegistry debt = debtOpt.get();
 
-            // Cargar el cronograma y las excepciones de amortización
-            List<DebtSchedule> schedules = debtScheduleRepository.findByDebtRegistryIdOrderByPaymentNumberAsc(id);
+            // Cargar el cronograma y filtrar solo cuotas ACTIVAS (status = 1)
+            List<DebtSchedule> allSchedules = debtScheduleRepository.findByDebtRegistryIdOrderByPaymentNumberAsc(id);
+
+            // ✅ NUEVO: Filtrar solo cuotas con status = 1 (ACTIVAS)
+            List<DebtSchedule> activeSchedules = allSchedules.stream()
+                    .filter(s -> s.getStatus() == null || s.getStatus() == 1)  // null se considera activo por compatibilidad
+                    .collect(Collectors.toList());
+
             List<AmortizationRateException> exceptions = new ArrayList<>();
 
             if (Boolean.TRUE.equals(debt.getApplyAmortizationException())) {
                 exceptions = amortizationExceptionRepository.findActiveByDebtRegistryId(id);
             }
 
-            return convertToDetailDTO(debt, schedules, exceptions);
+            return convertToDetailDTO(debt, activeSchedules, exceptions);
         }
         return null;
     }
