@@ -149,9 +149,11 @@ export class PrepagosComponent  {
   }
 
 
-  private obteniendLimitesdePrepago(){
-    const cuotas = this._data.schedules
+  private obteniendLimitesdePrepago(): void {
+    // ✅ FIX: Filtrar SOLO cuotas normales (no prepagos) para calcular límites
+    const cuotasNormales = this._data.schedules
       .filter(s => s.paymentDate !== undefined)
+      .filter(s => s.paymentTypeId !== 2 && s.paymentTypeId !== 3)  // 👈 NUEVO: Excluir prepagos
       .map(s => ({
         ...s,
         fechaPago: this.numberToDate(s.paymentDate!)
@@ -159,14 +161,36 @@ export class PrepagosComponent  {
       .filter(({ fechaPago }) => !isNaN(fechaPago.getTime()))
       .sort((a, b) => a.fechaPago.getTime() - b.fechaPago.getTime());
 
-    // Busca la próxima cuota después de HOY
-    const index = cuotas.findIndex(({ fechaPago }) => fechaPago.getTime() > this.toDay.getTime());
-    const cuotaSiguiente = index >= 0 && index < cuotas.length ? cuotas[index] : null;
+    if (cuotasNormales.length === 0) {
+      console.warn('No hay cuotas normales en el cronograma');
+      this.minAllowedDate = this.toDay;
+      this.maxAllowedDate = null;
+      return;
+    }
 
-    // ✅ Fecha mínima: HOY (fecha actual)
-    // ✅ Fecha máxima: Próxima cuota por vencer
-    this.minAllowedDate = this.toDay;                        // ✅ CAMBIO: HOY en lugar de última cuota
-    this.maxAllowedDate = cuotaSiguiente?.fechaPago ?? null; // ✅ Próxima cuota
+    // Buscar la última cuota PAGADA (antes de hoy)
+    const cuotasPasadas = cuotasNormales.filter(c => c.fechaPago.getTime() <= this.toDay.getTime());
+    const ultimaCuotaPagada = cuotasPasadas.length > 0 ? cuotasPasadas[cuotasPasadas.length - 1] : null;
+
+    // Buscar la próxima cuota por vencer (después de hoy)
+    const cuotasFuturas = cuotasNormales.filter(c => c.fechaPago.getTime() > this.toDay.getTime());
+    const proximaCuota = cuotasFuturas.length > 0 ? cuotasFuturas[0] : null;
+
+    // ✅ Fecha mínima: Fecha de la última cuota pagada o HOY (lo que sea mayor)
+    if (ultimaCuotaPagada) {
+      this.minAllowedDate = ultimaCuotaPagada.fechaPago > this.toDay ? ultimaCuotaPagada.fechaPago : this.toDay;
+    } else {
+      this.minAllowedDate = this.toDay;
+    }
+
+    // ✅ Fecha máxima: Próxima cuota por vencer (null si no hay)
+    this.maxAllowedDate = proximaCuota?.fechaPago ?? null;
+
+    console.log("Límites de prepago calculados:");
+    console.log("  Min (desde):", this.minAllowedDate);
+    console.log("  Max (hasta):", this.maxAllowedDate);
+    console.log("  Última cuota pagada:", ultimaCuotaPagada?.fechaPago);
+    console.log("  Próxima cuota:", proximaCuota?.fechaPago);
   }
 
   /** Obteniendo los datos de Fecha de Ultima Cuota y tasa de interes siguiente **/
@@ -328,23 +352,22 @@ export class PrepagosComponent  {
 
     this.ObtenerPrepagoParcialTotal();
 
-    //console.log("QUE LLEGA?", new Date(form.get('prepaymentDate')?.value))
     const nuevaCuotaPrepago: DebtScheduleBackend = {
-      paymentNumber: this.numeroCuota + 1,
+      paymentNumber: 0,  // Se asignará en renumerarCuotas()
       paymentDate: this.dateToNumber(new Date(form.get('prepaymentDate')?.value)),
-      calculationDate:this.dateToNumber(new Date(form.get('prepaymentDate')?.value)),
+      calculationDate: this.dateToNumber(new Date(form.get('prepaymentDate')?.value)),
       initialBalance: form.get('nominalOpening')?.value,
-      finalBalance:  form.get('nominalClosing')?.value,
+      finalBalance: form.get('nominalClosing')?.value,
       amortization: form.get('prepaymentAmount')?.value,
       interest: form.get('prepaymentInterest')?.value,
-      interestRate: null,
+      interestRate: form.get('nextInterestRate')?.value,
       variableRateDate: null,
       appliedRate: null,
       rateAdjustment: null,
       applicableMargin: null,
       installment: form.get('prepaidInstallmentAmount')?.value,
       finalGuarantor: '',
-      rateType: '',
+      rateType: this._data.debt.rateClassificationId === 1 ? 'Fija' : 'Variable',
       referenceRate: '',
       provider: '',
       acceptanceDate: null,
@@ -354,15 +377,37 @@ export class PrepagosComponent  {
       paymentDisplayLabel: 'Prepago',
       status: 1,
       paymentTypeId: this.paymentTypeId
+    };
+
+    // Insertar el prepago en la posición correcta
+    this._data.schedules.splice(this.numeroCuota, 0, nuevaCuotaPrepago);
+
+    // Recalcular cuotas posteriores
+    this.recalcularCuotasPosteriores();
+
+    // CRÍTICO: Renumerar TODAS las cuotas para evitar duplicados
+    this.renumerarCuotas();
+
+    console.log("Nuevo Cronograma con prepago:", this._data.schedules);
+  }
+
+  /**
+   * Renumera todas las cuotas del cronograma secuencialmente
+   * Esto es CRÍTICO para evitar violación de clave única en BD
+   */
+  private renumerarCuotas(): void {
+    for (let i = 0; i < this._data.schedules.length; i++) {
+      // SOLO asignar número secuencial único para la BD
+      this._data.schedules[i].paymentNumber = i + 1;
+
+
     }
 
-    console.log('Cuota de prepago insertada en posición', this.numeroCuota );
-
-    this._data.schedules.splice(this.numeroCuota , 0, nuevaCuotaPrepago);
-    console.log("Nuevo Cronograma", this._data.schedules)
-    this.recalcularCuotasPosteriores()
-    //this.dataSource.data = [...this._data.schedules];
-
+    console.log("Cuotas renumeradas:", this._data.schedules.map(s => ({
+      num: s.paymentNumber,
+      label: s.paymentDisplayLabel,
+      fecha: s.paymentDate
+    })));
   }
 
   private ObtenerPrepagoParcialTotal(): void {
@@ -377,75 +422,109 @@ export class PrepagosComponent  {
       this.paymentTypeId = 2
     }
   }
-
-  private recalcularCuotasPosteriores(): void {
-    console.log("recalcularCuotasPosteriores","entrando a recalcularCuotasPosteriores");
-    const cuotas = this._data.schedules?? [];
+  recalcularCuotasPosteriores(): void {
+    console.log("recalcularCuotasPosteriores", "entrando");
+    const cuotas = this._data.schedules ?? [];
     const roundingTypeId = this._data.debt.roundingTypeId ?? 0;
-    const numeroCuotaPrepago = this.numeroCuota; //--> la cuota anterior al prepago
+    const numeroCuotaPrepago = this.numeroCuota;
 
-    if (cuotas.length === 0 || numeroCuotaPrepago == null || numeroCuotaPrepago >= cuotas.length - 1) return;
+    if (cuotas.length === 0 || numeroCuotaPrepago == null || numeroCuotaPrepago >= cuotas.length) return;
 
-    let saldoAnterior = this.calculosService.aplicarRedondeo(
+    // Saldo después del prepago
+    let saldoRestante = this.calculosService.aplicarRedondeo(
       this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
 
-    let saldo = this.calculosService.aplicarRedondeo(
-      this.prepaymentForm.get('nominalClosing')?.value, roundingTypeId);
+    console.log("Saldo después del prepago:", saldoRestante);
 
-    // if (saldoAnterior <= 0) {
-    //   console.warn('Saldo final del prepago es cero. No se recalculan cuotas posteriores.');
-    //   return;
-    // }
-
-    console.log("fecha anterior",this._data.schedules[numeroCuotaPrepago].paymentDate)
-    if (numeroCuotaPrepago <= 0) {
-      console.warn('No hay cuota anterior al prepago. No se puede recalcular.');
+    // Si el saldo es 0, desactivar todas las cuotas posteriores
+    if (saldoRestante <= 0) {
+      for (let i = numeroCuotaPrepago; i < this._data.schedules.length; i++) {
+        this._data.schedules[i].status = 0;
+        this._data.schedules[i].initialBalance = 0;
+        this._data.schedules[i].finalBalance = 0;
+        this._data.schedules[i].amortization = 0;
+        this._data.schedules[i].interest = 0;
+        this._data.schedules[i].installment = 0;
+      }
+      console.log('Prepago total. Todas las cuotas posteriores desactivadas.');
       return;
     }
-    //let fechaAnterior = new Date(cuotas[numeroCuotaPrepago].paymentDate as number); //.fechaPago);
-    let fechaAnterior = this.parseDate(this._data.schedules[numeroCuotaPrepago - 1].paymentDate)
-    console.log("fecha anterior", fechaAnterior)
-    console.log("la fila de inicio", numeroCuotaPrepago)
+
+    // Contar cuotas activas restantes
+    const cuotasRestantes = this._data.schedules.length - numeroCuotaPrepago;
+
+    // Calcular nueva amortización distribuida (opcional: según estrategia)
+    // OPCIÓN A: Mantener amortización original
+    // OPCIÓN B: Redistribuir saldo entre cuotas restantes
+    const nuevaAmortizacion = this.calculosService.aplicarRedondeo(
+      saldoRestante / cuotasRestantes, roundingTypeId);
+
+    console.log(`Cuotas restantes: ${cuotasRestantes}, Nueva amortización: ${nuevaAmortizacion}`);
+
+    // Fecha de la cuota anterior (puede ser el prepago o la última cuota pagada)
+    let fechaAnterior = this.prepaymentForm.get('prepaymentDate')?.value
+      ? new Date(this.prepaymentForm.get('prepaymentDate')?.value)
+      : this.parseDate(this._data.schedules[numeroCuotaPrepago - 1]?.paymentDate);
+
+    let saldoAnterior = saldoRestante;
+
     for (let i = numeroCuotaPrepago; i < this._data.schedules.length; i++) {
 
-        this._data.schedules[i].initialBalance = this.calculosService.aplicarRedondeo(saldoAnterior, roundingTypeId)
-        const saldoInicial = this._data.schedules[i].initialBalance ?? 0;
-        const amortizacion = this._data.schedules[i].amortization ?? 0;
-        const saldoFinal= this.calculosService.aplicarRedondeo(saldoInicial - amortizacion, roundingTypeId)
-        this._data.schedules[i].paymentNumber = i + 2;
-        console.log("saldoAnterior "+i, saldo.toString())
-        if (saldoFinal > 0){
-          this._data.schedules[i].finalBalance = saldoFinal
-        }
-
-        if (saldo <= 0) {
-          this._data.schedules[i].status = 0
-        }
-       console.log("status", this._data.schedules[i])
-
-        //console.log( "fecha anterior "+ i, fechaAnterior)
-        const fechaActual = this.parseDate(this._data.schedules[i].paymentDate)
-       // console.log( "fecha actual " +i, this.parseDate(this._data.schedules[i].paymentDate))
-        const dias = this.diasEntreFechas(fechaAnterior, fechaActual)
-        fechaAnterior = this.parseDate(this._data.schedules[i].paymentDate)
-        //console.log("los dias", dias)
-
-        const tasaInteres = this._data.schedules[i].interestRate ?? 0; //--> tasa de la cuota
-        const interes = saldoAnterior * (dias / 360) * tasaInteres / 100;
-        this._data.schedules[i].interest = this.calculosService.aplicarRedondeo(interes, roundingTypeId);
-
-
-
-      /*if (saldoAnterior <= 0) {
-        // Opcional: marcar cuota como eliminada o vacía
-        cuotas[i].interestPaid =0; //.interes = 0;
-        cuotas[i].amortizationPrinc=0; // amortizacion = 0;
-        cuotas[i].saldo = 0;
+      // Si ya no hay saldo, desactivar cuota
+      if (saldoAnterior <= 0) {
+        this._data.schedules[i].status = 0;
+        this._data.schedules[i].initialBalance = 0;
+        this._data.schedules[i].finalBalance = 0;
+        this._data.schedules[i].amortization = 0;
+        this._data.schedules[i].interest = 0;
+        this._data.schedules[i].installment = 0;
         continue;
-      }*/
+      }
 
+      // Actualizar saldo inicial
+      this._data.schedules[i].initialBalance = this.calculosService.aplicarRedondeo(saldoAnterior, roundingTypeId);
+      const saldoInicial = this._data.schedules[i].initialBalance ?? 0;
 
-      saldoAnterior = this._data.schedules[i].finalBalance ?? 0 //cuotaActual.nominalClosing;
+      // Determinar amortización para esta cuota
+      let amortizacion: number;
+      const esUltimaCuota = (i === this._data.schedules.length - 1);
+
+      if (esUltimaCuota) {
+        // La última cuota amortiza todo el saldo restante
+        amortizacion = saldoInicial;
+      } else {
+        // Usar la nueva amortización calculada, pero no más que el saldo disponible
+        amortizacion = Math.min(nuevaAmortizacion, saldoInicial);
+      }
+
+      this._data.schedules[i].amortization = this.calculosService.aplicarRedondeo(amortizacion, roundingTypeId);
+
+      // Calcular saldo final
+      const saldoFinal = this.calculosService.aplicarRedondeo(saldoInicial - amortizacion, roundingTypeId);
+      this._data.schedules[i].finalBalance = Math.max(saldoFinal, 0);
+
+      // Calcular interés
+      const fechaActual = this.parseDate(this._data.schedules[i].paymentDate);
+      const dias = this.diasEntreFechas(fechaAnterior, fechaActual);
+
+      const tasaInteres = this._data.schedules[i].interestRate ?? 0;
+      const interes = saldoInicial * (dias / 360) * (tasaInteres / 100);
+      this._data.schedules[i].interest = this.calculosService.aplicarRedondeo(interes, roundingTypeId);
+
+      // Calcular cuota total
+      this._data.schedules[i].installment = this.calculosService.aplicarRedondeo(
+        (this._data.schedules[i].amortization ?? 0) + (this._data.schedules[i].interest ?? 0),
+        roundingTypeId
+      );
+
+      // Mantener status activo
+      this._data.schedules[i].status = 1;
+
+      console.log(`Cuota ${i + 1}: SI=${saldoInicial.toFixed(2)}, Amort=${amortizacion.toFixed(2)}, SF=${this._data.schedules[i].finalBalance?.toFixed(2)}, Int=${this._data.schedules[i].interest?.toFixed(2)}`);
+
+      // Actualizar para siguiente iteración
+      fechaAnterior = fechaActual;
+      saldoAnterior = this._data.schedules[i].finalBalance ?? 0;
     }
   }
 
@@ -650,6 +729,7 @@ export class PrepagosComponent  {
       //const resultado = this.obtenerTasa();
       this.insertarCuotaPrepago();
       console.log("💾 Guardando prepago con resultado:");
+      this.modalService.dismissAll();
       this.openScheduleDialog();
     } else {
       console.warn('Formulario inválido');
@@ -698,9 +778,13 @@ export class PrepagosComponent  {
           if (result.schedules) {
             this._data.schedules = result.schedules;
           }
+          if (result.saved) {
+            // El cronograma se guardó exitosamente en el backend
+            this.close.emit(true);  // Emitir evento para cerrar y redirigir
+          }
         }
       });
-    }
+  }
 
     /* openExceptionDialog(): void {
       const dialogRef = this.dialog.open(ExcepcionComponent, {
